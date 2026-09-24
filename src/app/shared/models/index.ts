@@ -69,4 +69,6 @@ export interface Message {
   attachmentName?: string;
   /** Denormalisierter Zaehler fuer den "X Antworten"-Link. */
   replyCount?: number;
+  /** Zeitpunkt der neuesten Thread-Antwort ("Letzte Antwort 14:56 Uhr"). */
+  lastReplyAt?: number;
 }

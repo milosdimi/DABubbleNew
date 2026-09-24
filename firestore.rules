@@ -64,9 +64,10 @@ service cloud.firestore {
         && data.reactions == [];
     }
 
-    /** Reactions setzen und den Antwort-Zaehler erhoehen darf jeder Leser. */
+    /** Reactions setzen und den Antwort-Zaehler (+ Zeit der letzten Antwort) aktualisieren darf jeder Leser. */
     function isReactionOrCounterUpdate() {
-      return onlyChanges(['reactions', 'replyCount']);
+      return onlyChanges(['reactions', 'replyCount', 'lastReplyAt'])
+        && request.resource.data.get('lastReplyAt', 0) is number;
     }
 
     /** "Nachricht bearbeiten": nur der Absender, nur der Text. */

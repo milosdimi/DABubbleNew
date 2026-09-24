@@ -212,6 +212,11 @@ describe('Live: Nachrichten', () => {
     ));
   });
 
+  test('Thread-Zaehler: replyCount + lastReplyAt setzen erlaubt', async () => {
+    const ref = doc(clients.A.db, 'channels', ids.privateChannel, 'messages', 'm1');
+    await ok(updateDoc(ref, { replyCount: 1, lastReplyAt: Date.now() }));
+  });
+
   test('Eigene Nachricht: Text bearbeiten ja, andere Felder und Loeschen nein', async () => {
     const ref = doc(clients.A.db, 'channels', ids.privateChannel, 'messages', 'm1');
     await ok(updateDoc(ref, { text: 'bearbeitet' }));

@@ -268,7 +268,10 @@ describe('Nachrichten', () => {
         message('r1', 'guest', { channelId: 'demo', threadId: 'm1' }),
       ),
     );
-    await assertSucceeds(updateDoc(doc(db, 'channels/demo/messages/m1'), { replyCount: increment(1) }));
+    await assertSucceeds(
+      updateDoc(doc(db, 'channels/demo/messages/m1'), { replyCount: increment(1), lastReplyAt: 5 }),
+    );
+    await assertFails(updateDoc(doc(db, 'channels/demo/messages/m1'), { lastReplyAt: 'gestern' }));
   });
 
   test('Thread-Antwort mit falscher threadId: verboten', async () => {
