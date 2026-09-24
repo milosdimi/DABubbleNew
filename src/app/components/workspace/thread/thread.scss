@@ -129,6 +129,7 @@
 }
 
 .thread__message-content {
+  position: relative; // Anker der Hover-Leiste
   flex: 1 1 auto;
   min-width: 0;
   @include mx.flex(column, flex-start, flex-start);
@@ -168,7 +169,6 @@
 }
 
 .thread__message-bubble-wrap {
-  position: relative;
   max-width: 100%;
 }
 
@@ -191,7 +191,7 @@
   margin: 0;
   overflow-wrap: anywhere;
   @include mx.typo(nunito, 400);
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.4;
   color: fct.color(black);
 }
@@ -244,12 +244,12 @@
   color: fct.color(black);
 }
 
-// --- Reactions (Pillen-Stil Figma-bestaetigt, Overflow wie main-chat) ---
+// --- Reactions (Pillen-Werte wie main-chat, Figma-verifiziert) ---
 .thread__reactions {
   position: relative;
   @include mx.flex(row, flex-start, center);
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .thread__reaction-wrap {
@@ -258,16 +258,20 @@
 
 .thread__reaction {
   @include mx.flex(row, center, center);
-  gap: 4px;
-  min-width: 42px;
-  height: 28px;
-  padding: 0 10px;
+  gap: 6px;
+  padding: 5px 10px;
   border: 1px solid fct.color(light-purple);
-  border-radius: 25px 25px 0 25px;
+  border-radius: 20px;
   background: fct.color(white);
   cursor: pointer;
   @include mx.typo(nunito, 400);
-  font-size: 14px;
+  font-size: 16px;
+  color: fct.color(black);
+}
+
+.thread__reaction-emoji {
+  font-size: 24px;
+  line-height: 1;
 }
 
 // Tooltip: wer hat reagiert, verschwindet automatisch/bei Mouse-Leave.
@@ -295,48 +299,29 @@
   border-top-color: fct.color(purple-1);
 }
 
-.thread__reaction-overflow {
-  height: 28px;
-  padding: 0 10px;
-  border: 1px solid fct.color(light-purple);
-  border-radius: 16px;
-  background: fct.color(white);
-  @include mx.flex(row, center, center);
-  @include mx.typo(nunito, 400);
-  font-size: 14px;
-  color: fct.color(text-gray);
-}
-
-.thread__reaction-toggle {
-  height: 28px;
-  padding: 0 10px;
-  border: 1px solid fct.color(light-purple);
-  border-radius: 16px;
-  background: fct.color(white);
-  cursor: pointer;
-  @include mx.typo(nunito, 400);
-  font-size: 14px;
-  color: fct.color(black);
-
-  &:hover {
-    background: fct.color(background);
-  }
-}
-
 // --- Hover-Toolbar an der Bubble (Reaction hinzufuegen + Mehr-Optionen) ---
 // Nur bei Hover ueber die Bubble sichtbar (kein Layout-Shift, reine
 // Opacity-Transition), bleibt zusaetzlich sichtbar solange ein Picker/Menue
-// daraus offen ist (--active).
+// daraus offen ist (--active). Sitzt oben gegenueber der Kopfzeile (Zeit + Name),
+// damit sie diese in der schmalen Spalte nicht verdeckt.
 .thread__message-toolbar {
   position: absolute;
-  top: 0;
+  top: -6px;
   right: 0;
-  transform: translateY(-50%);
   @include mx.flex(row, flex-end, center);
   gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 25px;
+  background: fct.color(white);
   opacity: 0;
   pointer-events: none;
   @include mx.transition(150ms);
+}
+
+.thread__message--own .thread__message-toolbar {
+  right: auto;
+  left: 0;
 }
 
 .thread__message-bubble-wrap:hover .thread__message-toolbar,
@@ -348,18 +333,24 @@
 .thread__toolbar-btn {
   width: 32px;
   height: 32px;
-  border: 1px solid fct.color(light-purple);
+  padding: 0;
+  border: none;
   border-radius: 50%;
-  background: fct.color(white);
+  background: transparent;
   color: fct.color(black);
   cursor: pointer;
   @include mx.flex(row, center, center);
-  font-size: 16px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-size: 20px;
   @include mx.transition(100ms);
 
   &:hover {
     background: fct.color(background);
+    color: fct.color(purple-2);
+  }
+
+  app-icon {
+    width: 20px;
+    height: 20px;
   }
 }
 
@@ -447,7 +438,7 @@
   resize: none;
   background: transparent;
   @include mx.typo(nunito, 400);
-  font-size: 16px;
+  font-size: 18px;
   color: fct.color(black);
 
   &::placeholder {

@@ -1,16 +1,16 @@
-// Farbpalette. purple-1/purple-2 entsprechen dem Verlauf im Intro,
-// alle anderen Werte sind vorlaeufig.
-// TODO Figma-Wert pruefen: komplette Palette mit Figma abgleichen.
+// Farbpalette = Figma-Color-Styles (Kommentar: Style-Name in Figma).
+// close-gray ist kein Figma-Style, nur fuer die runden Schliessen-Buttons.
 $colors: (
-  white: #ffffff,
-  black: #000000,
-  background: #eef0fd,
-  purple-1: #313ae6,
-  purple-2: #797ef3,
-  purple-3: #5a60ec,
-  light-purple: #b4b7e5,
-  text-gray: #6b6b6b,
-  error: rgba(237, 30, 121, 1),
+  white: #ffffff, // White
+  black: #000000, // Black
+  background: #eceefe, // Bg color
+  purple-1: #444df2, // Purple 1
+  purple-2: #797ef3, // Purple 2
+  purple-3: #535af1, // Purple 3
+  light-purple: #adb0d9, // Light purple (Lines)
+  text-gray: #686868, // Text gray
+  online-green: #92c83e, // online green
+  error: #ed1e79, // Rosa error
   close-gray: rgba(217, 217, 217, 1),
 );
 

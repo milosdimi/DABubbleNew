@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { MessageService } from '../../../shared/message/message';
 import { Message, Reaction } from '../../../shared/models';
-import { MAIN_CHAT_EMOJIS } from './main-chat-emojis';
+import { MAIN_CHAT_EMOJIS, QUICK_REACTIONS } from './main-chat-emojis';
 
 /** Ein Emoji mit der Anzahl, wie oft es an einer Nachricht haengt. */
 export interface ReactionGroup {
@@ -11,9 +11,6 @@ export interface ReactionGroup {
   /** Hat der aktuelle User selbst so reagiert? */
   mine: boolean;
 }
-
-/** So viele Gruppen sind zugeklappt sichtbar. TODO Figma-Wert pruefen. */
-const VISIBLE_GROUPS = 7;
 
 /**
  * Reactions im Main-Chat (Channel- und Direktnachrichten).
@@ -25,12 +22,10 @@ export class MainChatReactionService {
   private readonly messageService = inject(MessageService);
 
   readonly emojis = MAIN_CHAT_EMOJIS;
+  readonly quickReactions = QUICK_REACTIONS;
 
   /** Nachricht, deren Emoji-Picker offen ist - hoechstens einer gleichzeitig. */
   readonly pickerMessageId = signal<string | null>(null);
-
-  /** Nachrichten, deren Reaction-Liste ausgeklappt ist. */
-  private readonly expanded = signal<ReadonlySet<string>>(new Set());
 
   togglePicker(messageId: string): void {
     this.pickerMessageId.update((open) => (open === messageId ? null : messageId));
@@ -40,19 +35,7 @@ export class MainChatReactionService {
     this.pickerMessageId.set(null);
   }
 
-  isExpanded(messageId: string): boolean {
-    return this.expanded().has(messageId);
-  }
-
-  toggleExpanded(messageId: string): void {
-    this.expanded.update((ids) => {
-      const next = new Set(ids);
-      if (!next.delete(messageId)) next.add(messageId);
-      return next;
-    });
-  }
-
-  /** Alle Gruppen, haeufigste zuerst. */
+  /** Alle Gruppen, haeufigste zuerst. Laut Figma kein "+N"-Overflow: jede Emoji-Art eine Pille. */
   groups(message: Message): ReactionGroup[] {
     const uid = this.auth.currentUser?.uid;
     const byEmoji = new Map<string, ReactionGroup>();
@@ -63,16 +46,6 @@ export class MainChatReactionService {
       byEmoji.set(reaction.emoji, group);
     }
     return [...byEmoji.values()].sort((a, b) => b.count - a.count);
-  }
-
-  /** Die anzuzeigenden Gruppen: zugeklappt nur die ersten VISIBLE_GROUPS. */
-  visibleGroups(message: Message): ReactionGroup[] {
-    const all = this.groups(message);
-    return this.isExpanded(message.id) ? all : all.slice(0, VISIBLE_GROUPS);
-  }
-
-  hiddenCount(message: Message): number {
-    return Math.max(0, this.groups(message).length - VISIBLE_GROUPS);
   }
 
   /** Setzt oder entfernt die eigene Reaction `emoji` an `message`. */

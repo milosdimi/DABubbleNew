@@ -66,7 +66,7 @@ export class MainChatProfileService {
     return this.profiles().get(uid)?.avatarUrl ?? FALLBACK_AVATAR;
   }
 
-  /** TODO Figma-Wert pruefen: vorlaeufig "14:05 Uhr". */
+  /** Nachrichtenzeit laut Figma: "14:25 Uhr". */
   formatMessageTime(timestamp: number): string {
     const time = new Date(timestamp).toLocaleTimeString('de-DE', {
       hour: '2-digit',

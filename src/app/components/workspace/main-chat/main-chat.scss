@@ -2,7 +2,9 @@
 @use '../../../../styles/mixins' as mx;
 
 // Optik bewusst nah am Thread-Panel (Milos), damit beide Spalten zusammenpassen.
-// TODO Figma-Wert pruefen: Abstaende, Groessen, Farben.
+// Figma-verifiziert: Farben, Kopf (Avatar 50px, Name 24px, Online-Punkt 14px),
+// Hover-Leiste, Reaction-Pillen, Text 18px / Meta 14px, Leerzustand.
+// TODO Figma-Wert pruefen: Abstaende und Nachrichten-Avatar-Groesse.
 
 :host {
   display: block;
@@ -28,7 +30,7 @@
   @include mx.flex(row, space-between, center);
   gap: 16px;
   padding: 24px 40px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  @include mx.header-shadow;
 }
 
 .main-chat__title {
@@ -73,11 +75,28 @@
   }
 }
 
+.main-chat__title-avatar-wrap {
+  position: relative;
+  flex: 0 0 auto;
+  width: 50px;
+  height: 50px;
+}
+
 .main-chat__title-avatar {
-  width: 40px;
-  height: 40px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.main-chat__online-dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: fct.color(online-green);
 }
 
 .main-chat__head-actions {
@@ -131,7 +150,21 @@
 .main-chat__empty {
   margin: 24px 40px;
   @include mx.typo(nunito, 400);
+  font-size: 18px;
   color: fct.color(text-gray);
+}
+
+.main-chat__empty-link {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: fct.color(purple-3);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .main-chat__date-separator {
@@ -363,12 +396,13 @@
 .main-chat__reaction {
   @include mx.flex(row, center, center);
   gap: 6px;
-  padding: 4px 10px;
+  padding: 5px 10px;
   border: 1px solid fct.color(light-purple);
   border-radius: 20px;
   background: fct.color(white);
   @include mx.typo(nunito, 400);
   font-size: 16px;
+  color: fct.color(black);
   cursor: pointer;
   @include mx.transition();
 
@@ -378,13 +412,17 @@
   }
 }
 
-.main-chat__reaction-toggle,
+.main-chat__reaction-emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+
 .main-chat__thread-link {
   padding: 0;
   border: none;
   background: none;
   @include mx.typo(nunito, 600);
-  font-size: 16px;
+  font-size: 14px;
   color: fct.color(purple-3);
   cursor: pointer;
 

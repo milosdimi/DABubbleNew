@@ -118,6 +118,16 @@
                   activeReactionReplyId() === reply.id || activeMessageMenuId() === reply.id
                 "
               >
+                @for (emoji of quickReactions; track emoji) {
+                  <button
+                    type="button"
+                    class="thread__toolbar-btn"
+                    [attr.aria-label]="'Mit ' + emoji + ' reagieren'"
+                    (click)="toggleReaction(reply, emoji)"
+                  >
+                    {{ emoji }}
+                  </button>
+                }
                 <div class="thread__reaction-menu">
                   <button
                     type="button"
@@ -125,7 +135,7 @@
                     aria-label="Reaction hinzufügen"
                     (click)="toggleReactionPicker(reply.id)"
                   >
-                    ☺
+                    <app-icon name="plus" />
                   </button>
 
                   @if (activeReactionReplyId() === reply.id) {
@@ -179,7 +189,7 @@
                     (click)="toggleReaction(reply, reaction.emoji)"
                     (mouseleave)="hideReactionTooltip(reply.id)"
                   >
-                    <span>{{ reaction.emoji }}</span>
+                    <span class="thread__reaction-emoji">{{ reaction.emoji }}</span>
                     <span>{{ reaction.count }}</span>
                   </button>
 
@@ -193,35 +203,6 @@
                     </div>
                   }
                 </div>
-              }
-
-              @if (!isReactionsExpanded(reply.id) && getHiddenReactionCount(reply) > 0) {
-                <span class="thread__reaction-overflow">
-                  +{{ getHiddenReactionCount(reply) }}
-                </span>
-                <button
-                  type="button"
-                  class="thread__reaction-toggle"
-                  (click)="toggleReactionList(reply.id)"
-                >
-                  weitere
-                </button>
-              }
-
-              @if (isReactionsExpanded(reply.id) && getHiddenReactionCount(reply) > 0) {
-                <span class="thread__reaction-overflow">
-                  +{{ getHiddenReactionCount(reply) }}
-                </span>
-              }
-
-              @if (isReactionsExpanded(reply.id)) {
-                <button
-                  type="button"
-                  class="thread__reaction-toggle"
-                  (click)="toggleReactionList(reply.id)"
-                >
-                  Weniger anzeigen
-                </button>
               }
             </div>
           </div>

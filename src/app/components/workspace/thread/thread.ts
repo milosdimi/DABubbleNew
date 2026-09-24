@@ -1,6 +1,6 @@
 import { Component, HostListener, Input, OnDestroy, inject, output, signal } from '@angular/core';
 import { Unsubscribe } from 'firebase/firestore';
-import { MAIN_CHAT_EMOJIS } from '../main-chat/main-chat-emojis';
+import { MAIN_CHAT_EMOJIS, QUICK_REACTIONS } from '../main-chat/main-chat-emojis';
 import { MainChatDateService } from '../main-chat/main-chat-date.service';
 import { MainChatProfileService } from '../main-chat/main-chat-profile.service';
 import { AttachmentData, MainChatUploadService } from '../main-chat/main-chat-upload.service';
@@ -55,8 +55,8 @@ export class Thread implements OnDestroy {
   protected selectedFile: File | null = null;
 
   protected readonly reactionOptions = MAIN_CHAT_EMOJIS;
+  protected readonly quickReactions = QUICK_REACTIONS;
   protected readonly activeReactionReplyId = signal<string | null>(null);
-  protected readonly expandedReactionReplyIds = signal<Set<string>>(new Set());
   protected readonly reactionTooltip = signal<ReactionTooltip | null>(null);
 
   protected readonly selectedProfileUserId = this.profileService.selectedProfileUserId;
@@ -248,44 +248,8 @@ export class Thread implements OnDestroy {
 
   // --- Reactions (eigene, generalisierte Kopie - s. Klassenkommentar oben) ---
 
-  /** Liefert die aktuell sichtbaren Reactions einer Antwort. */
+  /** Alle Reactions einer Antwort, haeufigste zuerst. Laut Figma kein "+N"-Overflow. */
   protected getReactionGroups(reply: Message): ReactionGroup[] {
-    const groups = this.createSortedReactionGroups(reply);
-    const limit = this.getReactionLimit(reply.id);
-
-    return groups.slice(0, limit);
-  }
-
-  /** Liefert die Anzahl aktuell ausgeblendeter Reactions. */
-  protected getHiddenReactionCount(reply: Message): number {
-    const groups = this.createSortedReactionGroups(reply);
-    const limit = this.getReactionLimit(reply.id);
-
-    return Math.max(groups.length - limit, 0);
-  }
-
-  protected isReactionsExpanded(replyId: string): boolean {
-    return this.expandedReactionReplyIds().has(replyId);
-  }
-
-  /** Oeffnet oder reduziert die Reaction-Liste einer Antwort. */
-  protected toggleReactionList(replyId: string): void {
-    this.expandedReactionReplyIds.update((current) => {
-      const next = new Set(current);
-      if (next.has(replyId)) {
-        next.delete(replyId);
-      } else {
-        next.add(replyId);
-      }
-      return next;
-    });
-  }
-
-  private getReactionLimit(replyId: string): number {
-    return this.isReactionsExpanded(replyId) ? 20 : 6;
-  }
-
-  private createSortedReactionGroups(reply: Message): ReactionGroup[] {
     const counts = new Map<string, number>();
 
     for (const reaction of reply.reactions ?? []) {

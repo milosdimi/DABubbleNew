@@ -80,7 +80,7 @@ export class MainChat {
       (this.draft().trim().length > 0 || this.selectedFile() !== null),
   );
 
-  // TODO Figma-Wert pruefen: Platzhaltertexte.
+  // Figma: "Nachricht an Sofia Müller" (DM); Channel-Variante analog.
   protected readonly placeholder = computed(() => {
     const chat = this.active();
     if (!chat) return 'Nachricht schreiben...';

@@ -20,6 +20,11 @@
   transition: all $duration ease-in-out;
 }
 
+/// Figma-Effect-Style "header".
+@mixin header-shadow {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
 // Figma-Textstyle "Bold Display" – Headline der Auth-Screens (Login, Register, ...)
 @mixin display-title {
   @include typo(nunito, 700);

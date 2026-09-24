@@ -127,7 +127,7 @@
 
   // TODO Figma-Wert pruefen: Farbe fuer "aktiv".
   [data-status='online'] & {
-    background: #2e9f4f;
+    background: fct.color(online-green);
   }
 }
 
