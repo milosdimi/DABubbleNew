@@ -4,6 +4,7 @@ import {
   arrayUnion,
   collection,
   doc,
+  DocumentSnapshot,
   getDoc,
   getDocs,
   onSnapshot,
@@ -23,6 +24,42 @@ const PINNED_CHANNEL_NAMES = ['Entwicklerteam', 'Office-Team'];
 
 /** Dieser feste Channel ist fuer alle registrierten User sichtbar. */
 const OPEN_CHANNEL_NAME = 'Office-Team';
+
+/**
+ * `memberIds` soll eine Liste von uids sein. Aeltere Datensaetze haben teils
+ * eine andere Form; hier wird sie in eine Liste umgewandelt, statt die App
+ * spaeter bei `.includes()` abstuerzen zu lassen.
+ */
+const warnedChannelIds = new Set<string>();
+
+function normalizeMemberIds(channelId: string, raw: unknown): string[] {
+  if (Array.isArray(raw)) return raw.filter((id): id is string => typeof id === 'string');
+
+  if (!warnedChannelIds.has(channelId)) {
+    warnedChannelIds.add(channelId);
+    console.warn(`[channels] Channel "${channelId}": memberIds ist keine Liste, sondern`, raw);
+  }
+  if (typeof raw === 'string') return [raw];
+  if (raw && typeof raw === 'object') {
+    const entries = Object.entries(raw as Record<string, unknown>);
+    // {"0": "uidA", "1": "uidB"} -> Werte; {"uidA": true} -> Schluessel
+    const indexed = entries.every(([key]) => /^\d+$/.test(key));
+    return indexed
+      ? entries.map(([, value]) => value).filter((id): id is string => typeof id === 'string')
+      : entries.filter(([, value]) => value).map(([key]) => key);
+  }
+  return [];
+}
+
+/** Firestore-Dokument -> Channel, mit bereinigtem `memberIds` und `id` als Fallback. */
+function toChannel(snapshot: DocumentSnapshot): Channel {
+  const data = snapshot.data() as Channel;
+  return {
+    ...data,
+    id: data.id ?? snapshot.id,
+    memberIds: normalizeMemberIds(snapshot.id, data.memberIds),
+  };
+}
 
 /** Wer gerade zuschaut - Grundlage der Sichtbarkeitsregeln. */
 export interface Viewer {
@@ -55,7 +92,7 @@ export class ChannelService {
   /** Liefert alle Channels (z. B. fuer die Sidebar-Liste). */
   async listChannels(): Promise<Channel[]> {
     const snapshot = await getDocs(collection(this.firestore, 'channels'));
-    return snapshot.docs.map((entry) => entry.data() as Channel);
+    return snapshot.docs.map(toChannel);
   }
 
   /**
@@ -104,7 +141,7 @@ export class ChannelService {
   }
 
   private toChannels(snapshot: QuerySnapshot): Channel[] {
-    return snapshot.docs.map((entry) => entry.data() as Channel);
+    return snapshot.docs.map(toChannel);
   }
 
   /** Fuehrt die Teilergebnisse ohne Duplikate zusammen, feste Channels zuerst. */
@@ -144,7 +181,7 @@ export class ChannelService {
   ): Unsubscribe {
     return onSnapshot(
       doc(this.firestore, 'channels', channelId),
-      (snapshot) => (snapshot.exists() ? onChange(snapshot.data() as Channel) : onLost()),
+      (snapshot) => (snapshot.exists() ? onChange(toChannel(snapshot)) : onLost()),
       () => onLost(),
     );
   }
@@ -152,7 +189,7 @@ export class ChannelService {
   /** Liefert ein einzelnes Channel-Dokument, oder null falls es nicht existiert. */
   async getChannel(channelId: string): Promise<Channel | null> {
     const snapshot = await getDoc(doc(this.firestore, 'channels', channelId));
-    return snapshot.exists() ? (snapshot.data() as Channel) : null;
+    return snapshot.exists() ? toChannel(snapshot) : null;
   }
 
   /** Aktualisiert Name/Beschreibung (Channel-Verwaltungs-Dialog, nur Ersteller). */
