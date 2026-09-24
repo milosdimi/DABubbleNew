@@ -51,8 +51,10 @@ export class Thread implements OnDestroy {
   protected readonly parentMessage = signal<Message | null>(null);
   protected readonly replies = signal<Message[]>([]);
   protected readonly channelTag = signal<string | null>(null);
-  protected replyText = '';
-  protected selectedFile: File | null = null;
+  // Signals wie im Main-Chat: Aenderungen nach einem await (z. B. Leeren nach
+  // dem Senden) erscheinen sofort, nicht erst beim naechsten Klick.
+  protected readonly replyText = signal('');
+  protected readonly selectedFile = signal<File | null>(null);
 
   protected readonly reactionOptions = MAIN_CHAT_EMOJIS;
   protected readonly quickReactions = QUICK_REACTIONS;
@@ -72,8 +74,8 @@ export class Thread implements OnDestroy {
     this.parentMessage.set(message);
     this.replies.set([]);
     this.channelTag.set(null);
-    this.replyText = '';
-    this.selectedFile = null;
+    this.replyText.set('');
+    this.selectedFile.set(null);
 
     if (!message) return;
 
@@ -183,7 +185,7 @@ export class Thread implements OnDestroy {
 
   /** Uebernimmt den Inhalt des Antwort-Eingabefelds. */
   protected onReplyInput(event: Event): void {
-    this.replyText = (event.target as HTMLTextAreaElement).value;
+    this.replyText.set((event.target as HTMLTextAreaElement).value);
   }
 
   /** Sendet mit Enter, erlaubt Zeilenumbrueche mit Shift+Enter. */
@@ -201,28 +203,29 @@ export class Thread implements OnDestroy {
     const file = input.files?.[0];
     if (!file) return;
 
-    this.selectedFile = this.uploadService.prepareSelectedFile(file);
+    this.selectedFile.set(this.uploadService.prepareSelectedFile(file));
   }
 
   /** Entfernt die aktuell ausgewaehlte Datei vor dem Senden. */
   protected removeSelectedFile(): void {
-    this.selectedFile = null;
+    this.selectedFile.set(null);
   }
 
   /** Sendet die aktuell eingegebene Antwort mit optionalem Anhang. */
   protected async onSendReply(): Promise<void> {
-    const text = this.replyText.trim();
+    const text = this.replyText().trim();
+    const file = this.selectedFile();
     const parent = this.parentMessage();
     const senderId = this.auth.currentUser?.uid;
 
-    if ((!text && !this.selectedFile) || !parent || !senderId) return;
+    if ((!text && !file) || !parent || !senderId) return;
 
-    const attachment = await this.uploadService.getAttachmentData(this.selectedFile);
+    const attachment = await this.uploadService.getAttachmentData(file);
     if (!attachment) return;
 
     await this.saveReply(parent, senderId, text, attachment);
-    this.replyText = '';
-    this.selectedFile = null;
+    this.replyText.set('');
+    this.selectedFile.set(null);
   }
 
   /** Speichert die Antwort in Firestore. */
