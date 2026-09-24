@@ -103,6 +103,7 @@
             @if (edit.isEditing(reply.id)) {
               <div class="message-edit">
                 <textarea
+                  #editField
                   class="message-edit__field"
                   aria-label="Nachricht bearbeiten"
                   [value]="edit.draft()"
@@ -110,17 +111,42 @@
                   (keydown)="onEditKeydown($event, reply)"
                 ></textarea>
                 <div class="message-edit__actions">
-                  <button type="button" class="message-edit__btn" (click)="edit.cancel()">
-                    Abbrechen
-                  </button>
-                  <button
-                    type="button"
-                    class="message-edit__btn message-edit__btn--primary"
-                    [disabled]="!edit.canSave()"
-                    (click)="saveEdit(reply)"
-                  >
-                    Speichern
-                  </button>
+                  <div class="message-edit__emoji-anchor">
+                    <button
+                      type="button"
+                      class="message-edit__icon-btn"
+                      aria-label="Emoji einfügen"
+                      (click)="edit.toggleEmojiPicker()"
+                    >
+                      <app-icon name="emoji" />
+                    </button>
+                    @if (edit.emojiPickerOpen()) {
+                      <div
+                        class="message-edit__picker"
+                        appClickOutside
+                        (appClickOutside)="edit.closeEmojiPicker()"
+                      >
+                        @for (emoji of edit.emojis; track emoji) {
+                          <button type="button" (click)="edit.insertEmoji(emoji, editField)">
+                            {{ emoji }}
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <div class="message-edit__buttons">
+                    <button type="button" class="message-edit__btn" (click)="edit.cancel()">
+                      Abbrechen
+                    </button>
+                    <button
+                      type="button"
+                      class="message-edit__btn message-edit__btn--primary"
+                      [disabled]="!edit.canSave()"
+                      (click)="saveEdit(reply)"
+                    >
+                      Speichern
+                    </button>
+                  </div>
                 </div>
               </div>
             } @else {
@@ -163,7 +189,7 @@
                       aria-label="Reaction hinzufügen"
                       (click)="toggleReactionPicker(reply.id, $any($event.currentTarget))"
                     >
-                      <app-icon name="plus" />
+                      <app-icon name="add-reaction" />
                     </button>
 
                     @if (activeReactionReplyId() === reply.id) {
@@ -190,12 +216,12 @@
                         aria-label="Mehr Optionen"
                         (click)="edit.toggleMenu(reply.id)"
                       >
-                        ⋮
+                        <app-icon name="more-vert" />
                       </button>
 
                       @if (edit.menuMessageId() === reply.id) {
                         <div
-                          class="thread__context-menu"
+                          class="message-menu"
                           appClickOutside
                           (appClickOutside)="edit.closeMenu()"
                         >

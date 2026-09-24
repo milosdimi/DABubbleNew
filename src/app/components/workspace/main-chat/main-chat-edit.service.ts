@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { Message } from '../../../shared/models';
+import { MAIN_CHAT_EMOJIS } from './main-chat-emojis';
 
 /**
  * "Nachricht bearbeiten" (⋮-Menue + Edit-Ansicht) in Main-Chat und Thread.
@@ -14,6 +15,9 @@ export class MainChatEditService {
   readonly editingId = signal<string | null>(null);
   readonly draft = signal('');
   readonly saving = signal(false);
+  /** Emoji-Auswahl am Smiley-Icon der Edit-Ansicht. */
+  readonly emojiPickerOpen = signal(false);
+  readonly emojis = MAIN_CHAT_EMOJIS;
 
   private original = '';
   private hasAttachment = false;
@@ -37,6 +41,30 @@ export class MainChatEditService {
   cancel(): void {
     this.editingId.set(null);
     this.draft.set('');
+    this.emojiPickerOpen.set(false);
+  }
+
+  toggleEmojiPicker(): void {
+    this.emojiPickerOpen.update((open) => !open);
+  }
+
+  closeEmojiPicker(): void {
+    this.emojiPickerOpen.set(false);
+  }
+
+  /** Fuegt `emoji` an der Cursor-Position ein und setzt den Cursor dahinter. */
+  insertEmoji(emoji: string, field: HTMLTextAreaElement): void {
+    const text = this.draft();
+    const start = field.selectionStart ?? text.length;
+    const end = field.selectionEnd ?? start;
+    const next = text.slice(0, start) + emoji + text.slice(end);
+    const caret = start + emoji.length;
+
+    this.draft.set(next);
+    field.value = next;
+    field.focus();
+    field.setSelectionRange(caret, caret);
+    this.closeEmojiPicker();
   }
 
   isEditing(messageId: string): boolean {

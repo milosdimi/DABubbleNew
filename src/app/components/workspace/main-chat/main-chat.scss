@@ -188,6 +188,7 @@
 }
 
 .main-chat__message {
+  position: relative; // Anker der Hover-Leiste (Figma: oben an der Zeile)
   @include mx.flex(row, flex-start, flex-start);
   gap: 24px;
   padding: 12px 40px;
@@ -219,8 +220,13 @@
     }
 
     .main-chat__toolbar {
-      left: auto;
-      right: calc(100% + 8px);
+      right: auto;
+      left: 45px;
+    }
+
+    .main-chat__picker {
+      right: auto;
+      left: 0;
     }
   }
 }
@@ -271,8 +277,13 @@
 }
 
 .main-chat__bubble-wrap {
-  position: relative;
   max-width: 100%;
+}
+
+// Figma: beim Hover wird die fremde Blase weiss (Zeile ist dann Bg color),
+// die eigene bleibt Purple 2.
+.main-chat__message:not(.main-chat__message--own):hover .main-chat__bubble {
+  background: fct.color(white);
 }
 
 // Hover auf der ganzen Zeile (nicht nur der Blase): so bleibt die Leiste sichtbar,
@@ -323,8 +334,9 @@
 
 .main-chat__toolbar {
   position: absolute;
-  top: -8px;
-  left: calc(100% + 8px);
+  top: -18px;
+  right: 43px;
+  z-index: 4;
   @include mx.flex(row, flex-start, center);
   gap: 4px;
   padding: 4px 8px;
@@ -341,26 +353,29 @@
   }
 }
 
+// Figma: Icon 24px schwarz; Hover = Pille Bg color, rounded-20px, Padding 8px, Icon Purple 3.
 .main-chat__toolbar-btn {
   @include mx.flex(row, center, center);
-  width: 32px;
-  height: 32px;
-  padding: 0;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
   border: none;
-  border-radius: 50%;
+  border-radius: 20px;
   background: transparent;
-  font-size: 20px;
+  font-size: 22px;
+  line-height: 1;
   color: fct.color(black);
   cursor: pointer;
+  @include mx.transition();
 
   &:hover {
     background: fct.color(background);
-    color: fct.color(purple-2);
+    color: fct.color(purple-3);
   }
 
   app-icon {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
   }
 }
 
@@ -371,7 +386,7 @@
 .main-chat__picker {
   position: absolute;
   bottom: calc(100% + 6px);
-  left: 50%;
+  right: 0;
   z-index: 5;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -381,7 +396,6 @@
   border-radius: 20px;
   background: fct.color(white);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  transform: translateX(-50%);
 
   &--below {
     top: calc(100% + 6px);
@@ -432,12 +446,24 @@
   line-height: 1;
 }
 
+.main-chat__thread-teaser {
+  @include mx.flex(row, flex-start, center);
+  gap: 20px;
+}
+
+.main-chat__last-reply {
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(text-gray);
+}
+
+// Figma: "2 Antworten" Nunito Regular 18px Purple 3.
 .main-chat__thread-link {
   padding: 0;
   border: none;
   background: none;
-  @include mx.typo(nunito, 600);
-  font-size: 14px;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
   color: fct.color(purple-3);
   cursor: pointer;
 

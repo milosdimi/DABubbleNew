@@ -97,6 +97,7 @@
           @if (edit.isEditing(message.id)) {
             <div class="message-edit">
               <textarea
+                #editField
                 class="message-edit__field"
                 aria-label="Nachricht bearbeiten"
                 [value]="edit.draft()"
@@ -104,17 +105,42 @@
                 (keydown)="onEditKeydown($event, message)"
               ></textarea>
               <div class="message-edit__actions">
-                <button type="button" class="message-edit__btn" (click)="edit.cancel()">
-                  Abbrechen
-                </button>
-                <button
-                  type="button"
-                  class="message-edit__btn message-edit__btn--primary"
-                  [disabled]="!edit.canSave()"
-                  (click)="saveEdit(message)"
-                >
-                  Speichern
-                </button>
+                <div class="message-edit__emoji-anchor">
+                  <button
+                    type="button"
+                    class="message-edit__icon-btn"
+                    aria-label="Emoji einfügen"
+                    (click)="edit.toggleEmojiPicker()"
+                  >
+                    <app-icon name="emoji" />
+                  </button>
+                  @if (edit.emojiPickerOpen()) {
+                    <div
+                      class="message-edit__picker"
+                      appClickOutside
+                      (appClickOutside)="edit.closeEmojiPicker()"
+                    >
+                      @for (emoji of edit.emojis; track emoji) {
+                        <button type="button" (click)="edit.insertEmoji(emoji, editField)">
+                          {{ emoji }}
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="message-edit__buttons">
+                  <button type="button" class="message-edit__btn" (click)="edit.cancel()">
+                    Abbrechen
+                  </button>
+                  <button
+                    type="button"
+                    class="message-edit__btn message-edit__btn--primary"
+                    [disabled]="!edit.canSave()"
+                    (click)="saveEdit(message)"
+                  >
+                    Speichern
+                  </button>
+                </div>
               </div>
             </div>
           } @else {
@@ -158,7 +184,7 @@
                     aria-label="Reaction hinzufügen"
                     (click)="reactions.togglePicker(message.id, $any($event.currentTarget))"
                   >
-                    <app-icon name="plus" />
+                    <app-icon name="add-reaction" />
                   </button>
                   @if (reactions.pickerMessageId() === message.id) {
                     <div
@@ -181,7 +207,7 @@
                   aria-label="Im Thread antworten"
                   (click)="openThread(message)"
                 >
-                  <app-icon name="reply" />
+                  <app-icon name="comment" />
                 </button>
                 @if (isOwn(message)) {
                   <div class="main-chat__picker-anchor">
@@ -191,7 +217,7 @@
                       aria-label="Mehr Optionen"
                       (click)="edit.toggleMenu(message.id)"
                     >
-                      ⋮
+                      <app-icon name="more-vert" />
                     </button>
                     @if (edit.menuMessageId() === message.id) {
                       <div
@@ -227,9 +253,16 @@
           }
 
           @if (message.replyCount) {
-            <button type="button" class="main-chat__thread-link" (click)="openThread(message)">
-              {{ replyLabel(message.replyCount) }}
-            </button>
+            <div class="main-chat__thread-teaser">
+              <button type="button" class="main-chat__thread-link" (click)="openThread(message)">
+                {{ replyLabel(message.replyCount) }}
+              </button>
+              @if (message.lastReplyAt) {
+                <span class="main-chat__last-reply">
+                  Letzte Antwort {{ profiles.formatMessageTime(message.lastReplyAt) }}
+                </span>
+              }
+            </div>
           }
         </div>
       </article>

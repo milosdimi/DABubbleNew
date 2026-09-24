@@ -21,7 +21,11 @@ export type IconName =
   | 'attachment'
   | 'reply'
   | 'sidebar-close'
-  | 'sidebar-open';
+  | 'sidebar-open'
+  | 'add-reaction'
+  | 'comment'
+  | 'more-vert'
+  | 'emoji';
 
 /**
  * Inline-SVG-Icons (kein Asset-Request, per `color` einfärbbar via currentColor).
