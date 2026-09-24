@@ -173,6 +173,25 @@ describe('Channels schreiben', () => {
     );
   });
 
+  test('Channel mit guestVisible: true anlegen: verboten', async () => {
+    await assertFails(
+      setDoc(doc(user('A'), 'channels/neu'), { ...newChannel('A', ['A']), guestVisible: true }),
+    );
+  });
+
+  test('Channel namens "Office-Team" anlegen oder dahin umbenennen: verboten', async () => {
+    await assertFails(
+      setDoc(doc(user('A'), 'channels/neu'), { ...newChannel('A', ['A']), name: 'Office-Team' }),
+    );
+    await assertFails(updateDoc(doc(user('B'), 'channels/private'), { name: 'Office-Team' }));
+  });
+
+  test('Office-Team selbst bleibt fuer Mitglieder bearbeitbar', async () => {
+    await assertSucceeds(
+      updateDoc(doc(user('B'), 'channels/office'), { memberIds: arrayUnion('A') }),
+    );
+  });
+
   test('Geschuetzte Felder (createdBy, guestVisible) bleiben unveraenderlich', async () => {
     await assertFails(updateDoc(doc(user('B'), 'channels/private'), { createdBy: 'C' }));
     await assertFails(updateDoc(doc(user('B'), 'channels/private'), { guestVisible: true }));
@@ -299,6 +318,12 @@ describe('Users', () => {
         id: 'guest', name: 'Gast', email: '', avatarUrl: '', onlineStatus: 'online',
       }),
     );
+  });
+
+  test('Eigenes Profil anlegen: ohne isDemo ja, mit isDemo: true nein', async () => {
+    const profile = { id: 'C', name: 'C', email: 'C@test.de', avatarUrl: '', onlineStatus: 'online' };
+    await assertFails(setDoc(doc(user('C'), 'users/C'), { ...profile, isDemo: true }));
+    await assertSucceeds(setDoc(doc(user('C'), 'users/C'), profile));
   });
 
   test('Eigenes Profil: Name aendern ja, isDemo setzen nein; fremdes Profil nie', async () => {

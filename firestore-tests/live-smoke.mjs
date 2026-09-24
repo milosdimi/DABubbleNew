@@ -36,7 +36,6 @@ const config = environment.firebase;
 const RUN = `rulestest-${Date.now()}`;
 const ids = {
   privateChannel: `${RUN}-private`,
-  guestChannel: `${RUN}-guest`,
   dm: `${RUN}-dm`,
 };
 
@@ -115,19 +114,27 @@ after(async () => {
 });
 
 describe('Live: Fixtures anlegen (als registrierter User A)', () => {
-  test('A legt eigenes users-Dokument an', async () => {
+  test('A legt eigenes users-Dokument an, aber nicht mit isDemo: true', async () => {
     const { db, uid } = clients.A;
     cleanupPaths.push(`users/${uid}`);
-    await ok(setDoc(doc(db, 'users', uid), {
-      id: uid, name: RUN, email: `${RUN}-a@example.com`, avatarUrl: '', onlineStatus: 'online',
-    }));
+    const profile = { id: uid, name: RUN, email: `${RUN}-a@example.com`, avatarUrl: '', onlineStatus: 'online' };
+    await denied(setDoc(doc(db, 'users', uid), { ...profile, isDemo: true }));
+    await ok(setDoc(doc(db, 'users', uid), profile));
   });
 
-  test('A legt privaten Channel und guestVisible-Channel an', async () => {
+  test('A legt privaten Channel an', async () => {
     const { db, uid } = clients.A;
-    cleanupPaths.push(`channels/${ids.privateChannel}`, `channels/${ids.guestChannel}`);
+    cleanupPaths.push(`channels/${ids.privateChannel}`);
     await ok(setDoc(doc(db, 'channels', ids.privateChannel), channel(ids.privateChannel, uid, [uid])));
-    await ok(setDoc(doc(db, 'channels', ids.guestChannel), channel(ids.guestChannel, uid, [uid], true)));
+  });
+
+  test('A legt keinen guestVisible- und keinen "Office-Team"-Channel an', async () => {
+    const { db, uid } = clients.A;
+    const id = `${RUN}-forbidden`;
+    cleanupPaths.push(`channels/${id}`);
+    await denied(setDoc(doc(db, 'channels', id), channel(id, uid, [uid], true)));
+    await denied(setDoc(doc(db, 'channels', id), { ...channel(id, uid, [uid]), name: 'Office-Team' }));
+    await denied(updateDoc(doc(db, 'channels', ids.privateChannel), { name: 'Office-Team' }));
   });
 
   test('A schreibt Nachricht in privaten Channel', async () => {
@@ -148,11 +155,11 @@ describe('Live: Fixtures anlegen (als registrierter User A)', () => {
 
 describe('Live: Channels', () => {
   test('Nicht eingeloggt liest nichts', async () => {
-    await denied(getDoc(doc(clients.nobody.db, 'channels', ids.guestChannel)));
+    await denied(getDoc(doc(clients.nobody.db, 'channels', ids.privateChannel)));
+    await denied(getDocs(query(collection(clients.nobody.db, 'channels'), where('guestVisible', '==', true))));
   });
 
-  test('Gast liest guestVisible-Channel, nicht den privaten', async () => {
-    await ok(getDoc(doc(clients.guest.db, 'channels', ids.guestChannel)));
+  test('Gast liest den privaten Channel nicht', async () => {
     await denied(getDoc(doc(clients.guest.db, 'channels', ids.privateChannel)));
   });
 
@@ -191,13 +198,6 @@ describe('Live: Channels', () => {
 });
 
 describe('Live: Nachrichten', () => {
-  test('Gast schreibt im guestVisible-Channel', async () => {
-    await ok(setDoc(
-      doc(clients.guest.db, 'channels', ids.guestChannel, 'messages', 'g1'),
-      message('g1', clients.guest.uid, { channelId: ids.guestChannel }),
-    ));
-  });
-
   test('Gast schreibt nicht in privaten Channel', async () => {
     await denied(setDoc(
       doc(clients.guest.db, 'channels', ids.privateChannel, 'messages', 'g1'),
@@ -212,9 +212,9 @@ describe('Live: Nachrichten', () => {
     ));
   });
 
-  test('Fremden Nachrichtentext aendern und loeschen: verboten', async () => {
-    const ref = doc(clients.guest.db, 'channels', ids.guestChannel, 'messages', 'g1');
-    await denied(updateDoc(doc(clients.A.db, ref.path), { text: 'geaendert' }));
+  test('Nachrichtentext aendern und Nachricht loeschen: verboten', async () => {
+    const ref = doc(clients.A.db, 'channels', ids.privateChannel, 'messages', 'm1');
+    await denied(updateDoc(ref, { text: 'geaendert' }));
     await denied(deleteDoc(ref));
   });
 });
