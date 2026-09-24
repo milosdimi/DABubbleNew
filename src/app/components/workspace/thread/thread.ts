@@ -2,6 +2,7 @@ import { Component, HostListener, Input, OnDestroy, inject, output, signal } fro
 import { Unsubscribe } from 'firebase/firestore';
 import { MAIN_CHAT_EMOJIS, pickerOpensBelow, QUICK_REACTIONS } from '../main-chat/main-chat-emojis';
 import { MainChatDateService } from '../main-chat/main-chat-date.service';
+import { MainChatEditService } from '../main-chat/main-chat-edit.service';
 import { MainChatProfileService } from '../main-chat/main-chat-profile.service';
 import { AttachmentData, MainChatUploadService } from '../main-chat/main-chat-upload.service';
 import { ProfileCard } from '../../profile/profile-card/profile-card';
@@ -33,7 +34,12 @@ type ReactionTooltip = { replyId: string; emoji: string; text: string };
 @Component({
   selector: 'app-thread',
   imports: [Icon, ProfileCard, ClickOutsideDirective],
-  providers: [MainChatDateService, MainChatProfileService, MainChatUploadService],
+  providers: [
+    MainChatDateService,
+    MainChatEditService,
+    MainChatProfileService,
+    MainChatUploadService,
+  ],
   templateUrl: './thread.html',
   styleUrl: './thread.scss',
 })
@@ -42,6 +48,7 @@ export class Thread implements OnDestroy {
   private readonly channelService = inject(ChannelService);
   private readonly messageService = inject(MessageService);
   private readonly dateService = inject(MainChatDateService);
+  protected readonly edit = inject(MainChatEditService);
   private readonly profileService = inject(MainChatProfileService);
   private readonly uploadService = inject(MainChatUploadService);
 
@@ -64,7 +71,6 @@ export class Thread implements OnDestroy {
   protected readonly reactionTooltip = signal<ReactionTooltip | null>(null);
 
   protected readonly selectedProfileUserId = this.profileService.selectedProfileUserId;
-  protected readonly activeMessageMenuId = signal<string | null>(null);
 
   private unsubscribeReplies: Unsubscribe | null = null;
   private tooltipTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -78,6 +84,8 @@ export class Thread implements OnDestroy {
     this.channelTag.set(null);
     this.replyText.set('');
     this.selectedFile.set(null);
+    this.edit.cancel();
+    this.edit.closeMenu();
 
     if (!message) return;
 
@@ -143,28 +151,27 @@ export class Thread implements OnDestroy {
     this.profileService.closeProfile();
   }
 
-  /** Oeffnet oder schliesst das Mehr-Optionen-Menue einer eigenen Antwort. */
-  protected toggleMessageMenu(replyId: string): void {
-    this.activeMessageMenuId.update((current) => (current === replyId ? null : replyId));
-  }
-
-  /** Schliesst das Mehr-Optionen-Menue (z. B. Klick ausserhalb). */
-  protected closeMessageMenu(): void {
-    this.activeMessageMenuId.set(null);
-  }
-
   /** Schliesst die Emoji-Auswahl (z. B. Klick ausserhalb). */
   protected closeReactionPicker(): void {
     this.activeReactionReplyId.set(null);
   }
 
-  // TODO: Nachricht bearbeiten ist noch nicht angebunden - MessageService hat
-  // keine Update-Funktion. Eine editMessage()-Methode sollte Main-Chat und
-  // Thread gemeinsam abdecken (gleiche Nachrichten-Struktur; firestore.rules
-  // erlauben dem Absender dafuer noch keine Text-Aenderung).
-  protected onEditMessage(replyId: string): void {
-    console.log('[thread] edit message clicked (not implemented yet)', replyId);
-    this.activeMessageMenuId.set(null);
+  // --- Nachricht bearbeiten (gemeinsame Logik: MainChatEditService) ---
+
+  private persistEdit(reply: Message): (text: string) => Promise<void> {
+    return (text) => {
+      const parent = this.parentMessage();
+      if (!parent) return Promise.reject(new Error('Kein Thread geoeffnet'));
+      return this.messageService.editReply(parent, reply.id, text);
+    };
+  }
+
+  protected saveEdit(reply: Message): void {
+    void this.edit.save(this.persistEdit(reply));
+  }
+
+  protected onEditKeydown(event: KeyboardEvent, reply: Message): void {
+    this.edit.onKeydown(event, this.persistEdit(reply));
   }
 
   /** Prueft, ob vor einer Antwort ein Datumstrenner angezeigt wird. */
@@ -176,9 +183,11 @@ export class Thread implements OnDestroy {
     return this.dateService.formatDateSeparator(timestamp);
   }
 
+  /** Escape bricht zuerst eine laufende Bearbeitung ab, sonst schliesst es den Thread. */
   @HostListener('document:keydown.escape')
   protected onEscape(): void {
-    this.closed.emit();
+    if (this.edit.editingId()) this.edit.cancel();
+    else this.closed.emit();
   }
 
   protected onClose(): void {

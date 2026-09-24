@@ -41,7 +41,11 @@
       @if (activePartner(); as partner) {
         <p class="main-chat__empty">
           Diese Unterhaltung findet nur zwischen
-          <button type="button" class="main-chat__empty-link" (click)="profiles.openProfile(partner.id)">
+          <button
+            type="button"
+            class="main-chat__empty-link"
+            (click)="profiles.openProfile(partner.id)"
+          >
             &#64;{{ partner.name }}
           </button>
           und dir statt.
@@ -56,12 +60,18 @@
       @if (dates.showDateSeparator(messages(), index)) {
         <div class="main-chat__date-separator">
           <span class="main-chat__date-line"></span>
-          <span class="main-chat__date-label">{{ dates.formatDateSeparator(message.timestamp) }}</span>
+          <span class="main-chat__date-label">{{
+            dates.formatDateSeparator(message.timestamp)
+          }}</span>
           <span class="main-chat__date-line"></span>
         </div>
       }
 
-      <article class="main-chat__message" [class.main-chat__message--own]="isOwn(message)">
+      <article
+        class="main-chat__message"
+        [class.main-chat__message--own]="isOwn(message)"
+        [class.main-chat__message--editing]="edit.isEditing(message.id)"
+      >
         <img
           class="main-chat__avatar"
           [src]="profiles.getSenderAvatar(message.senderId)"
@@ -84,71 +94,121 @@
             <span class="main-chat__time">{{ profiles.formatMessageTime(message.timestamp) }}</span>
           </div>
 
-          <div class="main-chat__bubble-wrap">
-            <div class="main-chat__bubble">
-              @if (message.text) {
-                <p class="main-chat__text">{{ message.text }}</p>
-              }
-              @if (message.attachmentPath && message.attachmentName) {
+          @if (edit.isEditing(message.id)) {
+            <div class="message-edit">
+              <textarea
+                class="message-edit__field"
+                aria-label="Nachricht bearbeiten"
+                [value]="edit.draft()"
+                (input)="edit.onInput($event)"
+                (keydown)="onEditKeydown($event, message)"
+              ></textarea>
+              <div class="message-edit__actions">
+                <button type="button" class="message-edit__btn" (click)="edit.cancel()">
+                  Abbrechen
+                </button>
                 <button
                   type="button"
-                  class="main-chat__attachment"
-                  (click)="openAttachment(message.attachmentPath)"
+                  class="message-edit__btn message-edit__btn--primary"
+                  [disabled]="!edit.canSave()"
+                  (click)="saveEdit(message)"
                 >
-                  <app-icon name="attachment" />
-                  {{ message.attachmentName }}
+                  Speichern
                 </button>
-              }
+              </div>
             </div>
-
-            <div
-              class="main-chat__toolbar"
-              [class.main-chat__toolbar--active]="reactions.pickerMessageId() === message.id"
-            >
-              @for (emoji of reactions.quickReactions; track emoji) {
-                <button
-                  type="button"
-                  class="main-chat__toolbar-btn"
-                  [attr.aria-label]="'Mit ' + emoji + ' reagieren'"
-                  (click)="reactions.toggle(message, emoji)"
-                >
-                  {{ emoji }}
-                </button>
-              }
-              <div class="main-chat__picker-anchor">
-                <button
-                  type="button"
-                  class="main-chat__toolbar-btn"
-                  aria-label="Reaction hinzufügen"
-                  (click)="reactions.togglePicker(message.id, $any($event.currentTarget))"
-                >
-                  <app-icon name="plus" />
-                </button>
-                @if (reactions.pickerMessageId() === message.id) {
-                  <div
-                    class="main-chat__picker"
-                    [class.main-chat__picker--below]="reactions.pickerBelow()"
-                    appClickOutside
-                    (appClickOutside)="reactions.closePicker()"
+          } @else {
+            <div class="main-chat__bubble-wrap">
+              <div class="main-chat__bubble">
+                @if (message.text) {
+                  <p class="main-chat__text">{{ message.text }}</p>
+                }
+                @if (message.attachmentPath && message.attachmentName) {
+                  <button
+                    type="button"
+                    class="main-chat__attachment"
+                    (click)="openAttachment(message.attachmentPath)"
                   >
-                    @for (emoji of reactions.emojis; track emoji) {
-                      <button type="button" (click)="reactions.toggle(message, emoji)">
-                        {{ emoji }}
-                      </button>
+                    <app-icon name="attachment" />
+                    {{ message.attachmentName }}
+                  </button>
+                }
+              </div>
+
+              <div
+                class="main-chat__toolbar"
+                [class.main-chat__toolbar--active]="
+                  reactions.pickerMessageId() === message.id || edit.menuMessageId() === message.id
+                "
+              >
+                @for (emoji of reactions.quickReactions; track emoji) {
+                  <button
+                    type="button"
+                    class="main-chat__toolbar-btn"
+                    [attr.aria-label]="'Mit ' + emoji + ' reagieren'"
+                    (click)="reactions.toggle(message, emoji)"
+                  >
+                    {{ emoji }}
+                  </button>
+                }
+                <div class="main-chat__picker-anchor">
+                  <button
+                    type="button"
+                    class="main-chat__toolbar-btn"
+                    aria-label="Reaction hinzufügen"
+                    (click)="reactions.togglePicker(message.id, $any($event.currentTarget))"
+                  >
+                    <app-icon name="plus" />
+                  </button>
+                  @if (reactions.pickerMessageId() === message.id) {
+                    <div
+                      class="main-chat__picker"
+                      [class.main-chat__picker--below]="reactions.pickerBelow()"
+                      appClickOutside
+                      (appClickOutside)="reactions.closePicker()"
+                    >
+                      @for (emoji of reactions.emojis; track emoji) {
+                        <button type="button" (click)="reactions.toggle(message, emoji)">
+                          {{ emoji }}
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+                <button
+                  type="button"
+                  class="main-chat__toolbar-btn"
+                  aria-label="Im Thread antworten"
+                  (click)="openThread(message)"
+                >
+                  <app-icon name="reply" />
+                </button>
+                @if (isOwn(message)) {
+                  <div class="main-chat__picker-anchor">
+                    <button
+                      type="button"
+                      class="main-chat__toolbar-btn"
+                      aria-label="Mehr Optionen"
+                      (click)="edit.toggleMenu(message.id)"
+                    >
+                      ⋮
+                    </button>
+                    @if (edit.menuMessageId() === message.id) {
+                      <div
+                        class="message-menu"
+                        appClickOutside
+                        (appClickOutside)="edit.closeMenu()"
+                      >
+                        <button type="button" (click)="edit.start(message)">
+                          Nachricht bearbeiten
+                        </button>
+                      </div>
                     }
                   </div>
                 }
               </div>
-              <button
-                type="button"
-                class="main-chat__toolbar-btn"
-                aria-label="Im Thread antworten"
-                (click)="openThread(message)"
-              >
-                <app-icon name="reply" />
-              </button>
             </div>
-          </div>
+          }
 
           @if (message.reactions.length > 0) {
             <div class="main-chat__reactions">

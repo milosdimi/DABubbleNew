@@ -238,6 +238,11 @@
   @include mx.flex(column, flex-start, flex-start);
   gap: 8px;
   min-width: 0;
+
+  // Edit-Ansicht nutzt die volle Breite statt nur die der Sprechblase.
+  .main-chat__message--editing & {
+    flex: 1 1 auto;
+  }
 }
 
 .main-chat__meta {

@@ -7,6 +7,7 @@ import { Channel, Message, User } from '../../../shared/models';
 import { ChannelInfo } from '../../channel/channel-info/channel-info';
 import { ProfileCard } from '../../profile/profile-card/profile-card';
 import { MainChatDateService } from './main-chat-date.service';
+import { MainChatEditService } from './main-chat-edit.service';
 import { MainChatProfileService } from './main-chat-profile.service';
 import { MainChatReactionService } from './main-chat-reaction.service';
 import { MainChatSessionService } from './main-chat-session.service';
@@ -18,6 +19,7 @@ import { MainChatUploadService } from './main-chat-upload.service';
   imports: [Icon, ProfileCard, ChannelInfo, ClickOutsideDirective],
   providers: [
     MainChatDateService,
+    MainChatEditService,
     MainChatProfileService,
     MainChatReactionService,
     MainChatSessionService,
@@ -30,6 +32,7 @@ export class MainChat {
   private readonly auth = inject(FIREBASE_AUTH);
   private readonly messageService = inject(MessageService);
   protected readonly dates = inject(MainChatDateService);
+  protected readonly edit = inject(MainChatEditService);
   protected readonly profiles = inject(MainChatProfileService);
   protected readonly reactions = inject(MainChatReactionService);
   protected readonly session = inject(MainChatSessionService);
@@ -122,6 +125,8 @@ export class MainChat {
     this.draft.set('');
     this.selectedFile.set(null);
     this.reactions.closePicker();
+    this.edit.cancel();
+    this.edit.closeMenu();
     this.profiles.closeProfile();
     this.profiles.closeChannelInfo();
   }
@@ -199,6 +204,20 @@ export class MainChat {
 
   protected openAttachment(path: string): void {
     void this.uploads.openAttachment(path);
+  }
+
+  // --- Nachricht bearbeiten -----------------------------------------------------
+
+  private persistEdit(message: Message): (text: string) => Promise<void> {
+    return (text) => this.messageService.editMessage(message, text);
+  }
+
+  protected saveEdit(message: Message): void {
+    void this.edit.save(this.persistEdit(message));
+  }
+
+  protected onEditKeydown(event: KeyboardEvent, message: Message): void {
+    this.edit.onKeydown(event, this.persistEdit(message));
   }
 
   // --- Thread -----------------------------------------------------------------

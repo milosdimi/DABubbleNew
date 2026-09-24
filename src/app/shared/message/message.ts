@@ -102,6 +102,11 @@ export class MessageService {
     await updateDoc(this.getParentMessageDoc(message), { reactions: arrayRemove(reaction) });
   }
 
+  /** Text einer eigenen Channel- ODER Direktnachricht aendern (Rules: nur Absender, nur `text`). */
+  async editMessage(message: Message, text: string): Promise<void> {
+    await updateDoc(this.getParentMessageDoc(message), { text });
+  }
+
   // --- Gemeinsame Helfer (auch vom Thread-Teil unten genutzt) --------------
 
   private messagesOf(target: ChatTarget): CollectionReference {
@@ -255,6 +260,11 @@ export class MessageService {
     await updateDoc(ref, {
       reactions: arrayRemove(reaction),
     });
+  }
+
+  /** Text einer eigenen Thread-Antwort aendern (Rules: nur Absender, nur `text`). */
+  async editReply(parentMessage: Message, replyId: string, text: string): Promise<void> {
+    await updateDoc(this.createThreadReplyDoc(parentMessage, replyId), { text });
   }
 
   /** Liefert die Referenz zu einer vorhandenen Thread-Antwort. */
