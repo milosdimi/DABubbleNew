@@ -1,0 +1,27 @@
+// Vollflächiges Overlay für Bestätigungs-Toasts (Register, Passwort vergessen, Reset).
+// Global via styles.scss. Dissolve rein (Animation) und raus (--leaving + Transition).
+@use 'mixins' as mx;
+
+.toast-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  @include mx.flex(row, center, center);
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.15);
+  animation: toast-overlay-in 200ms ease-out;
+}
+
+.toast-overlay--leaving {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+@keyframes toast-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

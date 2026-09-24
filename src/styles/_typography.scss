@@ -1,0 +1,52 @@
+// @font-face-Definitionen fuer die Figma-Schriften.
+// Statische Weights als .ttf unter src/assets/fonts/, Pfade relativ zu dieser Datei.
+
+// Nunito – Hauptfont (Body, UI, Ueberschriften)
+@font-face {
+  font-family: 'Nunito';
+  src: url('../assets/fonts/nunito/Nunito-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Nunito';
+  src: url('../assets/fonts/nunito/Nunito-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Nunito';
+  src: url('../assets/fonts/nunito/Nunito-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Nunito';
+  src: url('../assets/fonts/nunito/Nunito-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+// Figtree – Buttons "Account erstellen" & "Passwort vergessen"
+@font-face {
+  font-family: 'Figtree';
+  src: url('../assets/fonts/figtree/Figtree-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Figtree';
+  src: url('../assets/fonts/figtree/Figtree-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}

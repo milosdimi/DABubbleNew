@@ -1,0 +1,287 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+:host {
+  display: block;
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  @include mx.flex(row, center, center);
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.dialog-card {
+  width: 100%;
+  max-width: 872px;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  @include mx.flex(column, flex-start, stretch);
+  gap: 20px;
+  padding: 40px;
+  // Bewusst asymmetrisch (Figma): oben-links eckig, Rest rund.
+  border-radius: 0 30px 30px 30px;
+  background: fct.color(white);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dialog-header {
+  @include mx.flex(row, space-between, center);
+  gap: 16px;
+}
+
+.dialog-header__title {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  min-width: 0;
+
+  app-icon {
+    flex: 0 0 auto;
+    color: fct.color(black);
+  }
+
+  h1 {
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    @include mx.typo(nunito, 700);
+    font-size: 24px;
+    color: fct.color(black);
+  }
+}
+
+.dialog-header__close {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border: none;
+  outline: none;
+  border-radius: 50%;
+  background: fct.color(close-gray);
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.flex(row, center, center);
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(light-purple);
+  }
+
+  app-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// --- Box-Pattern (Channel-Name / Beschreibung) ---
+.info-box {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 20px;
+}
+
+.info-box__row {
+  @include mx.flex(row, space-between, center);
+  gap: 16px;
+}
+
+.info-box__label {
+  @include mx.typo(nunito, 700);
+  font-size: 18px;
+  color: fct.color(black);
+}
+
+.info-box__edit-link {
+  border: none;
+  outline: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  @include mx.typo(nunito, 600);
+  font-size: 18px;
+  color: fct.color(purple-3);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.info-box__value {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+
+  app-icon {
+    flex: 0 0 auto;
+    color: fct.color(text-gray);
+  }
+}
+
+.info-box__value--text {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.info-box__edit-field {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 40px;
+
+  app-icon {
+    flex: 0 0 auto;
+    color: fct.color(text-gray);
+  }
+}
+
+.info-box__icon {
+  flex: 0 0 auto;
+}
+
+.info-box__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  @include mx.typo(nunito, 500);
+  font-size: 18px;
+  color: fct.color(black);
+}
+
+.info-box__edit-field--textarea {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+}
+
+.info-box__textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 20px;
+  outline: none;
+  resize: none;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+}
+
+.info-box__save {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  width: 32px;
+  height: 32px;
+  border: none;
+  outline: none;
+  border-radius: 50%;
+  background: fct.color(purple-1);
+  color: fct.color(white);
+  cursor: pointer;
+  @include mx.flex(row, center, center);
+  @include mx.transition();
+
+  &:hover:not(:disabled) {
+    background: fct.color(purple-2);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+
+  app-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// Fehlertext-Slot: immer im DOM, nur visibility toggeln -> kein Layout-Sprung.
+.info-box__error {
+  min-height: 19px;
+  margin: 0;
+  padding-left: 16px;
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  line-height: 19px;
+  color: fct.color(error);
+  visibility: hidden;
+
+  &.is-visible {
+    visibility: visible;
+  }
+}
+
+.info-box__divider {
+  height: 1px;
+  background: fct.color(light-purple);
+}
+
+.info-box__creator {
+  @include mx.flex(column, flex-start, flex-start);
+  gap: 4px;
+}
+
+.info-box__creator-name {
+  @include mx.typo(nunito, 400);
+  font-size: 24px;
+  color: fct.color(purple-3);
+}
+
+// --- Button ---
+.dialog-actions {
+  @include mx.flex(row, flex-end, center);
+}
+
+.leave-btn {
+  @include mx.flex(row, center, center);
+  width: 204px;
+  height: 49px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 25px;
+  background: fct.color(purple-1);
+  color: fct.color(white);
+  @include mx.typo(nunito, 700);
+  font-size: 18px;
+  @include mx.transition();
+
+  &:hover:not(:disabled) {
+    background: fct.color(purple-2);
+  }
+
+  &:disabled {
+    background: fct.color(text-gray);
+    cursor: default;
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog-card {
+    padding: 24px 16px;
+    gap: 16px;
+  }
+
+  .dialog-header__title h1 {
+    font-size: 20px;
+  }
+
+  .leave-btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,64 @@
+@if (editing()) {
+  <app-profile-edit (closed)="editing.set(false)" (saved)="onEditSaved()" />
+} @else {
+  <div class="profile-backdrop" (click)="closed.emit()">
+    <section class="profile-card" (click)="$event.stopPropagation()" aria-label="Profil">
+      <header class="profile-card__head">
+        <h1 class="profile-card__title">Profil</h1>
+        <button
+          type="button"
+          class="profile-card__close"
+          aria-label="Profil schließen"
+          (click)="closed.emit()"
+        >
+          <app-icon name="close" />
+        </button>
+      </header>
+
+      @if (loading()) {
+        <div class="profile-card__loading"><app-spinner /></div>
+      } @else if (user(); as profile) {
+        <img class="profile-card__avatar" [src]="profile.avatarUrl" alt="" />
+
+        <div class="profile-card__name-row">
+          <h2 class="profile-card__name">{{ profile.name }}</h2>
+          @if (isOwn() && !isGuestSelf()) {
+            <button type="button" class="profile-card__edit" (click)="startEditing()">
+              <app-icon name="edit" />
+              Bearbeiten
+            </button>
+          }
+        </div>
+
+        <p class="profile-card__status" [attr.data-status]="profile.onlineStatus">
+          <span class="profile-card__status-dot"></span>
+          {{ statusLabel() }}
+        </p>
+
+        @if (profile.email) {
+          <div class="profile-card__email">
+            <span class="profile-card__email-label">
+              <app-icon name="mail" />
+              E-Mail-Adresse
+            </span>
+            <a [href]="'mailto:' + profile.email">{{ profile.email }}</a>
+          </div>
+        }
+
+        @if (isGuestSelf()) {
+          <!-- TODO Figma-Wert pruefen: Text des Gast-Hinweises. -->
+          <p class="profile-card__guest-note">
+            Demo-Zugang: Als Gast kannst du dein Profil nicht bearbeiten.
+          </p>
+        } @else if (!isOwn()) {
+          <button type="button" class="profile-card__message" (click)="messageClicked.emit(profile.id)">
+            <app-icon name="message" />
+            Nachricht
+          </button>
+        }
+      } @else {
+        <p class="profile-card__missing">Dieses Profil ist nicht verfügbar.</p>
+      }
+    </section>
+  </div>
+}

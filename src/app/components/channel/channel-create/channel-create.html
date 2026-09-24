@@ -1,0 +1,64 @@
+<div class="dialog-backdrop" (click)="onBackdropClick()">
+  <section class="dialog-card" (click)="$event.stopPropagation()">
+    <header class="dialog-header">
+      <h1 class="dialog-header__title">Channel erstellen</h1>
+      <button
+        type="button"
+        class="dialog-header__close"
+        (click)="onClose()"
+        aria-label="Dialog schließen"
+      >
+        <app-icon name="close" />
+      </button>
+    </header>
+
+    <p class="dialog-text">
+      Channels dienen deinem Team zur Kommunikation. Am besten sollten sie themenbezogen sein
+      #marketing zum Beispiel.
+    </p>
+
+    <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="dialog-field">
+        <label class="dialog-field__label" for="channel-name">Channel-Name</label>
+        <label class="dialog-field__pill">
+          <app-icon class="dialog-field__icon" name="hash" />
+          <input
+            id="channel-name"
+            class="dialog-field__input"
+            type="text"
+            formControlName="name"
+            placeholder="z.B. Kooperationsprojekte"
+          />
+        </label>
+        <p class="dialog-field__error" [class.is-visible]="formError()" role="alert">
+          {{ formError() }}
+        </p>
+      </div>
+
+      <div class="dialog-field">
+        <label class="dialog-field__label" for="channel-description">
+          Beschreibung (optional)
+        </label>
+        <label class="dialog-field__pill dialog-field__pill--textarea">
+          <textarea
+            id="channel-description"
+            class="dialog-field__input"
+            formControlName="description"
+            placeholder="Dein Text hier"
+            rows="3"
+          ></textarea>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="submit" class="dialog-btn" [disabled]="formInvalid() || loading()">
+          @if (loading()) {
+            <app-spinner />
+          } @else {
+            Erstellen
+          }
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

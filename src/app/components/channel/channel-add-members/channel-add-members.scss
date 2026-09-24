@@ -1,0 +1,215 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+:host {
+  display: block;
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  @include mx.flex(row, center, center);
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.dialog-card {
+  width: 100%;
+  max-width: 710px;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  @include mx.flex(column, flex-start, stretch);
+  gap: 20px;
+  padding: 40px;
+  border-radius: 30px;
+  background: fct.color(white);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dialog-header {
+  @include mx.flex(row, space-between, center);
+  gap: 16px;
+}
+
+.dialog-header__title {
+  margin: 0;
+  @include mx.typo(nunito, 700);
+  font-size: 24px;
+  color: fct.color(black);
+}
+
+.dialog-header__close {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border: none;
+  outline: none;
+  border-radius: 50%;
+  background: fct.color(close-gray);
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.flex(row, center, center);
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(light-purple);
+  }
+
+  app-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.dialog-radio-group {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 12px;
+}
+
+.dialog-radio {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  border: none;
+  outline: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  @include mx.typo(nunito, 500);
+  font-size: 18px;
+  color: fct.color(black);
+  text-align: left;
+
+  app-icon {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    color: fct.color(light-purple);
+  }
+
+  &[aria-checked='true'] app-icon {
+    color: fct.color(purple-1);
+  }
+}
+
+.dialog-user-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  padding-left: 32px;
+  @include mx.flex(column, flex-start, stretch);
+  gap: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.dialog-user-row {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  padding: 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  @include mx.transition(150ms);
+
+  &:hover {
+    background: fct.color(background);
+  }
+}
+
+.dialog-user-row__checkbox {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  appearance: none;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 4px;
+  cursor: pointer;
+  @include mx.transition(150ms);
+
+  &:checked {
+    background: fct.color(purple-1)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E")
+      center / 12px no-repeat;
+    border-color: fct.color(purple-1);
+  }
+}
+
+.dialog-user-row__avatar {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dialog-user-row__name {
+  @include mx.typo(nunito, 500);
+  font-size: 16px;
+  color: fct.color(black);
+}
+
+// Fehlertext-Slot: immer im DOM, nur visibility toggeln -> kein Layout-Sprung.
+.dialog-field__error {
+  min-height: 19px;
+  margin: 0;
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  line-height: 19px;
+  color: fct.color(error);
+  visibility: hidden;
+
+  &.is-visible {
+    visibility: visible;
+  }
+}
+
+.dialog-actions {
+  @include mx.flex(row, flex-end, center);
+}
+
+.dialog-btn {
+  @include mx.flex(row, center, center);
+  width: 125px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 28px;
+  border-radius: 25px;
+  background: fct.color(purple-1);
+  color: fct.color(white);
+  @include mx.typo(nunito, 700);
+  font-size: 18px;
+  @include mx.transition();
+
+  &:hover:not(:disabled) {
+    background: fct.color(purple-2);
+  }
+
+  &:disabled {
+    background: fct.color(text-gray);
+    cursor: default;
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog-card {
+    padding: 24px 16px;
+    gap: 16px;
+  }
+
+  .dialog-header__title {
+    font-size: 20px;
+  }
+
+  .dialog-radio {
+    font-size: 16px;
+  }
+}
+
+.dialog-user-list__empty {
+  margin: 0;
+  @include mx.typo(nunito, 400);
+  font-size: 16px;
+  color: fct.color(text-gray);
+}

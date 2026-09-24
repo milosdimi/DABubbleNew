@@ -1,0 +1,45 @@
+<div class="legal-page">
+  <app-header variant="auth-register" />
+
+  <main class="legal">
+    <div class="legal__head">
+      <button type="button" class="legal__back" aria-label="Zurück" (click)="back()">
+        <app-icon name="arrow-back" />
+      </button>
+      <h1>Impressum</h1>
+    </div>
+
+    <!--
+      TODO vor Veroeffentlichung: fehlende Angaben (gelb markiert) ergaenzen und die
+      Pflichtangaben fuer das eigene Wohnsitzland pruefen (z. B. § 5 DDG in DE,
+      § 5 ECG / § 25 MedienG in AT). Kein Rechtsrat.
+    -->
+
+    <h2>Anbieter</h2>
+    <p>
+      Milos Dimitrijevic<br />
+      <span class="legal__placeholder">[Straße und Hausnummer]</span><br />
+      <span class="legal__placeholder">[PLZ Ort]</span><br />
+      <span class="legal__placeholder">[Land]</span>
+    </p>
+
+    <h2>Kontakt</h2>
+    <p>E-Mail: <span class="legal__placeholder">[E-Mail-Adresse]</span></p>
+
+    <h2>Über dieses Projekt</h2>
+    <p>
+      DABubble ist ein nicht-kommerzielles Portfolio-Projekt, entstanden im Rahmen der
+      Weiterbildung zum Frontend-Entwickler bei der Developer Akademie. Die Anwendung dient
+      ausschließlich Demonstrations- und Lernzwecken.
+    </p>
+
+    <h2>Haftung für Inhalte</h2>
+    <p>
+      Nachrichten im Chat werden von den Nutzerinnen und Nutzern selbst verfasst. Für diese Inhalte
+      sind die jeweiligen Verfasser verantwortlich. Rechtswidrige Inhalte werden nach Kenntnis
+      umgehend entfernt.
+    </p>
+  </main>
+
+  <app-footer />
+</div>

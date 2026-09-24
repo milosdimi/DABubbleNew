@@ -1,0 +1,19 @@
+:host {
+  display: inline-flex;
+  line-height: 0;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spinner-rotate 0.7s linear infinite;
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

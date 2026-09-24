@@ -1,0 +1,47 @@
+<header class="header" [class.header--app]="variant() === 'app'">
+  <a
+    class="header__logo"
+    [routerLink]="variant() === 'app' ? '/workspace' : '/login'"
+    aria-label="DABubble"
+  >
+    <img class="header__logo-icon" src="app-img/bubble-logo.svg" alt="" />
+    <span class="header__logo-text">DABubble</span>
+  </a>
+
+  @switch (variant()) {
+    @case ('auth-login') {
+      <div class="header__signup">
+        <span class="header__signup-text">Neu bei DABubble?</span>
+        <a class="header__signup-link" routerLink="/register">Konto erstellen</a>
+      </div>
+    }
+    @case ('app') {
+      <!-- TODO Figma-Wert pruefen: Suchfeld im Header (Funktion noch nicht vorgesehen). -->
+      <div class="header__user" appClickOutside (appClickOutside)="menuOpen.set(false)">
+        <button
+          type="button"
+          class="header__user-btn"
+          [attr.aria-expanded]="menuOpen()"
+          aria-haspopup="menu"
+          (click)="toggleMenu()"
+        >
+          <span class="header__user-name">{{ displayName() }}</span>
+          <img class="header__user-avatar" [src]="avatarUrl()" alt="" />
+          <app-icon name="chevron-down" />
+        </button>
+
+        @if (menuOpen()) {
+          <app-profile-menu
+            class="header__menu"
+            (profileClicked)="openOwnProfile()"
+            (logoutClicked)="logout()"
+          />
+        }
+      </div>
+    }
+  }
+</header>
+
+@if (profileOpen() && uid(); as ownUid) {
+  <app-profile-card [userId]="ownUid" (closed)="profileOpen.set(false)" />
+}

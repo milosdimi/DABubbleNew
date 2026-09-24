@@ -1,0 +1,227 @@
+<section class="main-chat">
+  <header class="main-chat__head">
+    @if (activeChannel(); as channel) {
+      <button type="button" class="main-chat__title" (click)="openChannelInfo(channel)">
+        <app-icon name="hash" />
+        <span>{{ channel.name }}</span>
+        <app-icon name="chevron-down" />
+      </button>
+
+      <div class="main-chat__head-actions">
+        <!-- TODO Figma-Wert pruefen: Mitglieder-Avatare statt Anzahl im Kopf. -->
+        <span class="main-chat__member-count">{{ channel.memberIds.length }} Mitglieder</span>
+        @if (canAddMembers()) {
+          <button
+            type="button"
+            class="main-chat__icon-btn"
+            aria-label="Mitglieder hinzufügen"
+            (click)="requestAddMembers(channel)"
+          >
+            <app-icon name="plus" />
+          </button>
+        }
+      </div>
+    } @else if (activePartner(); as partner) {
+      <button type="button" class="main-chat__title" (click)="profiles.openProfile(partner.id)">
+        <img class="main-chat__title-avatar" [src]="partner.avatarUrl" alt="" />
+        <span>{{ partner.name }}</span>
+      </button>
+    } @else {
+      <p class="main-chat__title main-chat__title--muted">Kein Chat ausgewählt</p>
+    }
+  </header>
+
+  <div class="main-chat__scroll">
+    @if (active() && messages().length === 0) {
+      <!-- TODO Figma-Wert pruefen: Leerzustand. -->
+      <p class="main-chat__empty">Hier gibt es noch keine Nachrichten. Schreib die erste!</p>
+    }
+
+    @for (message of messages(); track message.id; let index = $index) {
+      @if (dates.showDateSeparator(messages(), index)) {
+        <div class="main-chat__date-separator">
+          <span class="main-chat__date-line"></span>
+          <span class="main-chat__date-label">{{ dates.formatDateSeparator(message.timestamp) }}</span>
+          <span class="main-chat__date-line"></span>
+        </div>
+      }
+
+      <article class="main-chat__message" [class.main-chat__message--own]="isOwn(message)">
+        <img
+          class="main-chat__avatar"
+          [src]="profiles.getSenderAvatar(message.senderId)"
+          [alt]="profiles.getSenderName(message.senderId)"
+          role="button"
+          tabindex="0"
+          (click)="profiles.openProfile(message.senderId)"
+          (keydown.enter)="profiles.openProfile(message.senderId)"
+        />
+
+        <div class="main-chat__content">
+          <div class="main-chat__meta">
+            <button
+              type="button"
+              class="main-chat__name"
+              (click)="profiles.openProfile(message.senderId)"
+            >
+              {{ profiles.getSenderName(message.senderId) }}
+            </button>
+            <span class="main-chat__time">{{ profiles.formatMessageTime(message.timestamp) }}</span>
+          </div>
+
+          <div class="main-chat__bubble-wrap">
+            <div class="main-chat__bubble">
+              @if (message.text) {
+                <p class="main-chat__text">{{ message.text }}</p>
+              }
+              @if (message.attachmentPath && message.attachmentName) {
+                <button
+                  type="button"
+                  class="main-chat__attachment"
+                  (click)="openAttachment(message.attachmentPath)"
+                >
+                  <app-icon name="attachment" />
+                  {{ message.attachmentName }}
+                </button>
+              }
+            </div>
+
+            <div
+              class="main-chat__toolbar"
+              [class.main-chat__toolbar--active]="reactions.pickerMessageId() === message.id"
+            >
+              <div class="main-chat__picker-anchor">
+                <button
+                  type="button"
+                  class="main-chat__toolbar-btn"
+                  aria-label="Reaction hinzufügen"
+                  (click)="reactions.togglePicker(message.id)"
+                >
+                  ☺
+                </button>
+                @if (reactions.pickerMessageId() === message.id) {
+                  <div
+                    class="main-chat__picker"
+                    appClickOutside
+                    (appClickOutside)="reactions.closePicker()"
+                  >
+                    @for (emoji of reactions.emojis; track emoji) {
+                      <button type="button" (click)="reactions.toggle(message, emoji)">
+                        {{ emoji }}
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+              <button
+                type="button"
+                class="main-chat__toolbar-btn"
+                aria-label="Im Thread antworten"
+                (click)="openThread(message)"
+              >
+                <app-icon name="reply" />
+              </button>
+            </div>
+          </div>
+
+          @if (message.reactions.length > 0) {
+            <div class="main-chat__reactions">
+              @for (group of reactions.visibleGroups(message); track group.emoji) {
+                <button
+                  type="button"
+                  class="main-chat__reaction"
+                  [class.main-chat__reaction--mine]="group.mine"
+                  (click)="reactions.toggle(message, group.emoji)"
+                >
+                  <span>{{ group.emoji }}</span>
+                  <span>{{ group.count }}</span>
+                </button>
+              }
+              @if (reactions.hiddenCount(message) > 0) {
+                <button
+                  type="button"
+                  class="main-chat__reaction-toggle"
+                  (click)="reactions.toggleExpanded(message.id)"
+                >
+                  {{
+                    reactions.isExpanded(message.id)
+                      ? 'Weniger anzeigen'
+                      : '+' + reactions.hiddenCount(message)
+                  }}
+                </button>
+              }
+            </div>
+          }
+
+          @if (message.replyCount) {
+            <button type="button" class="main-chat__thread-link" (click)="openThread(message)">
+              {{ replyLabel(message.replyCount) }}
+            </button>
+          }
+        </div>
+      </article>
+    }
+  </div>
+
+  <div class="main-chat__input">
+    @if (selectedFile(); as file) {
+      <div class="main-chat__file-preview">
+        <app-icon name="attachment" />
+        <span class="main-chat__file-name">{{ file.name }}</span>
+        <button
+          type="button"
+          class="main-chat__icon-btn"
+          aria-label="Datei entfernen"
+          (click)="removeFile()"
+        >
+          <app-icon name="close" />
+        </button>
+      </div>
+    }
+
+    <textarea
+      class="main-chat__input-field"
+      rows="1"
+      [placeholder]="placeholder()"
+      [value]="draft()"
+      [disabled]="!active()"
+      (input)="onDraftInput($event)"
+      (keydown)="onDraftKeydown($event)"
+    ></textarea>
+
+    <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
+
+    <div class="main-chat__input-row">
+      <button
+        type="button"
+        class="main-chat__icon-btn"
+        aria-label="Datei anhängen"
+        [disabled]="!active()"
+        (click)="fileInput.click()"
+      >
+        <app-icon name="attachment" />
+      </button>
+      <button
+        type="button"
+        class="main-chat__send"
+        aria-label="Senden"
+        [disabled]="!canSend()"
+        (click)="send()"
+      >
+        <app-icon name="send" />
+      </button>
+    </div>
+  </div>
+
+  @if (profiles.selectedProfileUserId(); as uid) {
+    <app-profile-card
+      [userId]="uid"
+      (closed)="profiles.closeProfile()"
+      (messageClicked)="messageUser($event)"
+    />
+  }
+
+  @if (profiles.selectedChannelInfoId(); as channelId) {
+    <app-channel-info [channelId]="channelId" (closed)="profiles.closeChannelInfo()" />
+  }
+</section>

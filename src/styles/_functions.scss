@@ -1,0 +1,16 @@
+@use 'sass:map';
+@use 'variables' as var;
+
+/// Farbe aus der Palette ($colors in _variables.scss).
+/// Unbekannte Namen brechen den Build ab, statt still `null` zu liefern.
+@function color($name) {
+  @if not map.has-key(var.$colors, $name) {
+    @error "Unbekannte Farbe '#{$name}'. Verfuegbar: #{map.keys(var.$colors)}";
+  }
+  @return map.get(var.$colors, $name);
+}
+
+// Liefert die komplette font-family inkl. Fallback, z. B. font(nunito) -> 'Nunito', sans-serif
+@function font($name) {
+  @return map.get(var.$fonts, $name), sans-serif;
+}

@@ -1,0 +1,102 @@
+@use '../../../styles/functions' as fct;
+@use '../../../styles/mixins' as mx;
+
+:host {
+  display: block;
+}
+
+.intro {
+  @include mx.flex(row, center, center);
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+  cursor: pointer;
+  // Figma "00-Intro": 2-Farb-Verlauf
+  background: linear-gradient(1.46deg, #313ae6 1.22%, #797ef3 98.76%);
+}
+
+// Logo = 1:1 wie das Header-Logo (Groesse + Position). Ruhezustand (transform: none)
+// == genau die Position, an der auf der Login-Seite das <app-header>-Logo sitzt.
+// Die Animation startet gross + zentriert und "dockt" dorthin.
+.intro__logo {
+  @include mx.flex(row, center, center);
+  position: absolute;
+  top: clamp(24px, 6vw, 75px);
+  left: clamp(16px, 6vw, 75px);
+  gap: clamp(8px, 2vw, 16px);
+  transform-origin: top left;
+  will-change: transform;
+
+  --dock-x: 31vw;
+  --dock-y: 35vh;
+  --dock-scale: 2.4;
+
+  animation: intro-dock 850ms cubic-bezier(0.65, 0, 0.35, 1) 1450ms both;
+}
+
+.intro__icon {
+  height: clamp(40px, 8vw, 70px);
+  width: auto;
+  animation: intro-icon 500ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+// Phase 2: "DABubble" tippt sich von der Icon-Seite nach rechts raus.
+.intro__text {
+  width: clamp(96px, 20vw, 156px);
+  height: auto;
+  animation: intro-type 650ms steps(8) 550ms both;
+}
+
+@keyframes intro-icon {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes intro-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes intro-dock {
+  from {
+    transform: translate(var(--dock-x), var(--dock-y)) scale(var(--dock-scale));
+  }
+  to {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@media (max-width: 700px) {
+  .intro__logo {
+    --dock-x: 14vw;
+    --dock-y: 34vh;
+    --dock-scale: 1.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro__logo {
+    position: static;
+    transform: none;
+  }
+
+  .intro__logo,
+  .intro__icon,
+  .intro__text {
+    animation: none;
+  }
+
+  .intro__text {
+    clip-path: none;
+  }
+}

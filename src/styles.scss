@@ -1,0 +1,27 @@
+/* Globale Styles. Weitere Partials hier per @use einbinden. */
+@use 'styles/typography';
+@use 'styles/auth';
+@use 'styles/overlay';
+@use 'styles/legal';
+@use 'styles/functions' as fct;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  // TODO Figma-Wert pruefen: Standard-Schriftgewicht.
+  font-weight: 400;
+  min-height: 100dvh;
+  background: fct.color(background);
+  color: fct.color(black);
+}

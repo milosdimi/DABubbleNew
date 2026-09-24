@@ -1,0 +1,102 @@
+<div class="legal-page">
+  <app-header variant="auth-register" />
+
+  <main class="legal">
+    <div class="legal__head">
+      <button type="button" class="legal__back" aria-label="Zurück" (click)="back()">
+        <app-icon name="arrow-back" />
+      </button>
+      <h1>Datenschutz</h1>
+    </div>
+
+    <!--
+      TODO vor Veroeffentlichung: fehlende Angaben (gelb markiert) ergaenzen, Text
+      rechtlich pruefen und an den tatsaechlichen Datei-Speicher anpassen
+      (derzeit Supabase, Umstellung geplant). Kein Rechtsrat.
+    -->
+
+    <h2>1. Verantwortlicher</h2>
+    <p>
+      Milos Dimitrijevic, <span class="legal__placeholder">[Anschrift]</span>,
+      E-Mail: <span class="legal__placeholder">[E-Mail-Adresse]</span>
+    </p>
+
+    <h2>2. Zweck der Anwendung</h2>
+    <p>
+      DABubble ist ein nicht-kommerzielles Portfolio- und Lernprojekt. Die Anwendung ist ein
+      Messenger mit Channels, Direktnachrichten und Threads. Daten werden nur verarbeitet, soweit
+      das für diese Funktionen nötig ist.
+    </p>
+
+    <h2>3. Welche Daten verarbeitet werden</h2>
+    <ul>
+      <li>
+        <strong>Konto:</strong> Name, E-Mail-Adresse, gewählter Avatar und eine technische
+        Nutzer-ID. Bei der Anmeldung mit Google übernimmt DABubble Name, E-Mail-Adresse und
+        Profilbild aus dem Google-Konto.
+      </li>
+      <li>
+        <strong>Gast-Zugang:</strong> Es wird nur eine anonyme technische ID angelegt. Name oder
+        E-Mail-Adresse werden nicht gespeichert.
+      </li>
+      <li>
+        <strong>Inhalte:</strong> Nachrichten, Thread-Antworten, Reaktionen, Channel-Mitgliedschaften
+        sowie Name und Speicherort hochgeladener Dateien, jeweils mit Zeitstempel.
+      </li>
+      <li>
+        <strong>Dateianhänge:</strong> Hochgeladene Dateien werden in einem nicht öffentlichen
+        Speicher abgelegt und nur über zeitlich begrenzte Links geöffnet.
+      </li>
+    </ul>
+
+    <h2>4. Eingesetzte Dienste</h2>
+    <ul>
+      <li>
+        <strong>Google Firebase</strong> (Google Ireland Limited, Gordon House, Barrow Street,
+        Dublin 4, Irland): Anmeldung (Firebase Authentication), Datenbank (Cloud Firestore) und
+        Auslieferung der Website (Firebase Hosting).
+      </li>
+      <li>
+        <strong>Supabase</strong> (Supabase Inc., USA): Speicherung von Dateianhängen.
+        <span class="legal__placeholder">[Serverstandort / Anbieter nach Umstellung prüfen]</span>
+      </li>
+    </ul>
+    <p>
+      Bei diesen Diensten kann eine Übermittlung in die USA nicht ausgeschlossen werden. Sie
+      stützt sich auf das EU-US Data Privacy Framework bzw. die Standardvertragsklauseln der
+      EU-Kommission.
+    </p>
+
+    <h2>5. Speicherung im Browser</h2>
+    <p>
+      DABubble setzt keine Tracking- oder Werbe-Cookies und verwendet keine Analyse-Dienste. Im
+      Browser werden nur gespeichert: die Anmelde-Sitzung (Firebase, in IndexedDB) und ein Vermerk,
+      dass die Start-Animation bereits gezeigt wurde (localStorage).
+    </p>
+
+    <h2>6. Rechtsgrundlagen</h2>
+    <p>
+      Die Verarbeitung erfolgt zur Bereitstellung der Chat-Funktionen (Art. 6 Abs. 1 lit. b DSGVO)
+      sowie auf Grundlage des berechtigten Interesses am sicheren Betrieb der Anwendung
+      (Art. 6 Abs. 1 lit. f DSGVO).
+    </p>
+
+    <h2>7. Speicherdauer</h2>
+    <p>
+      Daten werden gespeichert, solange das Konto bzw. das Projekt besteht. Auf Anfrage werden
+      Konto und zugehörige Daten gelöscht.
+    </p>
+
+    <h2>8. Deine Rechte</h2>
+    <p>
+      Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung,
+      Datenübertragbarkeit und Widerspruch (Art. 15–21 DSGVO). Wende dich dafür an die oben
+      genannte Kontaktadresse. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde
+      beschweren.
+    </p>
+
+    <p class="legal__updated">Stand: September 2026</p>
+  </main>
+
+  <app-footer />
+</div>

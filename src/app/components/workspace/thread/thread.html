@@ -1,0 +1,282 @@
+<section class="thread">
+  <header class="thread__head">
+    <div class="thread__head-title">
+      <h1>Thread</h1>
+      @if (channelTag(); as tag) {
+        <span class="thread__tag">
+          <app-icon name="hash" />
+          {{ tag }}
+        </span>
+      }
+    </div>
+    <button type="button" class="thread__close" (click)="onClose()" aria-label="Thread schließen">
+      <app-icon name="close" />
+    </button>
+  </header>
+
+  @if (parentMessage(); as parent) {
+    <div class="thread__scroll">
+      <div class="thread__message" [class.thread__message--own]="isOwnMessage(parent.senderId)">
+        <img
+          class="thread__message-avatar"
+          [src]="getSenderAvatar(parent.senderId)"
+          [alt]="getSenderName(parent.senderId)"
+          role="button"
+          tabindex="0"
+          (click)="openProfile(parent.senderId)"
+          (keydown.enter)="openProfile(parent.senderId)"
+          (keydown.space)="openProfile(parent.senderId)"
+        />
+        <div class="thread__message-content">
+          <div class="thread__message-meta">
+            <span class="thread__message-time">{{ formatTime(parent.timestamp) }}</span>
+            <button
+              type="button"
+              class="thread__message-name"
+              (click)="openProfile(parent.senderId)"
+            >
+              {{ getSenderName(parent.senderId) }}
+            </button>
+          </div>
+
+          <div class="thread__message-bubble-wrap">
+            <div class="thread__message-bubble">
+              @if (parent.text) {
+                <p class="thread__message-text">{{ parent.text }}</p>
+              }
+              @if (parent.attachmentPath && parent.attachmentName) {
+                <button
+                  type="button"
+                  class="thread__message-attachment"
+                  (click)="openAttachment(parent.attachmentPath)"
+                >
+                  {{ parent.attachmentName }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="thread__divider"></div>
+
+      @if (replies().length === 0) {
+        <p class="thread__empty">Noch keine Antworten. Sei die/der Erste!</p>
+      }
+
+      @for (reply of replies(); track reply.id; let index = $index) {
+        @if (showDateSeparator(index)) {
+          <div class="thread__date-separator">
+            <span class="thread__date-line"></span>
+            <span class="thread__date-label">{{ formatDateSeparator(reply.timestamp) }}</span>
+            <span class="thread__date-line"></span>
+          </div>
+        }
+
+        <div class="thread__message" [class.thread__message--own]="isOwnMessage(reply.senderId)">
+          <img
+            class="thread__message-avatar"
+            [src]="getSenderAvatar(reply.senderId)"
+            [alt]="getSenderName(reply.senderId)"
+            role="button"
+            tabindex="0"
+            (click)="openProfile(reply.senderId)"
+            (keydown.enter)="openProfile(reply.senderId)"
+            (keydown.space)="openProfile(reply.senderId)"
+          />
+          <div class="thread__message-content">
+            <div class="thread__message-meta">
+              <span class="thread__message-time">{{ formatTime(reply.timestamp) }}</span>
+              <button
+                type="button"
+                class="thread__message-name"
+                (click)="openProfile(reply.senderId)"
+              >
+                {{ getSenderName(reply.senderId) }}
+              </button>
+            </div>
+
+            <div class="thread__message-bubble-wrap">
+              <div class="thread__message-bubble">
+                @if (reply.text) {
+                  <p class="thread__message-text">{{ reply.text }}</p>
+                }
+                @if (reply.attachmentPath && reply.attachmentName) {
+                  <button
+                    type="button"
+                    class="thread__message-attachment"
+                    (click)="openAttachment(reply.attachmentPath)"
+                  >
+                    {{ reply.attachmentName }}
+                  </button>
+                }
+              </div>
+
+              <div
+                class="thread__message-toolbar"
+                [class.thread__message-toolbar--active]="
+                  activeReactionReplyId() === reply.id || activeMessageMenuId() === reply.id
+                "
+              >
+                <div class="thread__reaction-menu">
+                  <button
+                    type="button"
+                    class="thread__toolbar-btn"
+                    aria-label="Reaction hinzufügen"
+                    (click)="toggleReactionPicker(reply.id)"
+                  >
+                    ☺
+                  </button>
+
+                  @if (activeReactionReplyId() === reply.id) {
+                    <div
+                      class="thread__reaction-picker"
+                      appClickOutside
+                      (appClickOutside)="closeReactionPicker()"
+                    >
+                      @for (emoji of reactionOptions; track emoji) {
+                        <button type="button" (click)="toggleReaction(reply, emoji)">
+                          {{ emoji }}
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+
+                @if (isOwnMessage(reply.senderId)) {
+                  <div class="thread__message-menu">
+                    <button
+                      type="button"
+                      class="thread__toolbar-btn"
+                      aria-label="Mehr Optionen"
+                      (click)="toggleMessageMenu(reply.id)"
+                    >
+                      ⋮
+                    </button>
+
+                    @if (activeMessageMenuId() === reply.id) {
+                      <div
+                        class="thread__context-menu"
+                        appClickOutside
+                        (appClickOutside)="closeMessageMenu()"
+                      >
+                        <button type="button" (click)="onEditMessage(reply.id)">
+                          Nachricht bearbeiten
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="thread__reactions">
+              @for (reaction of getReactionGroups(reply); track reaction.emoji) {
+                <div class="thread__reaction-wrap">
+                  <button
+                    type="button"
+                    class="thread__reaction"
+                    (click)="toggleReaction(reply, reaction.emoji)"
+                    (mouseleave)="hideReactionTooltip(reply.id)"
+                  >
+                    <span>{{ reaction.emoji }}</span>
+                    <span>{{ reaction.count }}</span>
+                  </button>
+
+                  @if (
+                    reactionTooltip()?.replyId === reply.id &&
+                    reactionTooltip()?.emoji === reaction.emoji
+                  ) {
+                    <div class="thread__reaction-tooltip">
+                      {{ reactionTooltip()!.text }}
+                      <span class="thread__reaction-tooltip-arrow"></span>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (!isReactionsExpanded(reply.id) && getHiddenReactionCount(reply) > 0) {
+                <span class="thread__reaction-overflow">
+                  +{{ getHiddenReactionCount(reply) }}
+                </span>
+                <button
+                  type="button"
+                  class="thread__reaction-toggle"
+                  (click)="toggleReactionList(reply.id)"
+                >
+                  weitere
+                </button>
+              }
+
+              @if (isReactionsExpanded(reply.id) && getHiddenReactionCount(reply) > 0) {
+                <span class="thread__reaction-overflow">
+                  +{{ getHiddenReactionCount(reply) }}
+                </span>
+              }
+
+              @if (isReactionsExpanded(reply.id)) {
+                <button
+                  type="button"
+                  class="thread__reaction-toggle"
+                  (click)="toggleReactionList(reply.id)"
+                >
+                  Weniger anzeigen
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="thread__input">
+      @if (selectedFile) {
+        <div class="thread__attachment-preview">
+          <app-icon name="attachment" />
+          <span class="thread__attachment-name">{{ selectedFile.name }}</span>
+          <button
+            type="button"
+            class="thread__input-icon"
+            aria-label="Datei entfernen"
+            (click)="removeSelectedFile()"
+          >
+            <app-icon name="close" />
+          </button>
+        </div>
+      }
+
+      <textarea
+        class="thread__input-field"
+        placeholder="Antworten..."
+        rows="1"
+        [value]="replyText"
+        (input)="onReplyInput($event)"
+        (keydown.enter)="onEnterKey($event)"
+      ></textarea>
+
+      <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
+
+      <div class="thread__input-row">
+        <button
+          type="button"
+          class="thread__input-icon"
+          aria-label="Datei anhängen"
+          (click)="fileInput.click()"
+        >
+          <app-icon name="attachment" />
+        </button>
+        <button type="button" class="thread__send" aria-label="Senden" (click)="onSendReply()">
+          <app-icon name="send" />
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="thread__body">
+      <p>Wähle eine Nachricht aus, um den Thread zu öffnen</p>
+    </div>
+  }
+
+  @if (selectedProfileUserId(); as userId) {
+    <app-profile-card [userId]="userId" (closed)="closeProfile()" />
+  }
+</section>

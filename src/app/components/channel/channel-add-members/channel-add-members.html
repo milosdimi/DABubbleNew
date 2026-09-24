@@ -1,0 +1,88 @@
+<div class="dialog-backdrop" (click)="onBackdropClick()">
+  <section class="dialog-card" (click)="$event.stopPropagation()">
+    <header class="dialog-header">
+      <h1 class="dialog-header__title">Leute hinzufügen</h1>
+      <button
+        type="button"
+        class="dialog-header__close"
+        (click)="onClose()"
+        aria-label="Dialog schließen"
+      >
+        <app-icon name="close" />
+      </button>
+    </header>
+
+    <div class="dialog-radio-group" role="radiogroup">
+      <button
+        type="button"
+        class="dialog-radio"
+        role="radio"
+        [attr.aria-checked]="mode() === 'all'"
+        (click)="selectMode('all')"
+      >
+        <app-icon [name]="mode() === 'all' ? 'radio-checked' : 'radio-unchecked'" />
+        Alle Mitglieder von DABubble hinzufügen
+      </button>
+
+      <button
+        type="button"
+        class="dialog-radio"
+        role="radio"
+        [attr.aria-checked]="mode() === 'specific'"
+        (click)="selectMode('specific')"
+      >
+        <app-icon [name]="mode() === 'specific' ? 'radio-checked' : 'radio-unchecked'" />
+        Bestimmte Leute hinzufügen
+      </button>
+
+      @if (mode() === 'specific') {
+        @if (users().length === 0 && purpose() === 'existing-channel') {
+          <p class="dialog-user-list__empty">Alle sind bereits Mitglied in diesem Channel.</p>
+        }
+        <ul class="dialog-user-list">
+          @for (user of users(); track user.id) {
+            <li>
+              <label class="dialog-user-row">
+                <input
+                  type="checkbox"
+                  class="dialog-user-row__checkbox"
+                  [checked]="isSelected(user.id)"
+                  (change)="toggleUser(user.id)"
+                />
+                <img class="dialog-user-row__avatar" [src]="user.avatarUrl" alt="" />
+                <span class="dialog-user-row__name">{{ user.name }}</span>
+              </label>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <p class="dialog-field__error" [class.is-visible]="formError()" role="alert">
+      {{ formError() }}
+    </p>
+
+    <div class="dialog-actions">
+      <button
+        type="button"
+        class="dialog-btn"
+        [disabled]="formInvalid() || loading()"
+        (click)="onSubmit()"
+      >
+        @if (loading()) {
+          <app-spinner />
+        } @else {
+          {{ purpose() === 'new-channel' ? 'Erstellen' : 'Hinzufügen' }}
+        }
+      </button>
+    </div>
+  </section>
+</div>
+
+@if (success()) {
+  <div class="toast-overlay" [class.toast-overlay--leaving]="leaving()">
+    <app-toast
+      [message]="purpose() === 'new-channel' ? 'Channel erstellt' : 'Mitglieder hinzugefügt'"
+    />
+  </div>
+}

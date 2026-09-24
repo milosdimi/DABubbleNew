@@ -1,0 +1,6 @@
+<div class="toast" role="status">
+  @if (icon(); as name) {
+    <app-icon class="toast__icon" [name]="name" />
+  }
+  <span>{{ message() }}</span>
+</div>

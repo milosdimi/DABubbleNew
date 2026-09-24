@@ -1,0 +1,128 @@
+<div class="dialog-backdrop" (click)="onBackdropClick()">
+  <section class="dialog-card" (click)="$event.stopPropagation()">
+    <header class="dialog-header">
+      <div class="dialog-header__title">
+        <app-icon name="hash" />
+        <h1>{{ channel()?.name }}</h1>
+      </div>
+      <button
+        type="button"
+        class="dialog-header__close"
+        (click)="onClose()"
+        aria-label="Dialog schließen"
+      >
+        <app-icon name="close" />
+      </button>
+    </header>
+
+    <div class="info-box">
+      <div class="info-box__row">
+        <span class="info-box__label">Channel-Name</span>
+        @if (isCreator() && !editingName()) {
+          <button type="button" class="info-box__edit-link" (click)="startEditName()">
+            Bearbeiten
+          </button>
+        }
+      </div>
+
+      @if (editingName()) {
+        <label class="info-box__edit-field">
+          <app-icon class="info-box__icon" name="hash" />
+          <input
+            class="info-box__input"
+            type="text"
+            [formControl]="nameControl"
+            (keydown.enter)="saveName()"
+            (keydown.escape)="cancelEditName($event)"
+          />
+          <button
+            type="button"
+            class="info-box__save"
+            [disabled]="savingName()"
+            (click)="saveName()"
+            aria-label="Name speichern"
+          >
+            @if (savingName()) {
+              <app-spinner />
+            } @else {
+              <app-icon name="check" />
+            }
+          </button>
+        </label>
+        <p class="info-box__error" [class.is-visible]="nameFieldError()" role="alert">
+          {{ nameFieldError() }}
+        </p>
+      } @else {
+        <div class="info-box__value">
+          <app-icon class="info-box__icon" name="hash" />
+          <span>{{ channel()?.name }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="info-box">
+      <div class="info-box__row">
+        <span class="info-box__label">Beschreibung</span>
+        @if (isCreator() && !editingDescription()) {
+          <button type="button" class="info-box__edit-link" (click)="startEditDescription()">
+            Bearbeiten
+          </button>
+        }
+      </div>
+
+      @if (editingDescription()) {
+        <div class="info-box__edit-field info-box__edit-field--textarea">
+          <textarea
+            class="info-box__textarea"
+            [formControl]="descriptionControl"
+            (keydown.escape)="cancelEditDescription($event)"
+            rows="3"
+          ></textarea>
+          <button
+            type="button"
+            class="info-box__save"
+            [disabled]="savingDescription()"
+            (click)="saveDescription()"
+            aria-label="Beschreibung speichern"
+          >
+            @if (savingDescription()) {
+              <app-spinner />
+            } @else {
+              <app-icon name="check" />
+            }
+          </button>
+        </div>
+        <p class="info-box__error" [class.is-visible]="descriptionSaveError()" role="alert">
+          {{ descriptionSaveError() }}
+        </p>
+      } @else {
+        <p class="info-box__value info-box__value--text">
+          {{ channel()?.description || 'Keine Beschreibung vorhanden' }}
+        </p>
+      }
+
+      <div class="info-box__divider"></div>
+
+      <div class="info-box__creator">
+        <span class="info-box__label">Erstellt von</span>
+        <span class="info-box__creator-name">{{ creator()?.name }}</span>
+      </div>
+    </div>
+
+    <div class="dialog-actions">
+      <button type="button" class="leave-btn" [disabled]="leaving()" (click)="onLeaveClick()">
+        @if (leaving()) {
+          <app-spinner />
+        } @else {
+          {{ leaveLabel }}
+        }
+      </button>
+    </div>
+  </section>
+</div>
+
+@if (success()) {
+  <div class="toast-overlay" [class.toast-overlay--leaving]="leavingToast()">
+    <app-toast message="Channel gespeichert" />
+  </div>
+}

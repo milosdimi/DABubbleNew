@@ -1,0 +1,153 @@
+rules_version = '2';
+
+// Firestore Rules fuer DABubble.
+// Deploy: npx firebase-tools deploy --only firestore:rules
+//
+// Grundsaetze:
+// - Gaeste = anonymer Firebase-Login. Sie haben kein users-Dokument, sehen nur
+//   Demo-User und Channels mit guestVisible == true.
+// - Channel-Sichtbarkeit (identisch zu ChannelService.visibilityQueries):
+//     guestVisible            -> alle eingeloggten (auch Gaeste)
+//     name == "Office-Team"   -> alle registrierten
+//     sonst                   -> nur Mitglieder (memberIds)
+// - Loeschen ist nirgends vorgesehen.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------------- Helfer
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isGuest() {
+      return signedIn() && request.auth.token.firebase.sign_in_provider == 'anonymous';
+    }
+
+    function isRegistered() {
+      return signedIn() && !isGuest();
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    /** Aendert das Update nur die genannten Felder? */
+    function onlyChanges(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    function canReadChannel(channel) {
+      return (signedIn() && channel.guestVisible == true)
+        || (isRegistered() && (channel.name == 'Office-Team' || uid() in channel.memberIds));
+    }
+
+    function channelData(channelId) {
+      return get(/databases/$(database)/documents/channels/$(channelId)).data;
+    }
+
+    function isDmMember(dmId) {
+      return signedIn()
+        && uid() in get(/databases/$(database)/documents/directChats/$(dmId)).data.memberIds;
+    }
+
+    /** Neue Nachricht: eigener Absender, ID passt zum Dokument, Reactions leer. */
+    function isValidNewMessage(messageId) {
+      let data = request.resource.data;
+      return data.senderId == uid()
+        && data.id == messageId
+        && data.text is string
+        && data.timestamp is number
+        && data.reactions == [];
+    }
+
+    /** Reactions setzen und den Antwort-Zaehler erhoehen darf jeder Leser. */
+    function isReactionOrCounterUpdate() {
+      return onlyChanges(['reactions', 'replyCount']);
+    }
+
+    // ----------------------------------------------------------------- Users
+
+    match /users/{userId} {
+      allow read: if isRegistered() || (isGuest() && resource.data.isDemo == true);
+      allow create: if isRegistered()
+        && userId == uid()
+        && request.resource.data.id == uid();
+      allow update: if isRegistered()
+        && userId == uid()
+        && onlyChanges(['name', 'avatarUrl', 'onlineStatus']);
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------- Channels
+
+    match /channels/{channelId} {
+      allow read: if canReadChannel(resource.data);
+
+      allow create: if isRegistered()
+        && request.resource.data.id == channelId
+        && request.resource.data.createdBy == uid()
+        && uid() in request.resource.data.memberIds;
+
+      // Mitglieder duerfen Mitglieder hinzufuegen und selbst austreten.
+      // Name/Beschreibung aendern darf nur der Ersteller.
+      allow update: if isRegistered()
+        && uid() in resource.data.memberIds
+        && onlyChanges(['name', 'description', 'memberIds'])
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['name', 'description'])
+            || uid() == resource.data.createdBy);
+
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if canReadChannel(channelData(channelId));
+        allow create: if canReadChannel(channelData(channelId))
+          && isValidNewMessage(messageId)
+          && request.resource.data.channelId == channelId;
+        allow update: if canReadChannel(channelData(channelId))
+          && isReactionOrCounterUpdate();
+        allow delete: if false;
+
+        match /replies/{replyId} {
+          allow read: if canReadChannel(channelData(channelId));
+          allow create: if canReadChannel(channelData(channelId))
+            && isValidNewMessage(replyId)
+            && request.resource.data.threadId == messageId;
+          allow update: if canReadChannel(channelData(channelId))
+            && isReactionOrCounterUpdate();
+          allow delete: if false;
+        }
+      }
+    }
+
+    // ----------------------------------------------------------- Direktchats
+
+    match /directChats/{dmId} {
+      allow read: if signedIn() && uid() in resource.data.memberIds;
+      allow create: if signedIn()
+        && request.resource.data.id == dmId
+        && request.resource.data.memberIds.size() == 2
+        && uid() in request.resource.data.memberIds;
+      allow update, delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if isDmMember(dmId);
+        allow create: if isDmMember(dmId)
+          && isValidNewMessage(messageId)
+          && request.resource.data.dmId == dmId;
+        allow update: if isDmMember(dmId) && isReactionOrCounterUpdate();
+        allow delete: if false;
+
+        match /replies/{replyId} {
+          allow read: if isDmMember(dmId);
+          allow create: if isDmMember(dmId)
+            && isValidNewMessage(replyId)
+            && request.resource.data.threadId == messageId;
+          allow update: if isDmMember(dmId) && isReactionOrCounterUpdate();
+          allow delete: if false;
+        }
+      }
+    }
+  }
+}

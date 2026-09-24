@@ -1,0 +1,50 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+// Gemeinsame Auth-Basis (Card, Pillen, Buttons, Fehler-Slots) liegt global
+// in src/styles/_auth.scss. Hier nur Login-spezifische Bausteine.
+
+:host {
+  display: block;
+}
+
+.login__forgot {
+  align-self: flex-end;
+  @include mx.typo(figtree, 400);
+  font-size: 18px;
+  color: fct.color(purple-2);
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.login__actions {
+  @include mx.flex(column, center, center);
+  gap: 16px;
+}
+
+.login__actions-row {
+  @include mx.flex(row, center, center);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.login__divider {
+  @include mx.flex(row, center, center);
+  align-self: stretch;
+  gap: 16px;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1 1 auto;
+    height: 1px;
+    background: fct.color(light-purple);
+  }
+}

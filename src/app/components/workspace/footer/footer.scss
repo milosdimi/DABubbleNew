@@ -1,0 +1,23 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+.footer {
+  @include mx.flex(row, center, center);
+  gap: 32px;
+  padding: 24px 16px 32px;
+}
+
+.footer__link {
+  padding: 8px 16px;
+  border-radius: 100px;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(purple-2);
+  text-decoration: none;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(white);
+    color: fct.color(purple-1);
+  }
+}

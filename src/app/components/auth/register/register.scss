@@ -1,0 +1,117 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+:host {
+  display: block;
+}
+
+.register__consent {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  @include mx.typo(nunito, 400);
+  font-size: 16px;
+  color: fct.color(black);
+
+  a {
+    color: fct.color(purple-2);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.register__checkbox {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  appearance: none;
+  border: 1px solid fct.color(purple-2);
+  border-radius: 4px;
+  cursor: pointer;
+  @include mx.transition(150ms);
+
+  &:checked {
+    background: fct.color(purple-2)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E")
+      center / 14px no-repeat;
+  }
+}
+
+.register__submit {
+  padding-inline: 32px;
+}
+
+// --- Schritt 2: Avatar-Auswahl ---
+.avatar-step {
+  @include mx.flex(column, flex-start, center);
+  gap: 20px;
+}
+
+.avatar-step__preview {
+  @include mx.flex(row, center, center);
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.avatar-step__preview--chosen {
+  padding: 16px;
+  background: fct.color(purple-2);
+
+  img {
+    border-radius: 50%;
+  }
+}
+
+.avatar-step__name {
+  margin: 0;
+  @include mx.typo(nunito, 700);
+  font-size: 32px;
+  color: fct.color(black);
+  text-align: center;
+}
+
+.avatar-step__choices {
+  @include mx.flex(row, center, center);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.avatar-step__choice {
+  @include mx.flex(row, center, center);
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border: 3px solid transparent;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  @include mx.transition(150ms);
+
+  img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+}
+
+.avatar-step__choice--selected {
+  border-color: fct.color(purple-1);
+}
+
+@media (max-width: 480px) {
+  .register__consent {
+    font-size: 14px;
+  }
+}

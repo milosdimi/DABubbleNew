@@ -1,0 +1,519 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+:host {
+  display: block;
+  flex: 0 0 485px;
+  min-width: 0;
+  height: 100%;
+}
+
+.thread {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+  padding: 24px;
+  border-radius: 30px;
+  background: fct.color(white);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.thread__head {
+  @include mx.flex(row, space-between, center);
+  gap: 16px;
+}
+
+.thread__head-title {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  min-width: 0;
+
+  h1 {
+    margin: 0;
+    @include mx.typo(nunito, 700);
+    font-size: 24px;
+    color: fct.color(black);
+  }
+}
+
+.thread__tag {
+  @include mx.flex(row, flex-start, center);
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: fct.color(background);
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(purple-2);
+
+  app-icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.thread__close {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border: none;
+  outline: none;
+  border-radius: 50%;
+  background: fct.color(close-gray);
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.flex(row, center, center);
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+  }
+
+  app-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.thread__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  @include mx.flex(row, center, center);
+  text-align: center;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(text-gray);
+}
+
+// --- Nachrichten-Liste (Ausgangsnachricht + Antworten, gleiche Struktur) ---
+.thread__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  @include mx.flex(column, flex-start, stretch);
+  gap: 16px;
+  padding-right: 4px;
+}
+
+.thread__divider {
+  height: 1px;
+  background: fct.color(light-purple);
+}
+
+.thread__empty {
+  margin: 0;
+  @include mx.typo(nunito, 400);
+  font-size: 15px;
+  color: fct.color(text-gray);
+  text-align: center;
+}
+
+.thread__message {
+  width: 100%;
+  @include mx.flex(row, flex-start, flex-start);
+  gap: 12px;
+}
+
+.thread__message--own {
+  flex-direction: row-reverse;
+}
+
+.thread__message-avatar {
+  flex: 0 0 auto;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.thread__message-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  @include mx.flex(column, flex-start, flex-start);
+  gap: 6px;
+}
+
+.thread__message--own .thread__message-content {
+  align-items: flex-end;
+}
+
+.thread__message-meta {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+}
+
+.thread__message-time {
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(text-gray);
+}
+
+.thread__message-name {
+  margin: -2px -6px;
+  padding: 2px 6px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  @include mx.typo(nunito, 700);
+  font-size: 18px;
+  color: fct.color(black);
+  @include mx.transition(100ms);
+
+  &:hover {
+    background: fct.color(background);
+  }
+}
+
+.thread__message-bubble-wrap {
+  position: relative;
+  max-width: 100%;
+}
+
+.thread__message-bubble {
+  @include mx.flex(row, flex-start, center);
+  gap: 8px;
+  max-width: 100%;
+  padding: 10px 14px;
+  border-radius: 0 20px 20px 20px;
+  background: fct.color(background);
+}
+
+.thread__message--own .thread__message-bubble {
+  border-radius: 20px 0 20px 20px;
+  background: fct.color(purple-2);
+  color: fct.color(white);
+}
+
+.thread__message-text {
+  margin: 0;
+  overflow-wrap: anywhere;
+  @include mx.typo(nunito, 400);
+  font-size: 16px;
+  line-height: 1.4;
+  color: fct.color(black);
+}
+
+.thread__message--own .thread__message-text {
+  color: fct.color(white);
+}
+
+.thread__message-attachment {
+  @include mx.flex(row, flex-start, center);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+
+  &:hover {
+    color: fct.color(purple-1);
+  }
+}
+
+// --- Datum-Trenner (gleiche Werte wie main-chat) ---
+.thread__date-separator {
+  width: 100%;
+  @include mx.flex(row, center, center);
+}
+
+.thread__date-line {
+  flex: 1 1 auto;
+  height: 1px;
+  background: fct.color(light-purple);
+}
+
+.thread__date-label {
+  flex: 0 0 auto;
+  padding: 6px 14px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 16px;
+  background: fct.color(white);
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(black);
+}
+
+// --- Reactions (Pillen-Stil Figma-bestaetigt, Overflow wie main-chat) ---
+.thread__reactions {
+  position: relative;
+  @include mx.flex(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.thread__reaction-wrap {
+  position: relative;
+}
+
+.thread__reaction {
+  @include mx.flex(row, center, center);
+  gap: 4px;
+  min-width: 42px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 25px 25px 0 25px;
+  background: fct.color(white);
+  cursor: pointer;
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+}
+
+// Tooltip: wer hat reagiert, verschwindet automatisch/bei Mouse-Leave.
+.thread__reaction-tooltip {
+  position: absolute;
+  z-index: 15;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: fct.color(purple-1);
+  color: fct.color(white);
+  white-space: nowrap;
+  @include mx.typo(nunito, 500);
+  font-size: 13px;
+}
+
+.thread__reaction-tooltip-arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: fct.color(purple-1);
+}
+
+.thread__reaction-overflow {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 16px;
+  background: fct.color(white);
+  @include mx.flex(row, center, center);
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(text-gray);
+}
+
+.thread__reaction-toggle {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 16px;
+  background: fct.color(white);
+  cursor: pointer;
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(black);
+
+  &:hover {
+    background: fct.color(background);
+  }
+}
+
+// --- Hover-Toolbar an der Bubble (Reaction hinzufuegen + Mehr-Optionen) ---
+// Nur bei Hover ueber die Bubble sichtbar (kein Layout-Shift, reine
+// Opacity-Transition), bleibt zusaetzlich sichtbar solange ein Picker/Menue
+// daraus offen ist (--active).
+.thread__message-toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(-50%);
+  @include mx.flex(row, flex-end, center);
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  @include mx.transition(150ms);
+}
+
+.thread__message-bubble-wrap:hover .thread__message-toolbar,
+.thread__message-toolbar--active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.thread__toolbar-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 50%;
+  background: fct.color(white);
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.flex(row, center, center);
+  font-size: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  @include mx.transition(100ms);
+
+  &:hover {
+    background: fct.color(background);
+  }
+}
+
+.thread__reaction-menu,
+.thread__message-menu {
+  position: relative;
+}
+
+.thread__reaction-picker {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  right: 0;
+  width: min(260px, 260px);
+  max-height: 220px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+  gap: 4px;
+  padding: 8px;
+  border-radius: 16px;
+  background: fct.color(white);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+
+  button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    justify-self: center;
+
+    &:hover {
+      background: fct.color(background);
+    }
+  }
+}
+
+.thread__context-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  padding: 8px;
+  border-radius: 16px;
+  background: fct.color(white);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+
+  button {
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 10px;
+    background: none;
+    color: fct.color(black);
+    text-align: left;
+    cursor: pointer;
+    @include mx.typo(nunito, 500);
+    font-size: 15px;
+
+    &:hover {
+      background: fct.color(background);
+    }
+  }
+}
+
+// --- Eingabefeld (1:1 main-chat-Pattern, schmalere Spalte) ---
+.thread__input {
+  flex: 0 0 auto;
+  @include mx.flex(column, flex-start, stretch);
+  gap: 8px;
+  padding: 16px 20px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 20px;
+}
+
+.thread__input-field {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 16px;
+  color: fct.color(black);
+
+  &::placeholder {
+    color: fct.color(text-gray);
+  }
+}
+
+.thread__attachment-preview {
+  @include mx.flex(row, flex-start, center);
+  gap: 8px;
+}
+
+.thread__attachment-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(text-gray);
+}
+
+.thread__input-row {
+  @include mx.flex(row, space-between, center);
+}
+
+.thread__input-icon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: none;
+  outline: none;
+  background: none;
+  color: fct.color(text-gray);
+  cursor: pointer;
+  @include mx.flex(row, center, center);
+
+  &:hover {
+    color: fct.color(purple-1);
+  }
+
+  app-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.thread__send {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border: none;
+  outline: none;
+  border-radius: 50%;
+  background: fct.color(purple-1);
+  color: fct.color(white);
+  cursor: pointer;
+  @include mx.flex(row, center, center);
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(purple-2);
+  }
+
+  app-icon {
+    width: 18px;
+    height: 18px;
+  }
+}

@@ -1,0 +1,177 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+// TODO Figma-Wert pruefen: Masse, Abstaende, Farben.
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.sidebar {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 24px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 24px;
+  border-radius: 30px;
+  background: fct.color(white);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar__workspace {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+}
+
+.sidebar__workspace-logo {
+  width: 48px;
+  height: 48px;
+}
+
+.sidebar__workspace-name {
+  @include mx.typo(nunito, 700);
+  font-size: 24px;
+}
+
+.sidebar__section {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 8px;
+}
+
+.sidebar__section-head {
+  @include mx.flex(row, flex-start, center);
+  gap: 8px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 100px;
+  background: transparent;
+  @include mx.typo(nunito, 700);
+  font-size: 20px;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    color: fct.color(purple-2);
+  }
+}
+
+.sidebar__chevron {
+  width: 20px;
+  height: 20px;
+  @include mx.transition();
+
+  &--closed {
+    transform: rotate(-90deg);
+  }
+}
+
+.sidebar__list {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 2px;
+  margin: 0;
+  padding: 0 0 0 16px;
+  list-style: none;
+}
+
+.sidebar__item {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  width: 100%;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 100px;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  text-align: left;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+    color: fct.color(purple-2);
+  }
+
+  &--active {
+    background: fct.color(background);
+    @include mx.typo(nunito, 700);
+    color: fct.color(purple-1);
+  }
+
+  app-icon {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.sidebar__item-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__avatar-wrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.sidebar__avatar {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sidebar__status {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  border: 2px solid fct.color(white);
+  border-radius: 50%;
+  background: fct.color(text-gray);
+
+  // TODO Figma-Wert pruefen: Farbe fuer "aktiv".
+  &[data-status='online'] {
+    background: #2e9f4f;
+  }
+}
+
+.sidebar__empty {
+  padding: 6px 16px;
+  @include mx.typo(nunito, 400);
+  font-size: 16px;
+  color: fct.color(text-gray);
+}
+
+.sidebar__add {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  margin-left: 16px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 100px;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+    color: fct.color(purple-2);
+  }
+
+  app-icon {
+    width: 18px;
+    height: 18px;
+  }
+}

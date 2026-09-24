@@ -1,0 +1,68 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+// TODO Figma-Wert pruefen: Spaltenbreiten, Abstaende; Mobile-Layout fehlt noch.
+
+:host {
+  display: block;
+}
+
+.workspace {
+  @include mx.flex(column, flex-start, stretch);
+  height: 100dvh;
+  background: fct.color(background);
+}
+
+.workspace__columns {
+  @include mx.flex(row, flex-start, stretch);
+  flex: 1 1 auto;
+  gap: 20px;
+  min-height: 0;
+  padding: 0 24px 24px;
+}
+
+.workspace__side {
+  @include mx.flex(column, flex-start, stretch);
+  flex: 0 0 366px;
+  gap: 12px;
+  min-height: 0;
+
+  app-sidebar {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  &--closed {
+    flex-basis: auto;
+    justify-content: flex-end;
+  }
+}
+
+.workspace__toggle {
+  @include mx.flex(row, center, center);
+  gap: 10px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 30px;
+  background: fct.color(white);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+  @include mx.typo(nunito, 600);
+  font-size: 16px;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    color: fct.color(purple-2);
+  }
+
+  app-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .workspace__side--closed & {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+}

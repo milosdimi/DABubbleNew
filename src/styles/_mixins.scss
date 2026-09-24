@@ -1,0 +1,31 @@
+@use 'functions' as fct;
+
+/// Flex-Container in einer Zeile: Richtung, Hauptachse, Querachse.
+@mixin flex($direction, $justify, $align) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+}
+
+/// Schriftfamilie (Schluessel aus $fonts) plus Gewicht.
+@mixin typo($font, $weight) {
+  font-family: fct.font($font);
+  font-weight: $weight;
+}
+
+/// Einheitliche Uebergaenge fuer Hover-/Fokus-Zustaende.
+/// TODO Figma-Wert pruefen: Standarddauer.
+@mixin transition($duration: 200ms) {
+  transition: all $duration ease-in-out;
+}
+
+// Figma-Textstyle "Bold Display" – Headline der Auth-Screens (Login, Register, ...)
+@mixin display-title {
+  @include typo(nunito, 700);
+  font-size: 46px;
+  text-align: center;
+  color: fct.color(purple-1);
+}
+
+/* @include mx.display-title; */

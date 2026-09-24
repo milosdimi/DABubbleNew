@@ -1,0 +1,91 @@
+// Gemeinsames Layout fuer Impressum und Datenschutz. Global eingebunden via styles.scss.
+@use 'functions' as fct;
+@use 'mixins' as mx;
+
+.legal-page {
+  @include mx.flex(column, flex-start, stretch);
+  min-height: 100dvh;
+  background: fct.color(background);
+}
+
+.legal {
+  width: 100%;
+  max-width: 900px;
+  margin: 32px auto;
+  padding: 40px;
+  border-radius: 30px;
+  background: fct.color(white);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  line-height: 1.5;
+
+  @media (max-width: 600px) {
+    margin: 16px auto;
+    padding: 24px;
+    border-radius: 20px;
+  }
+
+  h1 {
+    margin: 0;
+    @include mx.typo(nunito, 700);
+    font-size: 40px;
+    color: fct.color(purple-1);
+  }
+
+  h2 {
+    margin: 32px 0 8px;
+    @include mx.typo(nunito, 700);
+    font-size: 22px;
+  }
+
+  p,
+  ul {
+    margin: 0 0 12px;
+  }
+
+  a {
+    color: fct.color(purple-1);
+  }
+}
+
+.legal__head {
+  @include mx.flex(row, flex-start, center);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.legal__back {
+  @include mx.flex(row, center, center);
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: fct.color(purple-1);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+  }
+
+  app-icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.legal__placeholder {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: #fff3c4; // markiert noch fehlende Angaben
+}
+
+.legal__updated {
+  margin-top: 32px;
+  font-size: 14px;
+  color: fct.color(text-gray);
+}

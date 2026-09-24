@@ -1,0 +1,237 @@
+// Gemeinsame Basis aller Auth-Screens (Login, Register, Passwort vergessen, Reset).
+// Aus login.scss extrahiert. Global eingebunden via styles.scss.
+@use 'functions' as fct;
+@use 'mixins' as mx;
+
+.auth-page {
+  @include mx.flex(column, flex-start, stretch);
+  min-height: 100dvh;
+  background: fct.color(background);
+
+  // Header, Content und Footer auf eine zentrierte Spalte begrenzen
+  // (Hintergrund bleibt vollflächig). 1920 = Figma-Frame, bei Bedarf anpassen.
+  > * {
+    width: 100%;
+    max-width: 1920px;
+    margin-inline: auto;
+  }
+}
+
+.auth-page__content {
+  @include mx.flex(column, center, center);
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 24px 16px;
+}
+
+.auth-card {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  @include mx.flex(column, flex-start, stretch);
+  gap: 24px;
+  padding: 40px;
+  border-radius: 30px;
+  background: fct.color(white);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.auth-card__title {
+  @include mx.display-title;
+  margin: 0;
+}
+
+.auth-card__subtitle {
+  margin: 0;
+  text-align: center;
+  @include mx.typo(nunito, 400);
+  font-size: 20px;
+  color: fct.color(black);
+}
+
+.auth-form {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 16px;
+}
+
+// --- Input-Pille mit Icon + Placeholder ---
+.auth-field__pill {
+  @include mx.flex(row, flex-start, center);
+  gap: 16px;
+  padding: 18px 32px;
+  border-radius: 100px;
+  background: fct.color(background);
+  cursor: text;
+}
+
+.auth-field__pill--invalid {
+  outline: 1px solid fct.color(error);
+}
+
+.auth-field__icon {
+  flex: 0 0 auto;
+  color: fct.color(text-gray);
+}
+
+.auth-field__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  @include mx.typo(nunito, 500);
+  font-size: 18px;
+  color: fct.color(text-gray);
+
+  &::placeholder {
+    color: fct.color(text-gray);
+  }
+}
+
+// Passwort-Sichtbarkeits-Toggle, rechts in der Pille.
+.auth-field__toggle {
+  @include mx.flex(row, center, center);
+  flex: 0 0 auto;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: none;
+  color: fct.color(text-gray);
+  cursor: pointer;
+
+  app-icon {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+// Fehlertext-Slot: immer im DOM, nur visibility toggeln -> kein Layout-Sprung.
+.auth-field__error {
+  min-height: 19px;
+  margin-top: 6px;
+  padding-left: 32px;
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  line-height: 19px;
+  color: fct.color(error);
+  visibility: hidden;
+
+  &.is-visible {
+    visibility: visible;
+  }
+}
+
+// Formular-Fehler-Slot (z. B. "Anmeldung fehlgeschlagen."): reserviert 2 Zeilen.
+.auth-form-error {
+  min-height: 40px;
+  margin: 0;
+  text-align: center;
+  @include mx.typo(nunito, 500);
+  font-size: 16px;
+  line-height: 20px;
+  color: fct.color(error);
+  visibility: hidden;
+
+  &.is-visible {
+    visibility: visible;
+  }
+}
+
+// --- Buttons ---
+// Aktions-Zeile am Kartenende: "Zurück" links, Primär-Aktion rechts.
+.auth-actions {
+  @include mx.flex(row, space-between, center);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.auth-actions--center {
+  justify-content: center;
+}
+
+.auth-btn {
+  @include mx.flex(row, center, center);
+  display: inline-flex;
+  gap: 8px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 28px;
+  border-radius: 25px;
+  @include mx.typo(nunito, 700);
+  font-size: 18px;
+  text-decoration: none;
+  @include mx.transition();
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  app-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.auth-btn__icon {
+  width: 24px;
+  height: 24px;
+}
+
+.auth-btn--primary {
+  background: fct.color(purple-1);
+  color: fct.color(white);
+
+  &:hover:not(:disabled) {
+    background: fct.color(purple-2);
+  }
+
+  &:disabled {
+    background: fct.color(text-gray);
+    opacity: 1;
+  }
+}
+
+.auth-btn--secondary {
+  background: fct.color(white);
+  color: fct.color(purple-2);
+  border: 1px solid fct.color(purple-2);
+
+  &:hover:not(:disabled) {
+    background: fct.color(background);
+  }
+}
+
+.auth-btn--google {
+  gap: 12px;
+  background: fct.color(white);
+  color: fct.color(black);
+  border: 1px solid fct.color(light-purple);
+
+  &:hover:not(:disabled) {
+    background: fct.color(background);
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 24px 16px;
+  }
+
+  .auth-card__title {
+    font-size: 32px;
+  }
+
+  .auth-card__subtitle {
+    font-size: 16px;
+  }
+
+  .auth-field__pill {
+    padding: 14px 20px;
+  }
+
+  .auth-field__error {
+    padding-left: 20px;
+  }
+}

@@ -1,0 +1,157 @@
+<div class="auth-page">
+  <app-header variant="auth-register"></app-header>
+
+  <main class="auth-page__content">
+    <section class="auth-card">
+      @if (step() === 'form') {
+        <h1 class="auth-card__title">Konto erstellen</h1>
+        <p class="auth-card__subtitle">
+          Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues DABubble-Konto.
+        </p>
+
+        <form class="auth-form" [formGroup]="form" (ngSubmit)="goToAvatarStep()" novalidate>
+          <div class="auth-field">
+            <label class="auth-field__pill" [class.auth-field__pill--invalid]="nameError()">
+              <app-icon class="auth-field__icon" name="person" />
+              <input
+                class="auth-field__input"
+                type="text"
+                formControlName="name"
+                autocomplete="name"
+                placeholder="Name und Nachname"
+              />
+            </label>
+            <p class="auth-field__error" [class.is-visible]="nameError()" aria-live="polite">
+              {{ nameError() }}
+            </p>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-field__pill" [class.auth-field__pill--invalid]="emailError()">
+              <app-icon class="auth-field__icon" name="mail" />
+              <input
+                class="auth-field__input"
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+                placeholder="beispielname@email.com"
+              />
+            </label>
+            <p class="auth-field__error" [class.is-visible]="emailError()" aria-live="polite">
+              {{ emailError() }}
+            </p>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-field__pill" [class.auth-field__pill--invalid]="passwordError()">
+              <app-icon class="auth-field__icon" name="lock" />
+              <input
+                class="auth-field__input"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                autocomplete="new-password"
+                placeholder="Passwort"
+              />
+              <button
+                type="button"
+                class="auth-field__toggle"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword() ? 'Passwort verbergen' : 'Passwort anzeigen'"
+              >
+                <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" />
+              </button>
+            </label>
+            <p class="auth-field__error" [class.is-visible]="passwordError()" aria-live="polite">
+              {{ passwordError() }}
+            </p>
+          </div>
+
+          <label class="register__consent">
+            <input type="checkbox" class="register__checkbox" formControlName="consent" />
+            <span> Ich stimme der <a routerLink="/privacy">Datenschutzerklärung</a> zu. </span>
+          </label>
+
+          <p class="auth-form-error" [class.is-visible]="formError()" role="alert">
+            {{ formError() }}
+          </p>
+
+          <div class="auth-actions">
+            <button type="button" class="auth-btn auth-btn--secondary" (click)="goBack()">
+              <app-icon name="arrow-back" />
+              Zurück
+            </button>
+            <button
+              type="submit"
+              class="auth-btn auth-btn--primary register__submit"
+              [disabled]="formInvalid()"
+            >
+              Weiter
+            </button>
+          </div>
+        </form>
+      } @else {
+        <h1 class="auth-card__title">Wähle deinen Avatar</h1>
+
+        <div class="avatar-step">
+          <div class="avatar-step__preview" [class.avatar-step__preview--chosen]="selectedAvatar()">
+            <img [src]="previewSrc()" alt="" />
+          </div>
+
+          <p class="avatar-step__name">{{ form.controls.name.value }}</p>
+          <p class="auth-card__subtitle">Aus der Liste wählen</p>
+
+          <div class="avatar-step__choices">
+            @for (avatar of avatars; track avatar; let i = $index) {
+              <button
+                type="button"
+                class="avatar-step__choice"
+                [class.avatar-step__choice--selected]="selectedAvatar() === avatar"
+                [attr.aria-pressed]="selectedAvatar() === avatar"
+                [attr.aria-label]="'Avatar ' + (i + 1)"
+                (click)="selectAvatar(avatar)"
+              >
+                <img [src]="avatarSrc(avatar)" alt="" />
+              </button>
+            }
+          </div>
+
+          <p class="auth-form-error" [class.is-visible]="avatarError() || formError()" role="alert">
+            {{ avatarError() || formError() }}
+          </p>
+        </div>
+
+        <div class="auth-actions">
+          <button
+            type="button"
+            class="auth-btn auth-btn--secondary"
+            [disabled]="loading()"
+            (click)="goBack()"
+          >
+            <app-icon name="arrow-back" />
+            Zurück
+          </button>
+          <button
+            type="button"
+            class="auth-btn auth-btn--primary register__submit"
+            [disabled]="loading()"
+            (click)="completeRegistration()"
+          >
+            @if (loading()) {
+              <app-spinner />
+            } @else {
+              Weiter
+            }
+          </button>
+        </div>
+      }
+    </section>
+  </main>
+
+  <app-footer></app-footer>
+</div>
+
+@if (success()) {
+  <div class="toast-overlay" [class.toast-overlay--leaving]="leaving()">
+    <app-toast message="Konto erfolgreich erstellt!" />
+  </div>
+}

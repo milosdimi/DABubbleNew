@@ -1,0 +1,48 @@
+<div class="workspace">
+  <app-header variant="app" />
+
+  <div class="workspace__columns">
+    <div class="workspace__side" [class.workspace__side--closed]="!sidebarOpen()">
+      @if (sidebarOpen()) {
+        <app-sidebar
+          [activeChannelId]="selectedChannel()?.id ?? null"
+          [activeUserId]="selectedUser()?.id ?? null"
+          (channelSelected)="showChannel($event)"
+          (userSelected)="showDirectChat($event)"
+        />
+      }
+
+      <!-- TODO Figma-Wert pruefen: Beschriftung und Position des Umschalters. -->
+      <button
+        type="button"
+        class="workspace__toggle"
+        [attr.aria-expanded]="sidebarOpen()"
+        (click)="toggleSidebar()"
+      >
+        <app-icon [name]="sidebarOpen() ? 'sidebar-close' : 'sidebar-open'" />
+        <span>{{ sidebarOpen() ? 'Menü ausblenden' : 'Menü einblenden' }}</span>
+      </button>
+    </div>
+
+    <app-main-chat
+      [channel]="selectedChannel()"
+      [user]="selectedUser()"
+      (channelOpened)="showChannel($event)"
+      (directChatOpened)="showDirectChat($event)"
+      (replyClicked)="threadMessage.set($event)"
+      (addMembersClicked)="addMembersChannelId.set($event)"
+    />
+
+    @if (threadMessage(); as message) {
+      <app-thread [message]="message" (closed)="threadMessage.set(null)" />
+    }
+  </div>
+</div>
+
+@if (addMembersChannelId(); as channelId) {
+  <app-channel-add-members
+    [channelId]="channelId"
+    purpose="existing-channel"
+    (closed)="addMembersChannelId.set(null)"
+  />
+}

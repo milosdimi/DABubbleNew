@@ -1,0 +1,24 @@
+// Farbpalette. purple-1/purple-2 entsprechen dem Verlauf im Intro,
+// alle anderen Werte sind vorlaeufig.
+// TODO Figma-Wert pruefen: komplette Palette mit Figma abgleichen.
+$colors: (
+  white: #ffffff,
+  black: #000000,
+  background: #eef0fd,
+  purple-1: #313ae6,
+  purple-2: #797ef3,
+  purple-3: #5a60ec,
+  light-purple: #b4b7e5,
+  text-gray: #6b6b6b,
+  error: rgba(237, 30, 121, 1),
+  close-gray: rgba(217, 217, 217, 1),
+);
+
+// Keys entsprechen den Schriftnamen, die typo() / font() erwarten:
+// @include mx.typo(nunito, 700);  ->  font-family: 'Nunito', sans-serif;
+$fonts: (
+  // Hauptfont: Body, UI, Ueberschriften
+  nunito: 'Nunito',
+  // Buttons "Account erstellen" & "Passwort vergessen"
+  figtree: 'Figtree'
+);

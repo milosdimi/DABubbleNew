@@ -1,0 +1,98 @@
+<aside class="sidebar">
+  <!-- TODO Figma-Wert pruefen: Workspace-Titel und -Logo. -->
+  <div class="sidebar__workspace">
+    <img class="sidebar__workspace-logo" src="app-img/bubble-logo.svg" alt="" />
+    <span class="sidebar__workspace-name">Devspace</span>
+  </div>
+
+  <section class="sidebar__section">
+    <button
+      type="button"
+      class="sidebar__section-head"
+      [attr.aria-expanded]="channelsOpen()"
+      (click)="channelsOpen.set(!channelsOpen())"
+    >
+      <app-icon
+        name="chevron-down"
+        class="sidebar__chevron"
+        [class.sidebar__chevron--closed]="!channelsOpen()"
+      />
+      <span>Channels</span>
+    </button>
+
+    @if (channelsOpen()) {
+      <ul class="sidebar__list">
+        @for (channel of channels(); track channel.id) {
+          <li>
+            <button
+              type="button"
+              class="sidebar__item"
+              [class.sidebar__item--active]="channel.id === activeChannelId()"
+              (click)="selectChannel(channel)"
+            >
+              <app-icon name="hash" />
+              <span class="sidebar__item-label">{{ channel.name }}</span>
+            </button>
+          </li>
+        } @empty {
+          <li class="sidebar__empty">Noch keine Channels</li>
+        }
+      </ul>
+
+      @if (!isGuest()) {
+        <button type="button" class="sidebar__add" (click)="openCreateDialog()">
+          <app-icon name="plus" />
+          <span>Channel hinzufügen</span>
+        </button>
+      }
+    }
+  </section>
+
+  <section class="sidebar__section">
+    <button
+      type="button"
+      class="sidebar__section-head"
+      [attr.aria-expanded]="usersOpen()"
+      (click)="usersOpen.set(!usersOpen())"
+    >
+      <app-icon
+        name="chevron-down"
+        class="sidebar__chevron"
+        [class.sidebar__chevron--closed]="!usersOpen()"
+      />
+      <span>Direktnachrichten</span>
+    </button>
+
+    @if (usersOpen()) {
+      <ul class="sidebar__list">
+        @for (user of sortedUsers(); track user.id) {
+          <li>
+            <button
+              type="button"
+              class="sidebar__item sidebar__item--user"
+              [class.sidebar__item--active]="user.id === activeUserId()"
+              (click)="selectUser(user)"
+            >
+              <span class="sidebar__avatar-wrap">
+                <img class="sidebar__avatar" [src]="user.avatarUrl" alt="" />
+                <span class="sidebar__status" [attr.data-status]="user.onlineStatus"></span>
+              </span>
+              <span class="sidebar__item-label">
+                {{ user.name }}@if (user.id === currentUid()) { (Du)}
+              </span>
+            </button>
+          </li>
+        } @empty {
+          <li class="sidebar__empty">Noch keine Kontakte</li>
+        }
+      </ul>
+    }
+  </section>
+</aside>
+
+@if (dialog()?.kind === 'create') {
+  <app-channel-create (closed)="closeDialog()" (created)="onChannelCreated($event)" />
+}
+@if (newChannelId(); as channelId) {
+  <app-channel-add-members [channelId]="channelId" purpose="new-channel" (closed)="closeDialog()" />
+}

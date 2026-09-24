@@ -1,0 +1,89 @@
+<div class="dialog-backdrop" (click)="onBackdropClick()">
+  <section class="dialog-card" (click)="$event.stopPropagation()">
+    <header class="dialog-header">
+      <h1 class="dialog-header__title">Dein Profil bearbeiten</h1>
+      <button
+        type="button"
+        class="dialog-header__close"
+        (click)="onCancel()"
+        aria-label="Dialog schließen"
+      >
+        <app-icon name="close" />
+      </button>
+    </header>
+
+    <div class="avatar-section">
+      <div class="avatar-section__circle">
+        <div class="avatar-section__image">
+          <img [src]="avatarSrc(avatar())" alt="" />
+        </div>
+        <button
+          type="button"
+          class="avatar-section__edit"
+          (click)="toggleAvatarPicker()"
+          aria-label="Avatar ändern"
+        >
+          <app-icon name="edit" />
+        </button>
+      </div>
+
+      @if (avatarPickerOpen()) {
+        <div class="avatar-picker">
+          @for (choice of avatarChoices; track choice) {
+            <button
+              type="button"
+              class="avatar-picker__choice"
+              [class.avatar-picker__choice--selected]="avatar() === choice"
+              [attr.aria-pressed]="avatar() === choice"
+              (click)="selectAvatar(choice)"
+            >
+              <img [src]="avatarSrc(choice)" alt="" />
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="dialog-field">
+        <label class="dialog-field__label" for="profile-name">Vollständiger Name</label>
+        <label class="dialog-field__pill">
+          <app-icon class="dialog-field__icon" name="person" />
+          <input
+            id="profile-name"
+            class="dialog-field__input"
+            type="text"
+            formControlName="name"
+            placeholder="Vollständiger Name"
+          />
+        </label>
+        <p class="dialog-field__error" [class.is-visible]="formError()" role="alert">
+          {{ formError() }}
+        </p>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="dialog-btn dialog-btn--secondary" (click)="onCancel()">
+          Abbrechen
+        </button>
+        <button
+          type="submit"
+          class="dialog-btn dialog-btn--primary"
+          [disabled]="formInvalid() || loading()"
+        >
+          @if (loading()) {
+            <app-spinner />
+          } @else {
+            Speichern
+          }
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
+
+@if (success()) {
+  <div class="toast-overlay" [class.toast-overlay--leaving]="leaving()">
+    <app-toast message="Profil gespeichert" />
+  </div>
+}
