@@ -268,8 +268,12 @@
 .main-chat__bubble-wrap {
   position: relative;
   max-width: 100%;
+}
 
-  &:hover .main-chat__toolbar {
+// Hover auf der ganzen Zeile (nicht nur der Blase): so bleibt die Leiste sichtbar,
+// waehrend die Maus von der Blase zur Leiste wandert.
+.main-chat__message:hover {
+  .main-chat__toolbar {
     opacity: 1;
     pointer-events: auto;
   }

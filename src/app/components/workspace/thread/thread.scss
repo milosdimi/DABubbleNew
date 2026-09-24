@@ -324,7 +324,9 @@
   left: 0;
 }
 
-.thread__message-bubble-wrap:hover .thread__message-toolbar,
+// Hover auf der ganzen Nachricht (nicht nur der Blase): so bleibt die Leiste
+// sichtbar, waehrend die Maus ueber Zeit/Name zur Leiste wandert.
+.thread__message:hover .thread__message-toolbar,
 .thread__message-toolbar--active {
   opacity: 1;
   pointer-events: auto;
