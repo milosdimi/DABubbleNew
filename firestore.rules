@@ -69,6 +69,17 @@ service cloud.firestore {
       return onlyChanges(['reactions', 'replyCount']);
     }
 
+    /** "Nachricht bearbeiten": nur der Absender, nur der Text. */
+    function isOwnTextEdit() {
+      return resource.data.senderId == uid()
+        && onlyChanges(['text'])
+        && request.resource.data.text is string;
+    }
+
+    function isAllowedMessageUpdate() {
+      return isReactionOrCounterUpdate() || isOwnTextEdit();
+    }
+
     // ----------------------------------------------------------------- Users
 
     match /users/{userId} {
@@ -115,7 +126,7 @@ service cloud.firestore {
           && isValidNewMessage(messageId)
           && request.resource.data.channelId == channelId;
         allow update: if canReadChannel(channelData(channelId))
-          && isReactionOrCounterUpdate();
+          && isAllowedMessageUpdate();
         allow delete: if false;
 
         match /replies/{replyId} {
@@ -124,7 +135,7 @@ service cloud.firestore {
             && isValidNewMessage(replyId)
             && request.resource.data.threadId == messageId;
           allow update: if canReadChannel(channelData(channelId))
-            && isReactionOrCounterUpdate();
+            && isAllowedMessageUpdate();
           allow delete: if false;
         }
       }
@@ -145,7 +156,7 @@ service cloud.firestore {
         allow create: if isDmMember(dmId)
           && isValidNewMessage(messageId)
           && request.resource.data.dmId == dmId;
-        allow update: if isDmMember(dmId) && isReactionOrCounterUpdate();
+        allow update: if isDmMember(dmId) && isAllowedMessageUpdate();
         allow delete: if false;
 
         match /replies/{replyId} {
@@ -153,7 +164,7 @@ service cloud.firestore {
           allow create: if isDmMember(dmId)
             && isValidNewMessage(replyId)
             && request.resource.data.threadId == messageId;
-          allow update: if isDmMember(dmId) && isReactionOrCounterUpdate();
+          allow update: if isDmMember(dmId) && isAllowedMessageUpdate();
           allow delete: if false;
         }
       }

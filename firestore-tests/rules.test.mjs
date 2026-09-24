@@ -230,6 +230,36 @@ describe('Nachrichten', () => {
     await assertFails(updateDoc(ref, { text: 'geaendert' }));
   });
 
+  test('Nachricht bearbeiten: Absender aendert eigenen Text', async () => {
+    await assertSucceeds(
+      updateDoc(doc(user('B'), 'channels/private/messages/m1'), { text: 'bearbeitet' }),
+    );
+  });
+
+  test('Nachricht bearbeiten: nur der Text, keine anderen Felder', async () => {
+    const ref = doc(user('B'), 'channels/private/messages/m1');
+    await assertFails(updateDoc(ref, { text: 'bearbeitet', senderId: 'C' }));
+    await assertFails(updateDoc(ref, { text: 'bearbeitet', timestamp: 1 }));
+    await assertFails(updateDoc(ref, { text: 42 }));
+  });
+
+  test('Nachricht bearbeiten: Gast aendert eigene Nachricht im guestVisible-Channel', async () => {
+    const db = guest();
+    const ref = doc(db, 'channels/demo/messages/g1');
+    await assertSucceeds(setDoc(ref, message('g1', 'guest', { channelId: 'demo' })));
+    await assertSucceeds(updateDoc(ref, { text: 'bearbeitet' }));
+    await assertFails(updateDoc(doc(db, 'channels/demo/messages/m1'), { text: 'fremd' }));
+  });
+
+  test('Thread-Antwort bearbeiten: eigene ja, fremde nein', async () => {
+    const replyRef = 'channels/private/messages/m1/replies/r1';
+    await assertSucceeds(
+      setDoc(doc(user('C'), replyRef), message('r1', 'C', { channelId: 'private', threadId: 'm1' })),
+    );
+    await assertSucceeds(updateDoc(doc(user('C'), replyRef), { text: 'bearbeitet' }));
+    await assertFails(updateDoc(doc(user('B'), replyRef), { text: 'von B' }));
+  });
+
   test('Thread-Antwort + replyCount: Gast im guestVisible-Channel erlaubt', async () => {
     const db = guest();
     await assertSucceeds(
@@ -264,6 +294,13 @@ describe('Direktchats', () => {
   test('Suche nach eigenen DMs (getOrCreateDirectChat) ist erlaubt', async () => {
     const chats = collection(user('B'), 'directChats');
     await assertSucceeds(getDocs(query(chats, where('memberIds', 'array-contains', 'B'))));
+  });
+
+  test('DM bearbeiten: Absender ja, anderes DM-Mitglied nein', async () => {
+    await assertSucceeds(
+      updateDoc(doc(user('B'), 'directChats/bc/messages/m1'), { text: 'bearbeitet' }),
+    );
+    await assertFails(updateDoc(doc(user('C'), 'directChats/bc/messages/m1'), { text: 'von C' }));
   });
 
   test('Fremder schreibt nicht in DM', async () => {

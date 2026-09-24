@@ -212,9 +212,10 @@ describe('Live: Nachrichten', () => {
     ));
   });
 
-  test('Nachrichtentext aendern und Nachricht loeschen: verboten', async () => {
+  test('Eigene Nachricht: Text bearbeiten ja, andere Felder und Loeschen nein', async () => {
     const ref = doc(clients.A.db, 'channels', ids.privateChannel, 'messages', 'm1');
-    await denied(updateDoc(ref, { text: 'geaendert' }));
+    await ok(updateDoc(ref, { text: 'bearbeitet' }));
+    await denied(updateDoc(ref, { text: 'bearbeitet', senderId: clients.B.uid }));
     await denied(deleteDoc(ref));
   });
 });
@@ -226,6 +227,11 @@ describe('Live: Direktchats', () => {
       doc(clients.B.db, 'directChats', ids.dm, 'messages', 'm1'),
       message('m1', clients.B.uid, { dmId: ids.dm }),
     ));
+  });
+
+  test('DM bearbeiten: B eigene Nachricht ja, A fremde Nachricht nein', async () => {
+    await ok(updateDoc(doc(clients.B.db, 'directChats', ids.dm, 'messages', 'm1'), { text: 'bearbeitet' }));
+    await denied(updateDoc(doc(clients.A.db, 'directChats', ids.dm, 'messages', 'm1'), { text: 'von A' }));
   });
 
   test('Gast liest und schreibt fremde DM nicht', async () => {
