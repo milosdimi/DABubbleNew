@@ -368,7 +368,8 @@
   bottom: calc(100% + 6px);
   left: 50%;
   z-index: 5;
-  @include mx.flex(row, flex-start, center);
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: 4px;
   padding: 6px;
   border: 1px solid fct.color(light-purple);
@@ -376,6 +377,11 @@
   background: fct.color(white);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transform: translateX(-50%);
+
+  &--below {
+    top: calc(100% + 6px);
+    bottom: auto;
+  }
 
   button {
     padding: 4px;

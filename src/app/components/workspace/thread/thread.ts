@@ -1,6 +1,6 @@
 import { Component, HostListener, Input, OnDestroy, inject, output, signal } from '@angular/core';
 import { Unsubscribe } from 'firebase/firestore';
-import { MAIN_CHAT_EMOJIS, QUICK_REACTIONS } from '../main-chat/main-chat-emojis';
+import { MAIN_CHAT_EMOJIS, pickerOpensBelow, QUICK_REACTIONS } from '../main-chat/main-chat-emojis';
 import { MainChatDateService } from '../main-chat/main-chat-date.service';
 import { MainChatProfileService } from '../main-chat/main-chat-profile.service';
 import { AttachmentData, MainChatUploadService } from '../main-chat/main-chat-upload.service';
@@ -59,6 +59,8 @@ export class Thread implements OnDestroy {
   protected readonly reactionOptions = MAIN_CHAT_EMOJIS;
   protected readonly quickReactions = QUICK_REACTIONS;
   protected readonly activeReactionReplyId = signal<string | null>(null);
+  /** Oeffnet der offene Picker nach unten (statt nach oben)? */
+  protected readonly reactionPickerBelow = signal(true);
   protected readonly reactionTooltip = signal<ReactionTooltip | null>(null);
 
   protected readonly selectedProfileUserId = this.profileService.selectedProfileUserId;
@@ -265,7 +267,8 @@ export class Thread implements OnDestroy {
   }
 
   /** Oeffnet oder schliesst die Emoji-Auswahl fuer eine Antwort. */
-  protected toggleReactionPicker(replyId: string): void {
+  protected toggleReactionPicker(replyId: string, button: HTMLElement): void {
+    this.reactionPickerBelow.set(pickerOpensBelow(button));
     this.activeReactionReplyId.update((current) => (current === replyId ? null : replyId));
   }
 

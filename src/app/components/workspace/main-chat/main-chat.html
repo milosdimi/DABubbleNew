@@ -120,13 +120,14 @@
                   type="button"
                   class="main-chat__toolbar-btn"
                   aria-label="Reaction hinzufügen"
-                  (click)="reactions.togglePicker(message.id)"
+                  (click)="reactions.togglePicker(message.id, $any($event.currentTarget))"
                 >
                   <app-icon name="plus" />
                 </button>
                 @if (reactions.pickerMessageId() === message.id) {
                   <div
                     class="main-chat__picker"
+                    [class.main-chat__picker--below]="reactions.pickerBelow()"
                     appClickOutside
                     (appClickOutside)="reactions.closePicker()"
                   >

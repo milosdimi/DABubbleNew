@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { MessageService } from '../../../shared/message/message';
 import { Message, Reaction } from '../../../shared/models';
-import { MAIN_CHAT_EMOJIS, QUICK_REACTIONS } from './main-chat-emojis';
+import { MAIN_CHAT_EMOJIS, pickerOpensBelow, QUICK_REACTIONS } from './main-chat-emojis';
 
 /** Ein Emoji mit der Anzahl, wie oft es an einer Nachricht haengt. */
 export interface ReactionGroup {
@@ -27,7 +27,11 @@ export class MainChatReactionService {
   /** Nachricht, deren Emoji-Picker offen ist - hoechstens einer gleichzeitig. */
   readonly pickerMessageId = signal<string | null>(null);
 
-  togglePicker(messageId: string): void {
+  /** Oeffnet der offene Picker nach unten (statt nach oben)? */
+  readonly pickerBelow = signal(false);
+
+  togglePicker(messageId: string, button?: HTMLElement): void {
+    if (button) this.pickerBelow.set(pickerOpensBelow(button));
     this.pickerMessageId.update((open) => (open === messageId ? null : messageId));
   }
 
@@ -35,7 +39,7 @@ export class MainChatReactionService {
     this.pickerMessageId.set(null);
   }
 
-  /** Alle Gruppen, haeufigste zuerst. Laut Figma kein "+N"-Overflow: jede Emoji-Art eine Pille. */
+  /** Alle Gruppen, haeufigste zuerst. Laut Figma kein "+N"-Overflow: jede Emoji-Art eine Pille (umbrechend). */
   groups(message: Message): ReactionGroup[] {
     const uid = this.auth.currentUser?.uid;
     const byEmoji = new Map<string, ReactionGroup>();

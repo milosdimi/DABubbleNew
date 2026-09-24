@@ -133,7 +133,7 @@
                     type="button"
                     class="thread__toolbar-btn"
                     aria-label="Reaction hinzufügen"
-                    (click)="toggleReactionPicker(reply.id)"
+                    (click)="toggleReactionPicker(reply.id, $any($event.currentTarget))"
                   >
                     <app-icon name="plus" />
                   </button>
@@ -141,6 +141,7 @@
                   @if (activeReactionReplyId() === reply.id) {
                     <div
                       class="thread__reaction-picker"
+                      [class.thread__reaction-picker--above]="!reactionPickerBelow()"
                       appClickOutside
                       (appClickOutside)="closeReactionPicker()"
                     >
