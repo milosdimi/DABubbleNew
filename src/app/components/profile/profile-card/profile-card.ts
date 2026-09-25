@@ -1,18 +1,11 @@
 import { Component, computed, effect, HostListener, inject, input, output, signal } from '@angular/core';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
-import { OnlineStatus, User } from '../../../shared/models';
+import { User } from '../../../shared/models';
+import { STATUS_LABELS } from '../../../shared/status/status';
 import { Spinner } from '../../../shared/spinner/spinner';
 import { UserService } from '../../../shared/user/user.service';
 import { ProfileEdit } from '../profile-edit/profile-edit';
-
-// "Aktiv" aus Figma (dort einmal als "Aktive" vertippt); die anderen Zustaende
-// kommen in Figma nicht vor.
-const STATUS_LABELS: Record<OnlineStatus, string> = {
-  online: 'Aktiv',
-  away: 'Abwesend',
-  offline: 'Offline',
-};
 
 /** Anzeige fuer den eigenen Gast-Login (Gaeste haben kein users-Dokument). */
 const GUEST_PROFILE: Omit<User, 'id'> = {

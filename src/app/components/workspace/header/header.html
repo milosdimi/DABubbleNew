@@ -94,9 +94,7 @@
           <span class="header__user-name">{{ displayName() }}</span>
           <span class="header__user-avatar-wrap">
             <img class="header__user-avatar" [src]="avatarUrl()" alt="" />
-            @if (online()) {
-              <span class="header__online-dot" aria-label="online"></span>
-            }
+            <span class="header__online-dot" [attr.data-status]="status()"></span>
           </span>
           <app-icon name="chevron-down" />
         </button>
@@ -104,6 +102,9 @@
         @if (menuOpen()) {
           <app-profile-menu
             class="header__menu"
+            [status]="chosenStatus()"
+            [canChangeStatus]="!isGuest()"
+            (statusSelected)="chooseStatus($event)"
             (profileClicked)="openOwnProfile()"
             (logoutClicked)="logout()"
           />

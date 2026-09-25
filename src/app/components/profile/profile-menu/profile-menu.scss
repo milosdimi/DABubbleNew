@@ -16,6 +16,47 @@
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
 }
 
+// Status-Auswahl (eigene Idee, nicht in Figma) zwischen "Profil" und "Log out".
+.profile-menu__status {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 2px;
+  width: 222px;
+  padding: 8px 0;
+  border-top: 1px solid fct.color(light-purple);
+  border-bottom: 1px solid fct.color(light-purple);
+}
+
+.profile-menu__status-option {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 100px;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+  }
+
+  &[aria-checked='true'] {
+    @include mx.typo(nunito, 700);
+    color: fct.color(purple-3);
+  }
+}
+
+.profile-menu__status-dot {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  @include mx.status-dot;
+}
+
 .profile-menu__item {
   width: 222px;
   padding: 10px 24px;

@@ -13,8 +13,8 @@
  * wenn tatsaechlich ein Wert vorhanden ist.
  */
 
-// TODO Figma-Wert pruefen: weitere Zustaende (z. B. 'away') vorlaeufig uebernommen.
-export type OnlineStatus = 'online' | 'away' | 'offline';
+/** Aktiv / Abwesend / Nicht stoeren / Offline (Texte: shared/status/status.ts). */
+export type OnlineStatus = 'online' | 'away' | 'busy' | 'offline';
 
 /** Registrierter User. Gaeste (anonymer Login) haben KEIN Dokument. */
 export interface User {
@@ -22,7 +22,10 @@ export interface User {
   name: string;
   email: string;
   avatarUrl: string;
+  /** Was die anderen sehen (beim Log out "offline"). */
   onlineStatus: OnlineStatus;
+  /** Selbst gewaehlter Status; wird beim naechsten Login wieder angezeigt. */
+  chosenStatus?: OnlineStatus;
   /** Demo-User: als einzige fuer Gaeste sichtbar. */
   isDemo?: boolean;
 }

@@ -48,6 +48,14 @@ export class UserService {
     return snapshot.docs.map((entry) => entry.data() as User);
   }
 
+  /** Status des eigenen Profils (Rules: nur die vier erlaubten Werte). */
+  async updateStatus(
+    uid: string,
+    changes: Partial<Pick<User, 'onlineStatus' | 'chosenStatus'>>,
+  ): Promise<void> {
+    await updateDoc(this.userRef(uid), changes);
+  }
+
   /** Live-Profil eines Users (`null`, solange keins existiert). */
   watchUser(uid: string, callback: (user: User | null) => void): Unsubscribe {
     return onSnapshot(

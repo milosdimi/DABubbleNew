@@ -119,7 +119,7 @@
   height: 14px;
   border: 2px solid fct.color(white);
   border-radius: 50%;
-  background: fct.color(online-green);
+  @include mx.status-dot;
 }
 
 .members-card__name {

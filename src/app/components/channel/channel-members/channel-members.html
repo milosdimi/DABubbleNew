@@ -18,9 +18,7 @@
           <button type="button" class="members-card__member" (click)="profileClicked.emit(uid)">
             <span class="members-card__avatar-wrap">
               <img class="members-card__avatar" [src]="profiles.getSenderAvatar(uid)" alt="" />
-              @if (profiles.isOnline(uid)) {
-                <span class="members-card__dot" aria-label="online"></span>
-              }
+              <span class="members-card__dot" [attr.data-status]="profiles.getStatus(uid)"></span>
             </span>
             <span class="members-card__name">
               {{ profiles.getSenderName(uid) }}@if (uid === currentUid()) { (Du)}

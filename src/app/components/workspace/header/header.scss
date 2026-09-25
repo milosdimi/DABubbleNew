@@ -280,7 +280,7 @@
   height: 16.67px;
   border: 2px solid fct.color(white);
   border-radius: 50%;
-  background: fct.color(online-green);
+  @include mx.status-dot;
 }
 
 .header__menu {

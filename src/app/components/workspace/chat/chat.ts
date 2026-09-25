@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { Icon } from '../../../shared/icon/icon';
 import { Channel, Message, User } from '../../../shared/models';
+import { PresenceService } from '../../../shared/presence/presence.service';
 import { ChannelAddMembers } from '../../channel/channel-add-members/channel-add-members';
 import { Header } from '../header/header';
 import { MainChat } from '../main-chat/main-chat';
@@ -22,6 +23,11 @@ export class Chat {
   /** Genau eines von beiden ist gesetzt (oder keins, bis der Start-Channel feststeht). */
   protected readonly selectedChannel = signal<Channel | null>(null);
   protected readonly selectedUser = signal<User | null>(null);
+
+  constructor() {
+    // Beim Betreten des Workspace den gewaehlten Status anzeigen, beim Verlassen "offline".
+    void inject(PresenceService).start(inject(DestroyRef));
+  }
 
   protected readonly sidebarOpen = signal(true);
   /** "Neue Nachricht" statt Main-Chat im Mittelbereich (Main-Chat bleibt im Hintergrund bestehen). */

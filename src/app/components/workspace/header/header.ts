@@ -5,7 +5,8 @@ import { Unsubscribe } from 'firebase/firestore';
 import { ClickOutsideDirective } from '../../../shared/click-outside/click-outside.directive';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
-import { Channel, User } from '../../../shared/models';
+import { Channel, OnlineStatus, User } from '../../../shared/models';
+import { PresenceService } from '../../../shared/presence/presence.service';
 import {
   EMPTY_RESULTS,
   MessageHit,
@@ -37,6 +38,7 @@ export class Header implements OnInit {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
   private readonly searchService = inject(SearchService);
+  private readonly presence = inject(PresenceService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly variant = input<HeaderVariant>('app');
@@ -48,8 +50,12 @@ export class Header implements OnInit {
   protected readonly uid = signal<string | null>(null);
   protected readonly displayName = signal('');
   protected readonly avatarUrl = signal(GUEST_DISPLAY.avatarUrl);
-  /** Online-Punkt am Avatar (Gaeste gelten als online). */
-  protected readonly online = signal(true);
+  /** Status-Punkt am Avatar (Gaeste gelten als online). */
+  protected readonly status = signal<OnlineStatus>('online');
+  /** Im Dropdown markierter, selbst gewaehlter Status. */
+  protected readonly chosenStatus = signal<OnlineStatus>('online');
+  /** Gaeste haben kein Profil und koennen den Status nicht aendern. */
+  protected readonly isGuest = signal(false);
   protected readonly menuOpen = signal(false);
   protected readonly profileOpen = signal(false);
 
@@ -82,6 +88,7 @@ export class Header implements OnInit {
     if (!current) return;
 
     this.uid.set(current.uid);
+    this.isGuest.set(current.isAnonymous);
     if (current.isAnonymous) {
       this.show(GUEST_DISPLAY);
       return;
@@ -92,10 +99,18 @@ export class Header implements OnInit {
     this.destroyRef.onDestroy(stop);
   }
 
-  private show(user: Pick<User, 'name' | 'avatarUrl'> & Partial<Pick<User, 'onlineStatus'>>): void {
+  private show(
+    user: Pick<User, 'name' | 'avatarUrl'> & Partial<Pick<User, 'onlineStatus' | 'chosenStatus'>>,
+  ): void {
     this.displayName.set(user.name);
     this.avatarUrl.set(user.avatarUrl);
-    this.online.set((user.onlineStatus ?? 'online') === 'online');
+    this.status.set(user.onlineStatus ?? 'online');
+    this.chosenStatus.set(user.chosenStatus ?? user.onlineStatus ?? 'online');
+  }
+
+  protected async chooseStatus(status: OnlineStatus): Promise<void> {
+    this.menuOpen.set(false);
+    await this.presence.choose(status);
   }
 
   /** Beim Oeffnen der Suche den Index frisch laden (neue Nachrichten, Channels). */
@@ -158,6 +173,7 @@ export class Header implements OnInit {
 
   protected async logout(): Promise<void> {
     this.menuOpen.set(false);
+    await this.presence.goOffline();
     await signOut(this.auth);
     await this.router.navigate(['/login']);
   }

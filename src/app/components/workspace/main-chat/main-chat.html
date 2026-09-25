@@ -36,9 +36,7 @@
       <button type="button" class="main-chat__title" (click)="profiles.openProfile(partner.id)">
         <span class="main-chat__title-avatar-wrap">
           <img class="main-chat__title-avatar" [src]="partner.avatarUrl" alt="" />
-          @if (partner.onlineStatus === 'online') {
-            <span class="main-chat__online-dot" aria-label="online"></span>
-          }
+          <span class="main-chat__online-dot" [attr.data-status]="partner.onlineStatus"></span>
         </span>
         <span>{{ partner.name }}</span>
       </button>

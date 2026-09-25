@@ -123,8 +123,17 @@
   font-size: 20px;
   color: fct.color(text-gray);
 
+  // Text in der Farbe des Punkts (Figma: "Aktiv" in online green), Offline grau.
   &[data-status='online'] {
     color: fct.color(online-green);
+  }
+
+  &[data-status='away'] {
+    color: fct.color(status-away);
+  }
+
+  &[data-status='busy'] {
+    color: fct.color(status-busy);
   }
 }
 
@@ -132,11 +141,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: fct.color(text-gray);
-
-  [data-status='online'] & {
-    background: fct.color(online-green);
-  }
+  background: currentColor;
 }
 
 .profile-card__email {

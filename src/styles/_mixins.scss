@@ -15,9 +15,27 @@
 }
 
 /// Einheitliche Uebergaenge fuer Hover-/Fokus-Zustaende.
-/// TODO Figma-Wert pruefen: Standarddauer.
+/// Figma hat keine Uebergangsdaten hinterlegt; 200ms ist eine bewusste Annahme.
 @mixin transition($duration: 200ms) {
   transition: all $duration ease-in-out;
+}
+
+/// Farbe eines Status-Punkts nach `[data-status]` (online / away / busy / offline).
+/// Offline = Text gray, Aktiv = Figma "online green", die beiden anderen eigene Wahl.
+@mixin status-dot {
+  background: fct.color(text-gray);
+
+  &[data-status='online'] {
+    background: fct.color(online-green);
+  }
+
+  &[data-status='away'] {
+    background: fct.color(status-away);
+  }
+
+  &[data-status='busy'] {
+    background: fct.color(status-busy);
+  }
 }
 
 /// Figma-Effect-Style "header".

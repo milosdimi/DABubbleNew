@@ -96,7 +96,8 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: fct.color(online-green);
+  border: 2px solid fct.color(white);
+  @include mx.status-dot;
 }
 
 .main-chat__head-actions {

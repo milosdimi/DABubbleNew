@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Message, User } from '../../../shared/models';
+import { Message, OnlineStatus, User } from '../../../shared/models';
 import { UserService } from '../../../shared/user/user.service';
 
 // TODO Figma-Wert pruefen: Anzeige fuer Absender ohne (lesbares) Profil, z. B. Gaeste.
@@ -71,8 +71,9 @@ export class MainChatProfileService {
     return this.profiles().get(uid)?.avatarUrl ?? FALLBACK_AVATAR;
   }
 
-  isOnline(uid: string): boolean {
-    return this.profiles().get(uid)?.onlineStatus === 'online';
+  /** Unbekannte oder nicht lesbare Profile (z. B. fuer Gaeste) gelten als offline. */
+  getStatus(uid: string): OnlineStatus {
+    return this.profiles().get(uid)?.onlineStatus ?? 'offline';
   }
 
   /** Nachrichtenzeit laut Figma: "14:25 Uhr". */
