@@ -85,9 +85,18 @@ export class ChatInputTools {
     this.emojiOpen.set(false);
   }
 
-  /** @-Button: "@" einfuegen (mit Leerzeichen davor, falls noetig) und Liste oeffnen. */
+  /**
+   * @-Button: "@" einfuegen (mit Leerzeichen davor, falls noetig) und Liste oeffnen.
+   * Bei offener Liste schliesst er sie wieder (kein "@@@"); ein noch leeres "@" wird entfernt.
+   */
   protected startMention(): void {
     this.emojiOpen.set(false);
+    const query = this.mentionQuery();
+    if (query !== null) {
+      if (query === '') this.replaceBeforeCaret(1, '');
+      this.mentionQuery.set(null);
+      return;
+    }
     const field = this.field();
     const caret = field.selectionStart ?? field.value.length;
     const before = field.value.slice(0, caret);
