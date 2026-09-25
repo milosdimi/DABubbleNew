@@ -103,6 +103,17 @@ service cloud.firestore {
         && onlyChanges(['name', 'avatarUrl', 'onlineStatus', 'chosenStatus'])
         && hasValidStatus(request.resource.data);
       allow delete: if false;
+
+      // Gelesen-Stand pro Chat (rote Punkte in der Sidebar). Nur der User selbst,
+      // auch Gaeste (ihr users-Dokument fehlt, die Unter-Collection geht trotzdem).
+      match /readState/{chatKey} {
+        allow read: if signedIn() && uid() == userId;
+        allow create, update: if signedIn()
+          && uid() == userId
+          && request.resource.data.keys().hasOnly(['lastReadAt'])
+          && request.resource.data.lastReadAt is number;
+        allow delete: if false;
+      }
     }
 
     // -------------------------------------------------------------- Channels

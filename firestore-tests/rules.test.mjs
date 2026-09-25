@@ -376,6 +376,18 @@ describe('Users', () => {
     await assertFails(updateDoc(doc(user('A'), 'users/B'), { onlineStatus: 'offline' }));
   });
 
+  test('Gelesen-Stand: nur der User selbst, nur lastReadAt als Zahl', async () => {
+    const own = doc(user('A'), 'users/A/readState/channel:private');
+    await assertSucceeds(setDoc(own, { lastReadAt: 5 }));
+    await assertSucceeds(getDoc(own));
+    await assertFails(setDoc(own, { lastReadAt: 'gestern' }));
+    await assertFails(setDoc(own, { lastReadAt: 5, extra: true }));
+    await assertFails(getDoc(doc(user('B'), 'users/A/readState/channel:private')));
+    await assertFails(setDoc(doc(user('B'), 'users/A/readState/x'), { lastReadAt: 1 }));
+    // Gaeste haben kein users-Dokument, duerfen aber ihren eigenen Stand fuehren.
+    await assertSucceeds(setDoc(doc(guest(), 'users/guest/readState/channel:demo'), { lastReadAt: 1 }));
+  });
+
   test('Eigenes Profil: Name aendern ja, isDemo setzen nein; fremdes Profil nie', async () => {
     await assertSucceeds(updateDoc(doc(user('A'), 'users/A'), { name: 'Neu' }));
     await assertFails(updateDoc(doc(user('A'), 'users/A'), { isDemo: true }));
