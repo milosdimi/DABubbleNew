@@ -8,6 +8,7 @@ import {
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
+  arrayRemove,
   arrayUnion,
   collection,
   doc,
@@ -189,6 +190,22 @@ describe('Channels schreiben', () => {
   test('Office-Team selbst bleibt fuer Mitglieder bearbeitbar', async () => {
     await assertSucceeds(
       updateDoc(doc(user('B'), 'channels/office'), { memberIds: arrayUnion('A') }),
+    );
+  });
+
+  test('Mitglieder entfernen: Ersteller jeden, andere nur sich selbst', async () => {
+    // private: Mitglieder B (Ersteller) und C
+    await assertFails(
+      updateDoc(doc(user('C'), 'channels/private'), { memberIds: arrayRemove('B') }),
+    );
+    await assertSucceeds(
+      updateDoc(doc(user('B'), 'channels/private'), { memberIds: arrayRemove('C') }),
+    );
+  });
+
+  test('Mitglied tritt selbst aus', async () => {
+    await assertSucceeds(
+      updateDoc(doc(user('C'), 'channels/private'), { memberIds: arrayRemove('C') }),
     );
   });
 

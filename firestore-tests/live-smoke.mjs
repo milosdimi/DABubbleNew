@@ -17,6 +17,7 @@ import {
   signInAnonymously,
 } from 'firebase/auth';
 import {
+  arrayRemove,
   arrayUnion,
   collection,
   doc,
@@ -189,6 +190,13 @@ describe('Live: Channels', () => {
     await denied(updateDoc(doc(clients.B.db, 'channels', ids.privateChannel), {
       memberIds: arrayUnion(clients.B.uid),
     }));
+  });
+
+  test('Mitglieder: B tritt bei, A (Ersteller) entfernt B, B entfernt A nicht', async () => {
+    const ref = (db) => doc(db, 'channels', ids.privateChannel);
+    await ok(updateDoc(ref(clients.A.db), { memberIds: arrayUnion(clients.B.uid) }));
+    await denied(updateDoc(ref(clients.B.db), { memberIds: arrayRemove(clients.A.uid) }));
+    await ok(updateDoc(ref(clients.A.db), { memberIds: arrayRemove(clients.B.uid) }));
   });
 
   test('Channel im Namen eines anderen anlegen: verboten', async () => {

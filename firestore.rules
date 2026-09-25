@@ -45,6 +45,17 @@ service cloud.firestore {
         || (isRegistered() && (channel.name == 'Office-Team' || uid() in channel.memberIds));
     }
 
+    /**
+     * Wer darf die Mitgliederliste so aendern? Hinzufuegen: jedes Mitglied.
+     * Entfernen: der Ersteller jeden, alle anderen nur sich selbst (austreten).
+     */
+    function isAllowedMemberChange(before, after) {
+      let removed = before.memberIds.toSet().difference(after.memberIds.toSet());
+      return removed.size() == 0
+        || uid() == before.createdBy
+        || removed == [uid()].toSet();
+    }
+
     function channelData(channelId) {
       return get(/databases/$(database)/documents/channels/$(channelId)).data;
     }
@@ -130,14 +141,16 @@ service cloud.firestore {
         && request.resource.data.get('guestVisible', false) == false
         && request.resource.data.name != 'Office-Team';
 
-      // Mitglieder duerfen Mitglieder hinzufuegen und selbst austreten.
-      // Name/Beschreibung aendern darf nur der Ersteller, aber nicht in "Office-Team".
+      // Mitglieder duerfen Mitglieder hinzufuegen und selbst austreten; andere
+      // entfernen darf nur der Ersteller. Name/Beschreibung aendern darf nur der
+      // Ersteller, aber nicht in "Office-Team".
       allow update: if isRegistered()
         && uid() in resource.data.memberIds
         && onlyChanges(['name', 'description', 'memberIds'])
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['name', 'description'])
             || uid() == resource.data.createdBy)
-        && (request.resource.data.name != 'Office-Team' || resource.data.name == 'Office-Team');
+        && (request.resource.data.name != 'Office-Team' || resource.data.name == 'Office-Team')
+        && isAllowedMemberChange(resource.data, request.resource.data);
 
       allow delete: if false;
 
