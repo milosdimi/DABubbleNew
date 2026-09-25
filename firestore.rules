@@ -77,8 +77,11 @@ service cloud.firestore {
 
     /** Reactions setzen und den Antwort-Zaehler (+ Zeit der letzten Antwort) aktualisieren darf jeder Leser. */
     function isReactionOrCounterUpdate() {
-      return onlyChanges(['reactions', 'replyCount', 'lastReplyAt'])
-        && request.resource.data.get('lastReplyAt', 0) is number;
+      return onlyChanges(['reactions', 'replyCount', 'lastReplyAt', 'lastReplyBy'])
+        && request.resource.data.get('lastReplyAt', 0) is number
+        // Wer zuletzt geantwortet hat, darf nur man selbst sein.
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['lastReplyBy'])
+            || request.resource.data.lastReplyBy == uid());
     }
 
     /** "Nachricht bearbeiten": nur der Absender, nur der Text. */
