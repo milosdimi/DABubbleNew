@@ -200,6 +200,11 @@ export class ChannelService {
     await updateDoc(doc(this.firestore, 'channels', channelId), changes);
   }
 
+  /** Entfernt ein Mitglied (Rules: nur der Ersteller darf andere entfernen). */
+  async removeMember(channelId: string, uid: string): Promise<void> {
+    await updateDoc(doc(this.firestore, 'channels', channelId), { memberIds: arrayRemove(uid) });
+  }
+
   /** Entfernt die eigene uid aus memberIds ("Channel verlassen"). */
   async leaveChannel(channelId: string, uid: string): Promise<void> {
     await updateDoc(doc(this.firestore, 'channels', channelId), { memberIds: arrayRemove(uid) });

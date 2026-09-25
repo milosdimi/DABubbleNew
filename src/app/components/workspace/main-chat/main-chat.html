@@ -356,6 +356,9 @@
 
   @if (membersOpen() && activeChannel(); as channel) {
     <app-channel-members
+      [channelId]="channel.id"
+      [channelName]="channel.name"
+      [creatorId]="channel.createdBy"
       [memberIds]="channel.memberIds"
       [currentUid]="currentUid()"
       [canAdd]="canAddMembers()"

@@ -12,27 +12,67 @@
       </button>
     </header>
 
-    <ul class="members-card__list">
-      @for (uid of memberIds(); track uid) {
-        <li>
-          <button type="button" class="members-card__member" (click)="profileClicked.emit(uid)">
-            <span class="members-card__avatar-wrap">
-              <img class="members-card__avatar" [src]="profiles.getSenderAvatar(uid)" alt="" />
-              <span class="members-card__dot" [attr.data-status]="profiles.getStatus(uid)"></span>
-            </span>
-            <span class="members-card__name">
-              {{ profiles.getSenderName(uid) }}@if (uid === currentUid()) { (Du)}
-            </span>
+    @if (confirmUid(); as uid) {
+      <div class="members-card__confirm" role="alertdialog" aria-label="Mitglied entfernen">
+        <img class="members-card__confirm-avatar" [src]="profiles.getSenderAvatar(uid)" alt="" />
+        <p class="members-card__confirm-text">
+          Möchtest du <strong>{{ profiles.getSenderName(uid) }}</strong> wirklich aus
+          <strong>#{{ channelName() }}</strong> entfernen?
+        </p>
+        @if (error(); as message) {
+          <p class="members-card__error" role="alert">{{ message }}</p>
+        }
+        <div class="members-card__confirm-actions">
+          <button type="button" class="message-edit__btn" (click)="cancelRemove()">Abbrechen</button>
+          <button
+            type="button"
+            class="message-edit__btn message-edit__btn--primary"
+            [disabled]="removing()"
+            (click)="confirmRemove()"
+          >
+            Entfernen
           </button>
-        </li>
-      }
-    </ul>
+        </div>
+      </div>
+    } @else {
+      <ul class="members-card__list">
+        @for (uid of memberIds(); track uid) {
+          <li class="members-card__row">
+            <button type="button" class="members-card__member" (click)="profileClicked.emit(uid)">
+              <span class="members-card__avatar-wrap">
+                <img class="members-card__avatar" [src]="profiles.getSenderAvatar(uid)" alt="" />
+                <span class="members-card__dot" [attr.data-status]="profiles.getStatus(uid)"></span>
+              </span>
+              <span class="members-card__name">
+                {{ profiles.getSenderName(uid) }}@if (uid === currentUid()) { (Du)}
+              </span>
+            </button>
+            @if (canRemove() && uid !== currentUid()) {
+              <button
+                type="button"
+                class="members-card__remove"
+                [attr.aria-label]="profiles.getSenderName(uid) + ' aus dem Channel entfernen'"
+                (click)="askRemove(uid)"
+              >
+                <app-icon name="close" />
+              </button>
+            }
+          </li>
+        }
+      </ul>
 
-    @if (canAdd()) {
-      <button type="button" class="members-card__add" (click)="addClicked.emit()">
-        <span class="members-card__add-icon"><app-icon name="person-add" /></span>
-        Mitglieder hinzufügen
-      </button>
+      @if (canAdd()) {
+        <button type="button" class="members-card__add" (click)="addClicked.emit()">
+          <span class="members-card__add-icon"><app-icon name="person-add" /></span>
+          Mitglieder hinzufügen
+        </button>
+      }
     }
   </section>
 </div>
+
+@if (toast(); as message) {
+  <div class="toast-overlay">
+    <app-toast [message]="message" />
+  </div>
+}

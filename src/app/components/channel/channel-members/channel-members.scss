@@ -74,6 +74,68 @@
   list-style: none;
 }
 
+.members-card__row {
+  @include mx.flex(row, flex-start, center);
+  gap: 4px;
+}
+
+// x zum Entfernen (nur fuer den Ersteller, eigene Erweiterung).
+.members-card__remove {
+  @include mx.flex(row, center, center);
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: fct.color(text-gray);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+    color: fct.color(error);
+  }
+
+  app-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.members-card__confirm {
+  @include mx.flex(column, flex-start, center);
+  gap: 20px;
+  text-align: center;
+}
+
+.members-card__confirm-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.members-card__confirm-text {
+  margin: 0;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+}
+
+.members-card__error {
+  margin: 0;
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(error);
+}
+
+.members-card__confirm-actions {
+  @include mx.flex(row, center, center);
+  gap: 20px;
+}
+
 .members-card__member,
 .members-card__add {
   @include mx.flex(row, flex-start, center);
