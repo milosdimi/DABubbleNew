@@ -68,10 +68,20 @@
 
 // Figma "Search bar": 989px breit, 70px hoch, rounded-42px, weiss, ohne Rahmen,
 // Nunito 24px Text gray, Padding 45px / 17.5px, Lupe 35px rechts.
+.header__search-wrap {
+  position: relative;
+  flex: 0 1 989px;
+  min-width: 0;
+
+  // Mobile-Header hat laut Figma keine Suche.
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
 .header__search {
   @include mx.flex(row, space-between, center);
   gap: 16px;
-  flex: 0 1 989px;
   min-width: 0;
   height: 70px;
   padding: 17.5px 45px;
@@ -85,11 +95,111 @@
     width: 35px;
     height: 35px;
   }
+}
 
-  // Mobile-Header hat laut Figma keine Suche.
-  @media (max-width: 900px) {
-    display: none;
+// Trefferliste: eigener Entwurf im Stil der Figma-Menues (weiss, rounded-30px,
+// Schatten 0 6px 10px), Bereiche Channels / Personen / Nachrichten.
+.header__results {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  @include mx.flex(column, flex-start, stretch);
+  gap: 4px;
+  max-height: min(60dvh, 560px);
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: 30px;
+  background: fct.color(white);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.header__results-title {
+  margin: 12px 12px 4px;
+  @include mx.typo(nunito, 700);
+  font-size: 18px;
+  color: fct.color(text-gray);
+
+  &:first-child {
+    margin-top: 0;
   }
+}
+
+.header__results-note {
+  margin: 0;
+  padding: 8px 12px;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(text-gray);
+}
+
+.header__result {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 30px;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+  text-align: left;
+  cursor: pointer;
+  @include mx.transition(150ms);
+
+  &:hover,
+  &:focus-visible {
+    outline: none;
+    background: fct.color(background);
+    color: fct.color(purple-3);
+  }
+
+  app-icon {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+  }
+
+  &--message {
+    @include mx.flex(column, flex-start, stretch);
+    gap: 2px;
+    border-radius: 20px;
+  }
+}
+
+.header__result-main {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header__result-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.header__result-meta {
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(text-gray);
+
+  strong {
+    @include mx.typo(nunito, 700);
+    color: fct.color(black);
+  }
+}
+
+.header__result-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 16px;
 }
 
 .header__search-input {
@@ -105,6 +215,11 @@
 
   &::placeholder {
     color: fct.color(text-gray);
+  }
+
+  // Das Browser-eigene Loesch-Kreuz von type="search" passt nicht zum Design.
+  &::-webkit-search-cancel-button {
+    appearance: none;
   }
 }
 

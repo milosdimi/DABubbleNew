@@ -1,11 +1,17 @@
-import { Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { signOut } from 'firebase/auth';
 import { Unsubscribe } from 'firebase/firestore';
 import { ClickOutsideDirective } from '../../../shared/click-outside/click-outside.directive';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
-import { User } from '../../../shared/models';
+import { Channel, User } from '../../../shared/models';
+import {
+  EMPTY_RESULTS,
+  MessageHit,
+  SearchPlace,
+  SearchService,
+} from '../../../shared/search/search.service';
 import { UserService } from '../../../shared/user/user.service';
 import { ProfileCard } from '../../profile/profile-card/profile-card';
 import { ProfileMenu } from '../../profile/profile-menu/profile-menu';
@@ -30,9 +36,14 @@ export class Header implements OnInit {
   private readonly auth = inject(FIREBASE_AUTH);
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
+  private readonly searchService = inject(SearchService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly variant = input<HeaderVariant>('app');
+
+  /** Treffer der Suche angeklickt -> Workspace oeffnet Channel bzw. Direktchat. */
+  readonly channelSelected = output<Channel>();
+  readonly userSelected = output<User>();
 
   protected readonly uid = signal<string | null>(null);
   protected readonly displayName = signal('');
@@ -41,6 +52,24 @@ export class Header implements OnInit {
   protected readonly online = signal(true);
   protected readonly menuOpen = signal(false);
   protected readonly profileOpen = signal(false);
+
+  // --- Suche -------------------------------------------------------------------
+  protected readonly searchTerm = signal('');
+  protected readonly searchOpen = signal(false);
+  protected readonly searchLoading = signal(false);
+  private readonly searchIndex = signal<Awaited<ReturnType<SearchService['loadIndex']>> | null>(null);
+
+  protected readonly results = computed(() => {
+    const index = this.searchIndex();
+    return index ? this.searchService.search(index, this.searchTerm()) : EMPTY_RESULTS;
+  });
+
+  protected readonly searchable = computed(() => this.searchService.isSearchable(this.searchTerm()));
+
+  protected readonly hasResults = computed(() => {
+    const { channels, users, messages } = this.results();
+    return channels.length + users.length + messages.length > 0;
+  });
 
   ngOnInit(): void {
     if (this.variant() === 'app') void this.watchCurrentUser();
@@ -67,6 +96,55 @@ export class Header implements OnInit {
     this.displayName.set(user.name);
     this.avatarUrl.set(user.avatarUrl);
     this.online.set((user.onlineStatus ?? 'online') === 'online');
+  }
+
+  /** Beim Oeffnen der Suche den Index frisch laden (neue Nachrichten, Channels). */
+  protected async openSearch(): Promise<void> {
+    if (this.searchOpen()) return;
+    this.searchOpen.set(true);
+    this.searchLoading.set(true);
+    try {
+      this.searchIndex.set(await this.searchService.loadIndex());
+    } catch (error) {
+      console.warn('[search] Index konnte nicht geladen werden:', error);
+      this.searchIndex.set(null);
+    } finally {
+      this.searchLoading.set(false);
+    }
+  }
+
+  protected closeSearch(): void {
+    this.searchOpen.set(false);
+  }
+
+  protected onSearchInput(event: Event): void {
+    this.searchTerm.set((event.target as HTMLInputElement).value);
+    void this.openSearch();
+  }
+
+  protected pickChannel(channel: Channel): void {
+    this.finishSearch();
+    this.channelSelected.emit(channel);
+  }
+
+  protected pickUser(user: User): void {
+    this.finishSearch();
+    this.userSelected.emit(user);
+  }
+
+  protected pickMessage(hit: MessageHit): void {
+    if (hit.place.kind === 'channel') this.pickChannel(hit.place.channel);
+    else this.pickUser(hit.place.partner);
+  }
+
+  protected placeLabel(place: SearchPlace): string {
+    return place.kind === 'channel' ? `# ${place.channel.name}` : `Direktnachricht mit ${place.partner.name}`;
+  }
+
+  private finishSearch(): void {
+    this.searchTerm.set('');
+    this.searchOpen.set(false);
+    this.searchIndex.set(null);
   }
 
   protected toggleMenu(): void {

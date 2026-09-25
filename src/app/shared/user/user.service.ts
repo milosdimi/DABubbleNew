@@ -40,6 +40,14 @@ export class UserService {
     return snapshot.docs.map((entry) => entry.data() as User);
   }
 
+  /** Einmalig: die fuer den Login sichtbaren User (Gaeste nur Demo-User, wie watchVisibleUsers). */
+  async listVisibleUsers(isGuest: boolean): Promise<User[]> {
+    const users = collection(this.firestore, 'users');
+    const source = isGuest ? query(users, where('isDemo', '==', true)) : users;
+    const snapshot = await getDocs(source);
+    return snapshot.docs.map((entry) => entry.data() as User);
+  }
+
   /** Live-Profil eines Users (`null`, solange keins existiert). */
   watchUser(uid: string, callback: (user: User | null) => void): Unsubscribe {
     return onSnapshot(

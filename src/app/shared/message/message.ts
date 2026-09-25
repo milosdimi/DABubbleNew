@@ -69,6 +69,19 @@ export class MessageService {
     return this.subscribeMessages(this.messagesOf(target), callback);
   }
 
+  /** Einmalig: alle Nachrichten eines Channels oder Direktchats (z. B. fuer die Suche). */
+  async listMessages(target: ChatTarget): Promise<Message[]> {
+    const snapshot = await getDocs(query(this.messagesOf(target), orderBy('timestamp', 'asc')));
+    return snapshot.docs.map((entry) => entry.data() as Message);
+  }
+
+  /** Einmalig: alle Direktchats, an denen `uid` beteiligt ist. */
+  async listOwnDirectChats(uid: string): Promise<DirectChat[]> {
+    const chats = collection(this.firestore, 'directChats');
+    const snapshot = await getDocs(query(chats, where('memberIds', 'array-contains', uid)));
+    return snapshot.docs.map((entry) => entry.data() as DirectChat);
+  }
+
   /** Speichert eine neue Nachricht und liefert deren ID. */
   async sendMessage(
     target: ChatTarget,

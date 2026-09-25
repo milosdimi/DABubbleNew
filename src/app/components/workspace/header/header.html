@@ -16,11 +16,72 @@
       </div>
     }
     @case ('app') {
-      <!-- Figma "Search bar". Die Suchfunktion selbst ist noch nicht umgesetzt. -->
-      <label class="header__search">
-        <input class="header__search-input" type="search" placeholder="Devspace durchsuchen" />
-        <app-icon name="search" />
-      </label>
+      <!-- Figma "Search bar"; Trefferliste darunter (eigener Entwurf, nicht in Figma). -->
+      <div class="header__search-wrap" appClickOutside (appClickOutside)="closeSearch()">
+        <label class="header__search">
+          <input
+            class="header__search-input"
+            type="search"
+            placeholder="Devspace durchsuchen"
+            aria-label="Devspace durchsuchen"
+            [value]="searchTerm()"
+            (focus)="openSearch()"
+            (input)="onSearchInput($event)"
+            (keydown.escape)="closeSearch()"
+          />
+          <app-icon name="search" />
+        </label>
+
+        @if (searchOpen() && searchTerm().trim()) {
+          <div class="header__results" role="listbox" aria-label="Suchergebnisse">
+            @if (!searchable()) {
+              <p class="header__results-note">
+                Mindestens 2 Zeichen eingeben – oder # für Channels, @ für Personen
+              </p>
+            } @else if (searchLoading()) {
+              <p class="header__results-note">Suche läuft …</p>
+            } @else if (!hasResults()) {
+              <p class="header__results-note">Keine Treffer für „{{ searchTerm().trim() }}"</p>
+            } @else {
+              @if (results().channels.length > 0) {
+                <h2 class="header__results-title">Channels</h2>
+                @for (channel of results().channels; track channel.id) {
+                  <button type="button" class="header__result" (click)="pickChannel(channel)">
+                    <app-icon name="hash" />
+                    <span class="header__result-main">{{ channel.name }}</span>
+                  </button>
+                }
+              }
+              @if (results().users.length > 0) {
+                <h2 class="header__results-title">Personen</h2>
+                @for (user of results().users; track user.id) {
+                  <button type="button" class="header__result" (click)="pickUser(user)">
+                    <img class="header__result-avatar" [src]="user.avatarUrl" alt="" />
+                    <span class="header__result-main">
+                      {{ user.name }}@if (user.id === uid()) { (Du)}
+                    </span>
+                  </button>
+                }
+              }
+              @if (results().messages.length > 0) {
+                <h2 class="header__results-title">Nachrichten</h2>
+                @for (hit of results().messages; track hit.message.id) {
+                  <button
+                    type="button"
+                    class="header__result header__result--message"
+                    (click)="pickMessage(hit)"
+                  >
+                    <span class="header__result-meta">
+                      <strong>{{ hit.senderName }}</strong> · {{ placeLabel(hit.place) }}
+                    </span>
+                    <span class="header__result-text">{{ hit.message.text }}</span>
+                  </button>
+                }
+              }
+            }
+          </div>
+        }
+      </div>
 
       <div class="header__user" appClickOutside (appClickOutside)="menuOpen.set(false)">
         <button

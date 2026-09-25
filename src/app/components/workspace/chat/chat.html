@@ -1,5 +1,9 @@
 <div class="workspace">
-  <app-header variant="app" />
+  <app-header
+    variant="app"
+    (channelSelected)="showChannel($event)"
+    (userSelected)="showDirectChat($event)"
+  />
 
   <div class="workspace__columns">
     <div class="workspace__side" [class.workspace__side--closed]="!sidebarOpen()">
