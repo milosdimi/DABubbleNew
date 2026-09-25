@@ -366,6 +366,16 @@ describe('Users', () => {
     await assertSucceeds(setDoc(doc(user('C'), 'users/C'), profile));
   });
 
+  test('Status: eigene gueltige Werte ja, ungueltige nein, fremde nie', async () => {
+    const own = doc(user('A'), 'users/A');
+    await assertSucceeds(updateDoc(own, { onlineStatus: 'busy', chosenStatus: 'busy' }));
+    await assertSucceeds(updateDoc(own, { onlineStatus: 'offline' }));
+    await assertSucceeds(updateDoc(own, { onlineStatus: 'away', chosenStatus: 'away' }));
+    await assertFails(updateDoc(own, { onlineStatus: 'schlafen' }));
+    await assertFails(updateDoc(own, { chosenStatus: 42 }));
+    await assertFails(updateDoc(doc(user('A'), 'users/B'), { onlineStatus: 'offline' }));
+  });
+
   test('Eigenes Profil: Name aendern ja, isDemo setzen nein; fremdes Profil nie', async () => {
     await assertSucceeds(updateDoc(doc(user('A'), 'users/A'), { name: 'Neu' }));
     await assertFails(updateDoc(doc(user('A'), 'users/A'), { isDemo: true }));

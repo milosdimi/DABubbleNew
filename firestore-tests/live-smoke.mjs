@@ -267,6 +267,12 @@ describe('Live: Users', () => {
     await denied(updateDoc(doc(clients.B.db, 'users', clients.A.uid), { name: 'Von B' }));
   });
 
+  test('A setzt eigenen Status, aber keinen ungueltigen', async () => {
+    const ref = doc(clients.A.db, 'users', clients.A.uid);
+    await ok(updateDoc(ref, { onlineStatus: 'busy', chosenStatus: 'busy' }));
+    await denied(updateDoc(ref, { onlineStatus: 'schlafen' }));
+  });
+
   test('A aendert eigenen Namen, aber nicht isDemo', async () => {
     const ref = doc(clients.A.db, 'users', clients.A.uid);
     await ok(updateDoc(ref, { name: `${RUN}-neu` }));

@@ -83,16 +83,25 @@ service cloud.firestore {
 
     // ----------------------------------------------------------------- Users
 
+    /** Status-Werte: angezeigt (onlineStatus) und selbst gewaehlt (chosenStatus). */
+    function hasValidStatus(data) {
+      let allowed = ['online', 'away', 'busy', 'offline'];
+      return data.get('onlineStatus', 'online') in allowed
+        && data.get('chosenStatus', 'online') in allowed;
+    }
+
     match /users/{userId} {
       allow read: if isRegistered() || (isGuest() && resource.data.isDemo == true);
       // isDemo setzt nur die Konsole/Seed, nie der Client selbst.
       allow create: if isRegistered()
         && userId == uid()
         && request.resource.data.id == uid()
-        && request.resource.data.get('isDemo', false) == false;
+        && request.resource.data.get('isDemo', false) == false
+        && hasValidStatus(request.resource.data);
       allow update: if isRegistered()
         && userId == uid()
-        && onlyChanges(['name', 'avatarUrl', 'onlineStatus']);
+        && onlyChanges(['name', 'avatarUrl', 'onlineStatus', 'chosenStatus'])
+        && hasValidStatus(request.resource.data);
       allow delete: if false;
     }
 
