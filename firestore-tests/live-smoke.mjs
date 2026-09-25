@@ -229,7 +229,7 @@ describe('Live: Nachrichten', () => {
 
   test('Eigene Nachricht: Text bearbeiten ja, andere Felder und Loeschen nein', async () => {
     const ref = doc(clients.A.db, 'channels', ids.privateChannel, 'messages', 'm1');
-    await ok(updateDoc(ref, { text: 'bearbeitet' }));
+    await ok(updateDoc(ref, { text: 'bearbeitet', editedAt: Date.now() }));
     await denied(updateDoc(ref, { text: 'bearbeitet', senderId: clients.B.uid }));
     await denied(deleteDoc(ref));
   });
@@ -293,6 +293,13 @@ describe('Live: Users', () => {
     const own = dbRef(getDatabase(clients.A.app), `status/${clients.A.uid}`);
     await ok(dbSet(own, { state: 'online', lastChanged: Date.now() }));
     await assert.rejects(dbSet(dbRef(getDatabase(clients.B.app), `status/${clients.A.uid}`), { state: 'offline', lastChanged: 1 }));
+    await ok(dbRemove(own)); // aufraeumen
+  });
+
+  test('Realtime Database: A meldet "tippt gerade", B nicht im Namen von A', async () => {
+    const own = dbRef(getDatabase(clients.A.app), `typing/rulestest/${clients.A.uid}`);
+    await ok(dbSet(own, { name: 'A', at: Date.now() }));
+    await assert.rejects(dbSet(dbRef(getDatabase(clients.B.app), `typing/rulestest/${clients.A.uid}`), { name: 'B', at: 1 }));
     await ok(dbRemove(own)); // aufraeumen
   });
 

@@ -253,6 +253,13 @@ describe('Nachrichten', () => {
     );
   });
 
+  test('Nachricht bearbeiten: mit editedAt (Zahl) fuer "(bearbeitet)"', async () => {
+    const ref = doc(user('B'), 'channels/private/messages/m1');
+    await assertSucceeds(updateDoc(ref, { text: 'bearbeitet', editedAt: 5 }));
+    await assertFails(updateDoc(ref, { text: 'bearbeitet', editedAt: 'eben' }));
+    await assertFails(updateDoc(doc(user('C'), 'channels/private/messages/m1'), { editedAt: 6 }));
+  });
+
   test('Nachricht bearbeiten: nur der Text, keine anderen Felder', async () => {
     const ref = doc(user('B'), 'channels/private/messages/m1');
     await assertFails(updateDoc(ref, { text: 'bearbeitet', senderId: 'C' }));

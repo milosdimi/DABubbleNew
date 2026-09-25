@@ -87,8 +87,9 @@ service cloud.firestore {
     /** "Nachricht bearbeiten": nur der Absender, nur der Text. */
     function isOwnTextEdit() {
       return resource.data.senderId == uid()
-        && onlyChanges(['text'])
-        && request.resource.data.text is string;
+        && onlyChanges(['text', 'editedAt'])
+        && request.resource.data.text is string
+        && request.resource.data.get('editedAt', 0) is number;
     }
 
     function isAllowedMessageUpdate() {

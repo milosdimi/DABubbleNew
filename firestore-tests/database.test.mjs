@@ -54,6 +54,18 @@ describe('Realtime Database: /status', () => {
     await assertSucceeds(remove(ref(user('A'), 'status/A')));
   });
 
+  test('Tippt gerade: eigener Eintrag ja (auch Gast), fremder nein, lesen fuer alle Eingeloggten', async () => {
+    const entry = { name: 'Anna', at: Date.now() };
+    await assertSucceeds(set(ref(user('A'), 'typing/channel:x/A'), entry));
+    await assertSucceeds(set(ref(guest(), 'typing/channel:x/guest'), { name: 'Gast', at: 1 }));
+    await assertFails(set(ref(user('A'), 'typing/channel:x/B'), entry));
+    await assertFails(set(ref(user('A'), 'typing/channel:x/A'), { name: 'x'.repeat(61), at: 1 }));
+    await assertFails(set(ref(user('A'), 'typing/channel:x/A'), { ...entry, extra: 1 }));
+    await assertSucceeds(get(ref(guest(), 'typing/channel:x')));
+    await assertFails(get(ref(nobody(), 'typing/channel:x')));
+    await assertSucceeds(remove(ref(user('A'), 'typing/channel:x/A')));
+  });
+
   test('Lesen: registrierte ja, Gaeste und nicht eingeloggt nein', async () => {
     await assertSucceeds(get(ref(user('B'), 'status')));
     await assertFails(get(ref(guest(), 'status')));
