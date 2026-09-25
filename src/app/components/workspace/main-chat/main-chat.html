@@ -8,10 +8,19 @@
       </button>
 
       <div class="main-chat__head-actions">
-        <!-- TODO Figma-Wert pruefen: Mitglieder-Avatare statt Anzahl im Kopf. -->
-        <span class="main-chat__member-count">{{ channel.memberIds.length }}
-          {{ channel.memberIds.length === 1 ? 'Mitglied' : 'Mitglieder' }}</span
+        <button
+          type="button"
+          class="main-chat__members"
+          [attr.aria-label]="channel.memberIds.length + ' Mitglieder anzeigen'"
+          (click)="membersOpen.set(true)"
         >
+          <span class="main-chat__member-avatars">
+            @for (uid of headMemberIds(); track uid) {
+              <img class="main-chat__member-avatar" [src]="profiles.getSenderAvatar(uid)" alt="" />
+            }
+          </span>
+          <span class="main-chat__member-count">{{ channel.memberIds.length }}</span>
+        </button>
         @if (canAddMembers()) {
           <button
             type="button"
@@ -19,7 +28,7 @@
             aria-label="Mitglieder hinzufügen"
             (click)="requestAddMembers(channel)"
           >
-            <app-icon name="plus" />
+            <app-icon name="person-add" />
           </button>
         }
       </div>
@@ -326,6 +335,17 @@
       [userId]="uid"
       (closed)="profiles.closeProfile()"
       (messageClicked)="messageUser($event)"
+    />
+  }
+
+  @if (membersOpen() && activeChannel(); as channel) {
+    <app-channel-members
+      [memberIds]="channel.memberIds"
+      [currentUid]="currentUid()"
+      [canAdd]="canAddMembers()"
+      (closed)="membersOpen.set(false)"
+      (addClicked)="requestAddMembers(channel)"
+      (profileClicked)="openMemberProfile($event)"
     />
   }
 

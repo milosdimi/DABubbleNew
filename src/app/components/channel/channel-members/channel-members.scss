@@ -1,0 +1,141 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+// Figma "43. Members" (388:2847): 415px breit, Ecke oben rechts 0 (klappt unter
+// den Mitglieder-Avataren im Channel-Kopf auf), Titel "Mitglieder", Eintraege mit
+// Avatar 50px + Online-Punkt 14px + Name, darunter "Mitglieder hinzufuegen" mit
+// person_add in einem Kreis in Bg color.
+
+:host {
+  display: block;
+}
+
+.members-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  @include mx.flex(row, flex-end, flex-start);
+  padding: 200px 70px 16px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.members-card {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 20px;
+  width: 100%;
+  max-width: 415px;
+  max-height: calc(100dvh - 216px);
+  overflow-y: auto;
+  padding: 40px;
+  border-radius: 30px 0 30px 30px;
+  background: fct.color(white);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.members-card__head {
+  @include mx.flex(row, space-between, center);
+}
+
+.members-card__title {
+  margin: 0;
+  @include mx.typo(nunito, 700);
+  font-size: 24px;
+  color: fct.color(black);
+}
+
+.members-card__close {
+  @include mx.flex(row, center, center);
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+    color: fct.color(purple-3);
+  }
+
+  app-icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.members-card__list {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.members-card__member,
+.members-card__add {
+  @include mx.flex(row, flex-start, center);
+  gap: 15px;
+  width: 100%;
+  padding: 4px 20px 4px 4px;
+  border: none;
+  border-radius: 35px;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+  text-align: left;
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+    color: fct.color(purple-3);
+  }
+}
+
+.members-card__avatar-wrap,
+.members-card__add-icon {
+  position: relative;
+  flex: 0 0 auto;
+  width: 50px;
+  height: 50px;
+}
+
+.members-card__avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.members-card__dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  border: 2px solid fct.color(white);
+  border-radius: 50%;
+  background: fct.color(online-green);
+}
+
+.members-card__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.members-card__add-icon {
+  @include mx.flex(row, center, center);
+  border-radius: 50%;
+  background: fct.color(background);
+
+  app-icon {
+    width: 24px;
+    height: 24px;
+  }
+}

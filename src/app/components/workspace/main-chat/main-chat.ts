@@ -5,6 +5,7 @@ import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
 import { Channel, Message, User } from '../../../shared/models';
 import { ChannelInfo } from '../../channel/channel-info/channel-info';
+import { ChannelMembers } from '../../channel/channel-members/channel-members';
 import { ProfileCard } from '../../profile/profile-card/profile-card';
 import { MainChatDateService } from './main-chat-date.service';
 import { MainChatEditService } from './main-chat-edit.service';
@@ -16,7 +17,7 @@ import { MainChatUploadService } from './main-chat-upload.service';
 /** Mittlere Spalte des Workspace: Nachrichten eines Channels oder Direktchats. */
 @Component({
   selector: 'app-main-chat',
-  imports: [Icon, ProfileCard, ChannelInfo, ClickOutsideDirective],
+  imports: [Icon, ProfileCard, ChannelInfo, ChannelMembers, ClickOutsideDirective],
   providers: [
     MainChatDateService,
     MainChatEditService,
@@ -51,6 +52,13 @@ export class MainChat {
   readonly directChatOpened = output<User>();
   /** Ein Channel wurde ohne Sidebar-Auswahl geoeffnet (Start-Channel). */
   readonly channelOpened = output<Channel>();
+
+  /** Mitgliederliste (Figma "43. Members") offen? */
+  protected readonly membersOpen = signal(false);
+  protected readonly currentUid = computed(() => this.auth.currentUser?.uid ?? null);
+
+  /** Hoechstens drei ueberlappende Avatare im Channel-Kopf. */
+  protected readonly headMemberIds = computed(() => this.activeChannel()?.memberIds.slice(0, 3) ?? []);
 
   protected readonly draft = signal('');
   protected readonly selectedFile = signal<File | null>(null);
@@ -103,6 +111,12 @@ export class MainChat {
       if (user) untracked(() => void this.session.openDirectChat(user));
     });
 
+    // Profile der Mitglieder fuer die Avatare im Kopf laden.
+    effect(() => {
+      const uids = this.headMemberIds();
+      untracked(() => void this.profiles.loadProfiles(uids));
+    });
+
     // Ohne Auswahl von aussen: ersten sichtbaren Channel zeigen.
     void this.session.openFirstVisibleChannel();
 
@@ -127,6 +141,7 @@ export class MainChat {
     this.reactions.closePicker();
     this.edit.cancel();
     this.edit.closeMenu();
+    this.membersOpen.set(false);
     this.profiles.closeProfile();
     this.profiles.closeChannelInfo();
   }
@@ -142,7 +157,13 @@ export class MainChat {
   }
 
   protected requestAddMembers(channel: Channel): void {
+    this.membersOpen.set(false);
     this.addMembersClicked.emit(channel.id);
+  }
+
+  protected openMemberProfile(uid: string): void {
+    this.membersOpen.set(false);
+    this.profiles.openProfile(uid);
   }
 
   /** "Nachricht" in einer profile-card: Direktchat mit diesem User oeffnen. */

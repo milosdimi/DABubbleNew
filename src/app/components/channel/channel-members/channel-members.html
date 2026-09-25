@@ -1,0 +1,40 @@
+<div class="members-backdrop" (click)="closed.emit()">
+  <section class="members-card" (click)="$event.stopPropagation()" aria-label="Mitglieder">
+    <header class="members-card__head">
+      <h1 class="members-card__title">Mitglieder</h1>
+      <button
+        type="button"
+        class="members-card__close"
+        aria-label="Mitglieder schließen"
+        (click)="closed.emit()"
+      >
+        <app-icon name="close" />
+      </button>
+    </header>
+
+    <ul class="members-card__list">
+      @for (uid of memberIds(); track uid) {
+        <li>
+          <button type="button" class="members-card__member" (click)="profileClicked.emit(uid)">
+            <span class="members-card__avatar-wrap">
+              <img class="members-card__avatar" [src]="profiles.getSenderAvatar(uid)" alt="" />
+              @if (profiles.isOnline(uid)) {
+                <span class="members-card__dot" aria-label="online"></span>
+              }
+            </span>
+            <span class="members-card__name">
+              {{ profiles.getSenderName(uid) }}@if (uid === currentUid()) { (Du)}
+            </span>
+          </button>
+        </li>
+      }
+    </ul>
+
+    @if (canAdd()) {
+      <button type="button" class="members-card__add" (click)="addClicked.emit()">
+        <span class="members-card__add-icon"><app-icon name="person-add" /></span>
+        Mitglieder hinzufügen
+      </button>
+    }
+  </section>
+</div>

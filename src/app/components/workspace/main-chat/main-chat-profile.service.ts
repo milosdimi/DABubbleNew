@@ -30,6 +30,11 @@ export class MainChatProfileService {
     await Promise.all([...uids].map((uid) => this.getUser(uid)));
   }
 
+  /** Laedt mehrere Profile (z. B. Channel-Mitglieder); jede uid nur einmal. */
+  async loadProfiles(uids: readonly string[]): Promise<void> {
+    await Promise.all([...new Set(uids)].map((uid) => this.getUser(uid)));
+  }
+
   /** Einzelnes Profil, gecacht. Fehlende oder gesperrte Profile ergeben `null`. */
   getUser(uid: string): Promise<User | null> {
     const cached = this.profiles().get(uid);
@@ -64,6 +69,10 @@ export class MainChatProfileService {
 
   getSenderAvatar(uid: string): string {
     return this.profiles().get(uid)?.avatarUrl ?? FALLBACK_AVATAR;
+  }
+
+  isOnline(uid: string): boolean {
+    return this.profiles().get(uid)?.onlineStatus === 'online';
   }
 
   /** Nachrichtenzeit laut Figma: "14:25 Uhr". */

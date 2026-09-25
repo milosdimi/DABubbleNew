@@ -104,10 +104,47 @@
   gap: 12px;
 }
 
+// Mitglieder im Kopf: ueberlappende Avatare + Anzahl, oeffnet die Mitgliederliste.
+// Groessen nicht in Figma angegeben.
+.main-chat__members {
+  @include mx.flex(row, flex-start, center);
+  gap: 10px;
+  padding: 3px 12px 3px 3px;
+  border: none;
+  border-radius: 30px;
+  background: transparent;
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+
+    .main-chat__member-count {
+      color: fct.color(purple-3);
+    }
+  }
+}
+
+.main-chat__member-avatars {
+  @include mx.flex(row, flex-start, center);
+}
+
+.main-chat__member-avatar {
+  width: 38px;
+  height: 38px;
+  border: 2px solid fct.color(white);
+  border-radius: 50%;
+  object-fit: cover;
+
+  & + & {
+    margin-left: -12px;
+  }
+}
+
 .main-chat__member-count {
   @include mx.typo(nunito, 600);
-  font-size: 16px;
-  color: fct.color(text-gray);
+  font-size: 20px;
+  color: fct.color(black);
 }
 
 .main-chat__icon-btn {
