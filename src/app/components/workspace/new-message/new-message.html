@@ -1,0 +1,94 @@
+<section class="new-message">
+  <header class="new-message__head">
+    <h1 class="new-message__title">Neue Nachricht</h1>
+
+    <div class="new-message__to" appClickOutside (appClickOutside)="suggestionsOpen.set(false)">
+      <label class="new-message__to-field">
+        @if (recipient(); as target) {
+          <span class="new-message__chip">
+            @if (target.kind === 'channel') {
+              <app-icon name="hash" />
+              {{ target.channel.name }}
+            } @else {
+              <img class="new-message__chip-avatar" [src]="target.user.avatarUrl" alt="" />
+              {{ target.user.name }}@if (target.user.id === currentUid) { (Du)}
+            }
+            <button
+              type="button"
+              class="new-message__chip-remove"
+              aria-label="Empfänger entfernen"
+              (click)="clearRecipient()"
+            >
+              <app-icon name="close" />
+            </button>
+          </span>
+        } @else {
+          <input
+            class="new-message__to-input"
+            type="text"
+            placeholder="An: #channel, oder @jemand oder E-Mail-Adresse"
+            aria-label="Empfänger"
+            [value]="recipientQuery()"
+            (input)="onRecipientInput($event)"
+            (focus)="suggestionsOpen.set(true)"
+            (keydown.escape)="suggestionsOpen.set(false)"
+          />
+        }
+      </label>
+
+      @if (suggestionsOpen() && !recipient() && recipientQuery().trim()) {
+        <div class="new-message__suggestions" role="listbox" aria-label="Empfänger-Vorschläge">
+          @for (channel of suggestions().channels; track channel.id) {
+            <button type="button" class="new-message__suggestion" (click)="pick({ kind: 'channel', channel })">
+              <app-icon name="hash" />
+              {{ channel.name }}
+            </button>
+          }
+          @for (user of suggestions().users; track user.id) {
+            <button type="button" class="new-message__suggestion" (click)="pick({ kind: 'user', user })">
+              <img class="new-message__suggestion-avatar" [src]="user.avatarUrl" alt="" />
+              <span>
+                {{ user.name }}@if (user.id === currentUid) { (Du)}
+                @if (user.email) {
+                  <span class="new-message__suggestion-email">{{ user.email }}</span>
+                }
+              </span>
+            </button>
+          }
+          @if (suggestions().channels.length === 0 && suggestions().users.length === 0) {
+            <p class="new-message__no-match">Kein passender Channel und keine passende Person.</p>
+          }
+        </div>
+      }
+    </div>
+  </header>
+
+  <div class="new-message__body"></div>
+
+  @if (error(); as message) {
+    <p class="new-message__error" role="alert">{{ message }}</p>
+  }
+
+  <div class="new-message__input">
+    <textarea
+      class="new-message__field"
+      rows="1"
+      [placeholder]="placeholder()"
+      [value]="draft()"
+      [disabled]="!recipient()"
+      (input)="onDraftInput($event)"
+      (keydown)="onDraftKeydown($event)"
+    ></textarea>
+    <div class="new-message__input-row">
+      <button
+        type="button"
+        class="new-message__send"
+        aria-label="Senden"
+        [disabled]="!canSend()"
+        (click)="send()"
+      >
+        <app-icon name="send" />
+      </button>
+    </div>
+  </div>
+</section>

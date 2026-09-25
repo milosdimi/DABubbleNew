@@ -9,10 +9,11 @@
     <div class="workspace__side" [class.workspace__side--closed]="!sidebarOpen()">
       @if (sidebarOpen()) {
         <app-sidebar
-          [activeChannelId]="selectedChannel()?.id ?? null"
-          [activeUserId]="selectedUser()?.id ?? null"
+          [activeChannelId]="composing() ? null : (selectedChannel()?.id ?? null)"
+          [activeUserId]="composing() ? null : (selectedUser()?.id ?? null)"
           (channelSelected)="showChannel($event)"
           (userSelected)="showDirectChat($event)"
+          (newMessageClicked)="startNewMessage()"
         />
       }
 
@@ -28,7 +29,15 @@
       </button>
     </div>
 
+    @if (composing()) {
+      <app-new-message
+        (sentToChannel)="showChannel($event)"
+        (sentToUser)="showDirectChat($event)"
+      />
+    }
+
     <app-main-chat
+      [class.workspace__hidden]="composing()"
       [channel]="selectedChannel()"
       [user]="selectedUser()"
       (channelOpened)="showChannel($event)"

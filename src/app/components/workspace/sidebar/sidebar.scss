@@ -33,8 +33,33 @@
 }
 
 .sidebar__workspace-name {
+  flex: 1 1 auto;
   @include mx.typo(nunito, 700);
   font-size: 24px;
+}
+
+// Figma: edit_square 24px in rundem Button (rounded-20px, Padding 8px).
+.sidebar__new-message {
+  @include mx.flex(row, center, center);
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+    color: fct.color(purple-3);
+  }
+
+  app-icon {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .sidebar__section {

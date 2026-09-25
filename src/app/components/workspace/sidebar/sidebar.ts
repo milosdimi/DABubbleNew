@@ -29,6 +29,8 @@ export class Sidebar {
 
   readonly channelSelected = output<Channel>();
   readonly userSelected = output<User>();
+  /** edit_square neben "Devspace" -> "Neue Nachricht" im Mittelbereich. */
+  readonly newMessageClicked = output<void>();
 
   protected readonly channels = signal<Channel[]>([]);
   protected readonly users = signal<User[]>([]);

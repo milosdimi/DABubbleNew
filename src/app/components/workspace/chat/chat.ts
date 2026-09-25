@@ -4,6 +4,7 @@ import { Channel, Message, User } from '../../../shared/models';
 import { ChannelAddMembers } from '../../channel/channel-add-members/channel-add-members';
 import { Header } from '../header/header';
 import { MainChat } from '../main-chat/main-chat';
+import { NewMessage } from '../new-message/new-message';
 import { Sidebar } from '../sidebar/sidebar';
 import { Thread } from '../thread/thread';
 
@@ -13,7 +14,7 @@ import { Thread } from '../thread/thread';
  */
 @Component({
   selector: 'app-chat',
-  imports: [Header, Sidebar, MainChat, Thread, ChannelAddMembers, Icon],
+  imports: [Header, Sidebar, MainChat, NewMessage, Thread, ChannelAddMembers, Icon],
   templateUrl: './chat.html',
   styleUrl: './chat.scss',
 })
@@ -23,20 +24,29 @@ export class Chat {
   protected readonly selectedUser = signal<User | null>(null);
 
   protected readonly sidebarOpen = signal(true);
+  /** "Neue Nachricht" statt Main-Chat im Mittelbereich (Main-Chat bleibt im Hintergrund bestehen). */
+  protected readonly composing = signal(false);
   protected readonly threadMessage = signal<Message | null>(null);
   /** Channel, fuer den der "+"-Dialog aus dem Main-Chat-Kopf offen ist. */
   protected readonly addMembersChannelId = signal<string | null>(null);
 
   protected showChannel(channel: Channel): void {
+    this.composing.set(false);
     if (channel.id !== this.selectedChannel()?.id) this.threadMessage.set(null);
     this.selectedUser.set(null);
     this.selectedChannel.set(channel);
   }
 
   protected showDirectChat(user: User): void {
+    this.composing.set(false);
     if (user.id !== this.selectedUser()?.id) this.threadMessage.set(null);
     this.selectedChannel.set(null);
     this.selectedUser.set(user);
+  }
+
+  protected startNewMessage(): void {
+    this.threadMessage.set(null);
+    this.composing.set(true);
   }
 
   protected toggleSidebar(): void {

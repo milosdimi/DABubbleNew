@@ -33,7 +33,8 @@ export type IconName =
   | 'arrow-drop-down'
   | 'add'
   | 'add-circle'
-  | 'person-add';
+  | 'person-add'
+  | 'edit-square';
 
 /**
  * Inline-SVG-Icons (kein Asset-Request, per `color` einfärbbar via currentColor).

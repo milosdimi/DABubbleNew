@@ -3,6 +3,15 @@
   <div class="sidebar__workspace">
     <img class="sidebar__workspace-logo" src="app-img/devspace-logo.svg" alt="" />
     <span class="sidebar__workspace-name">Devspace</span>
+    <button
+      type="button"
+      class="sidebar__new-message"
+      aria-label="Neue Nachricht"
+      title="Neue Nachricht"
+      (click)="newMessageClicked.emit()"
+    >
+      <app-icon name="edit-square" />
+    </button>
   </div>
 
   <section class="sidebar__section">

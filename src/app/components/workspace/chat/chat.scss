@@ -22,6 +22,10 @@
   padding: 0 24px 24px 48px;
 }
 
+.workspace__hidden {
+  display: none;
+}
+
 .workspace__side {
   @include mx.flex(column, flex-start, stretch);
   flex: 0 0 366px;

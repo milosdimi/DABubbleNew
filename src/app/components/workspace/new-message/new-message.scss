@@ -1,0 +1,248 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+// Nicht in Figma gestaltet (nur das edit_square-Icon ist vorgegeben): Karte, Kopf
+// und Eingabe folgen dem Main-Chat, Vorschlaege und Chip dem Stil der Dialoge.
+
+:host {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+
+.new-message {
+  @include mx.flex(column, flex-start, stretch);
+  height: 100%;
+  border-radius: 30px;
+  background: fct.color(white);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.new-message__head {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 20px;
+  padding: 24px 40px;
+  @include mx.header-shadow;
+}
+
+.new-message__title {
+  margin: 0;
+  @include mx.typo(nunito, 700);
+  font-size: 24px;
+  color: fct.color(black);
+}
+
+.new-message__to {
+  position: relative;
+}
+
+.new-message__to-field {
+  @include mx.flex(row, flex-start, center);
+  min-height: 60px;
+  padding: 10px 20px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 30px;
+  cursor: text;
+  @include mx.transition();
+
+  &:focus-within {
+    border-color: fct.color(purple-1);
+  }
+}
+
+.new-message__to-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+
+  &::placeholder {
+    color: fct.color(text-gray);
+  }
+}
+
+.new-message__chip {
+  @include mx.flex(row, flex-start, center);
+  gap: 8px;
+  padding: 4px 6px 4px 10px;
+  border-radius: 30px;
+  background: fct.color(background);
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(purple-3);
+
+  app-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.new-message__chip-avatar {
+  width: 32px;
+  height: 32px;
+  margin-left: -6px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.new-message__chip-remove {
+  @include mx.flex(row, center, center);
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: fct.color(black);
+  cursor: pointer;
+
+  &:hover {
+    background: fct.color(white);
+    color: fct.color(purple-3);
+  }
+
+  app-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.new-message__suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  @include mx.flex(column, flex-start, stretch);
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 12px;
+  border-radius: 30px;
+  background: fct.color(white);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.new-message__suggestion {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 30px;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+  text-align: left;
+  cursor: pointer;
+  @include mx.transition(150ms);
+
+  &:hover {
+    background: fct.color(background);
+    color: fct.color(purple-3);
+  }
+
+  app-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.new-message__suggestion-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.new-message__suggestion-email {
+  display: block;
+  font-size: 14px;
+  color: fct.color(text-gray);
+}
+
+.new-message__no-match {
+  margin: 0;
+  padding: 8px 12px;
+  @include mx.typo(nunito, 400);
+  font-size: 16px;
+  color: fct.color(text-gray);
+}
+
+.new-message__body {
+  flex: 1 1 auto;
+}
+
+.new-message__error {
+  margin: 0 40px 12px;
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(error);
+}
+
+.new-message__input {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 8px;
+  margin: 0 40px 32px;
+  padding: 16px 20px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 20px;
+  @include mx.transition();
+
+  &:focus-within {
+    border-color: fct.color(purple-2);
+  }
+}
+
+.new-message__field {
+  min-height: 48px;
+  max-height: 160px;
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+
+  &::placeholder {
+    color: fct.color(text-gray);
+  }
+}
+
+.new-message__input-row {
+  @include mx.flex(row, flex-end, center);
+}
+
+.new-message__send {
+  @include mx.flex(row, center, center);
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: fct.color(purple-1);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover:not(:disabled) {
+    background: fct.color(background);
+  }
+
+  &:disabled {
+    color: fct.color(light-purple);
+    cursor: default;
+  }
+
+  app-icon {
+    width: 26px;
+    height: 26px;
+  }
+}
