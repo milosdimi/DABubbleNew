@@ -231,6 +231,8 @@ describe('Live: Nachrichten', () => {
     const ref = doc(clients.A.db, 'channels', ids.privateChannel, 'messages', 'm1');
     await ok(updateDoc(ref, { text: 'bearbeitet', editedAt: Date.now() }));
     await denied(updateDoc(ref, { text: 'bearbeitet', senderId: clients.B.uid }));
+    await ok(updateDoc(ref, { deleted: true, deletedAt: Date.now(), text: '' }));
+    await denied(updateDoc(ref, { text: 'wieder da' }));
     await denied(deleteDoc(ref));
   });
 });

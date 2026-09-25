@@ -8,6 +8,7 @@ import {
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
+  deleteField,
   arrayRemove,
   arrayUnion,
   collection,
@@ -258,6 +259,29 @@ describe('Nachrichten', () => {
     await assertSucceeds(updateDoc(ref, { text: 'bearbeitet', editedAt: 5 }));
     await assertFails(updateDoc(ref, { text: 'bearbeitet', editedAt: 'eben' }));
     await assertFails(updateDoc(doc(user('C'), 'channels/private/messages/m1'), { editedAt: 6 }));
+  });
+
+  test('Nachricht loeschen: Absender markiert sie als geloescht, andere nicht', async () => {
+    const ref = doc(user('B'), 'channels/private/messages/m1');
+    const soft = { deleted: true, deletedAt: 9, text: '' };
+    await assertFails(updateDoc(doc(user('C'), 'channels/private/messages/m1'), soft));
+    await assertFails(updateDoc(ref, { deleted: true, deletedAt: 9, text: 'noch da' }));
+    await assertSucceeds(updateDoc(ref, soft));
+    // danach nicht mehr bearbeitbar
+    await assertFails(updateDoc(ref, { text: 'wieder da', editedAt: 10 }));
+  });
+
+  test('Nachricht loeschen: Anhang muss mit entfernt werden', async () => {
+    const setup = doc(user('B'), 'channels/private/messages/a1');
+    await assertSucceeds(
+      setDoc(setup, message('a1', 'B', { channelId: 'private', attachmentPath: 'x/y', attachmentName: 'y.pdf' })),
+    );
+    await assertFails(updateDoc(setup, { deleted: true, deletedAt: 9, text: '' }));
+    await assertSucceeds(
+      updateDoc(setup, {
+        deleted: true, deletedAt: 9, text: '', attachmentPath: deleteField(), attachmentName: deleteField(),
+      }),
+    );
   });
 
   test('Nachricht bearbeiten: nur der Text, keine anderen Felder', async () => {

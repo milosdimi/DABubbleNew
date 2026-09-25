@@ -87,13 +87,28 @@ service cloud.firestore {
     /** "Nachricht bearbeiten": nur der Absender, nur der Text. */
     function isOwnTextEdit() {
       return resource.data.senderId == uid()
+        && resource.data.get('deleted', false) == false
         && onlyChanges(['text', 'editedAt'])
         && request.resource.data.text is string
         && request.resource.data.get('editedAt', 0) is number;
     }
 
+    /**
+     * "Nachricht loeschen": nur der Absender; die Nachricht bleibt als Platzhalter
+     * stehen (Threads/Reaktionen bleiben stimmig), Text leer, Anhang entfernt.
+     */
+    function isOwnSoftDelete() {
+      return resource.data.senderId == uid()
+        && onlyChanges(['deleted', 'deletedAt', 'text', 'attachmentPath', 'attachmentName'])
+        && request.resource.data.deleted == true
+        && request.resource.data.text == ''
+        && request.resource.data.deletedAt is number
+        && !('attachmentPath' in request.resource.data)
+        && !('attachmentName' in request.resource.data);
+    }
+
     function isAllowedMessageUpdate() {
-      return isReactionOrCounterUpdate() || isOwnTextEdit();
+      return isReactionOrCounterUpdate() || isOwnTextEdit() || isOwnSoftDelete();
     }
 
     // ----------------------------------------------------------------- Users
