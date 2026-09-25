@@ -1,7 +1,10 @@
 @use '../../../../styles/functions' as fct;
 @use '../../../../styles/mixins' as mx;
 
-// TODO Figma-Wert pruefen: Masse, Radien, Abstaende.
+// Figma: fremdes Profil "65. Profile view other users" (463:7263) - 500px breit,
+// Padding 40px, 45px zwischen den Sektionen, alle Ecken 30px.
+// Eigenes Profil "Profile view main" (163:188) - Padding 45px/40px, 38px Abstand,
+// Ecke oben rechts 0: es klappt oben rechts unter dem Header-Profil auf.
 
 .profile-backdrop {
   position: fixed;
@@ -10,11 +13,17 @@
   @include mx.flex(row, center, center);
   padding: 16px;
   background: rgba(0, 0, 0, 0.2);
+
+  &--own {
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 115px 34px 16px;
+  }
 }
 
 .profile-card {
   @include mx.flex(column, flex-start, center);
-  gap: 24px;
+  gap: 45px;
   width: 100%;
   max-width: 500px;
   max-height: calc(100dvh - 32px);
@@ -22,7 +31,14 @@
   padding: 40px;
   border-radius: 30px;
   background: fct.color(white);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+
+  &--own {
+    gap: 38px;
+    max-height: calc(100dvh - 131px);
+    padding: 45px 40px;
+    border-radius: 30px 0 30px 30px;
+  }
 }
 
 .profile-card__head {
@@ -53,8 +69,8 @@
   }
 
   app-icon {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
   }
 }
 
@@ -82,32 +98,25 @@
   overflow-wrap: anywhere;
 }
 
+// Figma: reiner Text-Link "Bearbeiten", Nunito SemiBold 18px Purple 3.
 .profile-card__edit {
-  @include mx.flex(row, center, center);
-  gap: 6px;
-  padding: 6px 12px;
+  padding: 0;
   border: none;
-  border-radius: 100px;
   background: transparent;
   @include mx.typo(nunito, 600);
   font-size: 18px;
   color: fct.color(purple-3);
   cursor: pointer;
-  @include mx.transition();
 
   &:hover {
-    background: fct.color(background);
-  }
-
-  app-icon {
-    width: 18px;
-    height: 18px;
+    text-decoration: underline;
   }
 }
 
+// Figma: "Aktiv" + Punkt 16px in online green, 15px Abstand, Nunito 20px.
 .profile-card__status {
   @include mx.flex(row, flex-start, center);
-  gap: 12px;
+  gap: 15px;
   align-self: stretch;
   margin: 0;
   @include mx.typo(nunito, 400);
@@ -115,7 +124,7 @@
   color: fct.color(text-gray);
 
   &[data-status='online'] {
-    color: fct.color(purple-1);
+    color: fct.color(online-green);
   }
 }
 
@@ -125,7 +134,6 @@
   border-radius: 50%;
   background: fct.color(text-gray);
 
-  // TODO Figma-Wert pruefen: Farbe fuer "aktiv".
   [data-status='online'] & {
     background: fct.color(online-green);
   }
@@ -139,10 +147,16 @@
   font-size: 18px;
 
   a {
-    color: fct.color(purple-1);
+    color: fct.color(link-blue);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
+// Figma: Label Nunito Bold 20px mit mail-Icon 30px.
 .profile-card__email-label {
   @include mx.flex(row, flex-start, center);
   gap: 12px;
@@ -150,8 +164,8 @@
   font-size: 20px;
 
   app-icon {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
   }
 }
 
@@ -172,7 +186,7 @@
   gap: 10px;
   padding: 12px 25px;
   border: none;
-  border-radius: 25px;
+  border-radius: 50px;
   background: fct.color(purple-1);
   @include mx.typo(nunito, 700);
   font-size: 18px;

@@ -13,9 +13,11 @@
   gap: 24px;
   padding: clamp(24px, 6vw, 75px) clamp(16px, 6vw, 75px) 0;
 
+  // Figma (Screen 757:12479): Elemente 70px hoch bei y=25, Logo bei x=50,
+  // 34px Rand rechts, Chat-Inhalt beginnt bei y=115.
   &--app {
     align-items: center;
-    padding: 16px 24px;
+    padding: 25px 34px 20px 50px;
   }
 }
 
@@ -30,7 +32,7 @@
   width: auto;
 
   .header--app & {
-    height: 56px;
+    height: 70px;
   }
 }
 
@@ -48,7 +50,9 @@
   font-size: 18px;
 }
 
+// Figma "8. Sign up": Figtree Regular 18px, Purple 2.
 .header__signup-link {
+  @include mx.typo(figtree, 400);
   padding: 6px 12px;
   border: 1px solid transparent;
   border-radius: 100px;
@@ -62,13 +66,57 @@
   }
 }
 
-.header__user {
-  position: relative;
+// Figma "Search bar": 989px breit, 70px hoch, rounded-42px, weiss, ohne Rahmen,
+// Nunito 24px Text gray, Padding 45px / 17.5px, Lupe 35px rechts.
+.header__search {
+  @include mx.flex(row, space-between, center);
+  gap: 16px;
+  flex: 0 1 989px;
+  min-width: 0;
+  height: 70px;
+  padding: 17.5px 45px;
+  border-radius: 42px;
+  background: fct.color(white);
+  color: fct.color(text-gray);
+  cursor: text;
+
+  app-icon {
+    flex: 0 0 auto;
+    width: 35px;
+    height: 35px;
+  }
+
+  // Mobile-Header hat laut Figma keine Suche.
+  @media (max-width: 900px) {
+    display: none;
+  }
 }
 
+.header__search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 24px;
+  color: fct.color(black);
+
+  &::placeholder {
+    color: fct.color(text-gray);
+  }
+}
+
+.header__user {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+// Figma "65. Profile menu": Name Bold 32px, Avatar 70px, Pfeil 30px, je 20px Abstand.
 .header__user-btn {
   @include mx.flex(row, flex-end, center);
-  gap: 16px;
+  gap: 20px;
   padding: 6px 12px;
   border: none;
   border-radius: 100px;
@@ -82,25 +130,42 @@
   }
 
   app-icon {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
   }
 }
 
 .header__user-name {
   @include mx.typo(nunito, 700);
-  font-size: 28px;
+  font-size: 32px;
 
   @media (max-width: 700px) {
     display: none;
   }
 }
 
+.header__user-avatar-wrap {
+  position: relative;
+  width: 70px;
+  height: 70px;
+}
+
 .header__user-avatar {
-  width: 56px;
-  height: 56px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.header__online-dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16.67px;
+  height: 16.67px;
+  border: 2px solid fct.color(white);
+  border-radius: 50%;
+  background: fct.color(online-green);
 }
 
 .header__menu {

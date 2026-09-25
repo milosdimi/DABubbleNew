@@ -16,7 +16,12 @@
       </div>
     }
     @case ('app') {
-      <!-- TODO Figma-Wert pruefen: Suchfeld im Header (Funktion noch nicht vorgesehen). -->
+      <!-- Figma "Search bar". Die Suchfunktion selbst ist noch nicht umgesetzt. -->
+      <label class="header__search">
+        <input class="header__search-input" type="search" placeholder="Devspace durchsuchen" />
+        <app-icon name="search" />
+      </label>
+
       <div class="header__user" appClickOutside (appClickOutside)="menuOpen.set(false)">
         <button
           type="button"
@@ -26,7 +31,12 @@
           (click)="toggleMenu()"
         >
           <span class="header__user-name">{{ displayName() }}</span>
-          <img class="header__user-avatar" [src]="avatarUrl()" alt="" />
+          <span class="header__user-avatar-wrap">
+            <img class="header__user-avatar" [src]="avatarUrl()" alt="" />
+            @if (online()) {
+              <span class="header__online-dot" aria-label="online"></span>
+            }
+          </span>
           <app-icon name="chevron-down" />
         </button>
 

@@ -1,25 +1,29 @@
 @use '../../../../styles/functions' as fct;
 @use '../../../../styles/mixins' as mx;
 
-// TODO Figma-Wert pruefen: Masse und Radien des Dropdowns.
+// Figma "64. Edit user and Log out": 282px breit, Padding 30px, 15px Abstand,
+// Ecke oben rechts 0 (zum Ausloeser), Schatten 0 6px 10px. Eintraege 222px,
+// vollrund, weiss, Nunito SemiBold 24px zentriert. Hover ist in Figma nicht
+// definiert und bleibt wie bei den anderen Menues.
 
 .profile-menu {
-  @include mx.flex(column, flex-start, stretch);
-  gap: 8px;
-  min-width: 240px;
-  padding: 24px;
+  @include mx.flex(column, flex-start, center);
+  gap: 15px;
+  width: 282px;
+  padding: 30px;
   border-radius: 30px 0 30px 30px;
   background: fct.color(white);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
 }
 
 .profile-menu__item {
+  width: 222px;
   padding: 10px 24px;
   border: none;
   border-radius: 100px;
-  background: transparent;
+  background: fct.color(white);
   @include mx.typo(nunito, 600);
-  font-size: 20px;
+  font-size: 24px;
   text-align: center;
   color: fct.color(black);
   cursor: pointer;

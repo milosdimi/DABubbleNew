@@ -6,7 +6,8 @@ import { Spinner } from '../../../shared/spinner/spinner';
 import { UserService } from '../../../shared/user/user.service';
 import { ProfileEdit } from '../profile-edit/profile-edit';
 
-// TODO Figma-Wert pruefen: Beschriftungen des Online-Status.
+// "Aktiv" aus Figma (dort einmal als "Aktive" vertippt); die anderen Zustaende
+// kommen in Figma nicht vor.
 const STATUS_LABELS: Record<OnlineStatus, string> = {
   online: 'Aktiv',
   away: 'Abwesend',

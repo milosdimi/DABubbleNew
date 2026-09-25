@@ -37,6 +37,8 @@ export class Header implements OnInit {
   protected readonly uid = signal<string | null>(null);
   protected readonly displayName = signal('');
   protected readonly avatarUrl = signal(GUEST_DISPLAY.avatarUrl);
+  /** Online-Punkt am Avatar (Gaeste gelten als online). */
+  protected readonly online = signal(true);
   protected readonly menuOpen = signal(false);
   protected readonly profileOpen = signal(false);
 
@@ -61,9 +63,10 @@ export class Header implements OnInit {
     this.destroyRef.onDestroy(stop);
   }
 
-  private show(user: Pick<User, 'name' | 'avatarUrl'>): void {
+  private show(user: Pick<User, 'name' | 'avatarUrl'> & Partial<Pick<User, 'onlineStatus'>>): void {
     this.displayName.set(user.name);
     this.avatarUrl.set(user.avatarUrl);
+    this.online.set((user.onlineStatus ?? 'online') === 'online');
   }
 
   protected toggleMenu(): void {

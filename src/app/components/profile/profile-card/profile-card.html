@@ -1,8 +1,13 @@
 @if (editing()) {
   <app-profile-edit (closed)="editing.set(false)" (saved)="onEditSaved()" />
 } @else {
-  <div class="profile-backdrop" (click)="closed.emit()">
-    <section class="profile-card" (click)="$event.stopPropagation()" aria-label="Profil">
+  <div class="profile-backdrop" [class.profile-backdrop--own]="isOwn()" (click)="closed.emit()">
+    <section
+      class="profile-card"
+      [class.profile-card--own]="isOwn()"
+      (click)="$event.stopPropagation()"
+      aria-label="Profil"
+    >
       <header class="profile-card__head">
         <h1 class="profile-card__title">Profil</h1>
         <button
@@ -24,7 +29,6 @@
           <h2 class="profile-card__name">{{ profile.name }}</h2>
           @if (isOwn() && !isGuestSelf()) {
             <button type="button" class="profile-card__edit" (click)="startEditing()">
-              <app-icon name="edit" />
               Bearbeiten
             </button>
           }
@@ -52,7 +56,7 @@
           </p>
         } @else if (!isOwn()) {
           <button type="button" class="profile-card__message" (click)="messageClicked.emit(profile.id)">
-            <app-icon name="message" />
+            <app-icon name="mode-comment" />
             Nachricht
           </button>
         }

@@ -25,7 +25,15 @@ export type IconName =
   | 'add-reaction'
   | 'comment'
   | 'more-vert'
-  | 'emoji';
+  | 'emoji'
+  | 'search'
+  | 'mode-comment'
+  | 'workspaces'
+  | 'account-circle'
+  | 'arrow-drop-down'
+  | 'add'
+  | 'add-circle'
+  | 'person-add';
 
 /**
  * Inline-SVG-Icons (kein Asset-Request, per `color` einfärbbar via currentColor).
