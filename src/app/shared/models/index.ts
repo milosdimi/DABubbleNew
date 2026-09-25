@@ -66,6 +66,8 @@ export interface Message {
   channelId?: string;
   /** Gesetzt bei Direktnachrichten (und deren Thread-Antworten). */
   dmId?: string;
+  /** Zeitpunkt der letzten Bearbeitung -> Hinweis "(bearbeitet)". */
+  editedAt?: number;
   /** Nur bei Thread-Antworten: ID der Elternnachricht. */
   threadId?: string;
   attachmentPath?: string;

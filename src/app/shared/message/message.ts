@@ -117,7 +117,7 @@ export class MessageService {
 
   /** Text einer eigenen Channel- ODER Direktnachricht aendern (Rules: nur Absender, nur `text`). */
   async editMessage(message: Message, text: string): Promise<void> {
-    await updateDoc(this.getParentMessageDoc(message), { text });
+    await updateDoc(this.getParentMessageDoc(message), { text, editedAt: Date.now() });
   }
 
   // --- Gemeinsame Helfer (auch vom Thread-Teil unten genutzt) --------------
@@ -281,7 +281,7 @@ export class MessageService {
 
   /** Text einer eigenen Thread-Antwort aendern (Rules: nur Absender, nur `text`). */
   async editReply(parentMessage: Message, replyId: string, text: string): Promise<void> {
-    await updateDoc(this.createThreadReplyDoc(parentMessage, replyId), { text });
+    await updateDoc(this.createThreadReplyDoc(parentMessage, replyId), { text, editedAt: Date.now() });
   }
 
   /** Liefert die Referenz zu einer vorhandenen Thread-Antwort. */

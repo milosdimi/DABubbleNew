@@ -13,6 +13,49 @@
   background: fct.color(error);
 }
 
+// "(bearbeitet)" hinter der Uhrzeit (eigene Erweiterung).
+.edited-hint {
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(text-gray);
+}
+
+// Link in einer Nachricht; in der eigenen (lila) Blase weiss.
+.message-link {
+  color: fct.color(link-blue);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+
+  .main-chat__message--own &,
+  .thread__message--own & {
+    color: fct.color(white);
+  }
+}
+
+// "... schreibt gerade" im Main-Chat, buendig mit dem Eingabefeld.
+.main-chat__typing {
+  margin: 0 40px 4px;
+}
+
+// Trennlinie "Neue Nachrichten" (wie der Datumstrenner, in Rosa error).
+.new-messages-divider {
+  @include mx.flex(row, center, center);
+  gap: 16px;
+  margin: 16px 40px;
+}
+
+.new-messages-divider__line {
+  flex: 1 1 auto;
+  height: 1px;
+  background: fct.color(error);
+}
+
+.new-messages-divider__label {
+  @include mx.typo(nunito, 700);
+  font-size: 14px;
+  color: fct.color(error);
+}
+
 .mention {
   padding: 0;
   border: none;

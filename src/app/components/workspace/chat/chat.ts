@@ -1,8 +1,10 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Icon } from '../../../shared/icon/icon';
 import { Channel, Message, User } from '../../../shared/models';
 import { MessageHit } from '../../../shared/search/search.service';
 import { PresenceService } from '../../../shared/presence/presence.service';
+import { UnreadService } from '../../../shared/unread/unread.service';
 import { ChannelAddMembers } from '../../channel/channel-add-members/channel-add-members';
 import { Header } from '../header/header';
 import { MainChat } from '../main-chat/main-chat';
@@ -28,6 +30,15 @@ export class Chat {
   constructor() {
     // Beim Betreten des Workspace den gewaehlten Status anzeigen, beim Verlassen "offline".
     void inject(PresenceService).start(inject(DestroyRef));
+
+    // Anzahl ungelesener Chats im Browser-Tab: "(2) DABubble".
+    const title = inject(Title);
+    const unread = inject(UnreadService);
+    effect(() => {
+      const count = unread.unreadChatCount();
+      title.setTitle(count > 0 ? `(${count}) DABubble` : 'DABubble');
+    });
+    inject(DestroyRef).onDestroy(() => title.setTitle('DABubble'));
   }
 
   protected readonly sidebarOpen = signal(true);

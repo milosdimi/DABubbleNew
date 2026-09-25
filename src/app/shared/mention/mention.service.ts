@@ -3,10 +3,27 @@ import { FIREBASE_AUTH } from '../firebase/firebase.tokens';
 import { User } from '../models';
 import { UserService } from '../user/user.service';
 
-/** Abschnitt eines Nachrichtentexts: normaler Text oder eine @-Erwaehnung. */
+/** Abschnitt eines Nachrichtentexts: normaler Text, @-Erwaehnung oder Link. */
 export interface TextSegment {
   text: string;
   user?: User;
+  href?: string;
+}
+
+/** http(s)-Links; Satzzeichen am Ende gehoeren nicht dazu. */
+const URL_PATTERN = /https?:\/\/[^\s<>"]+[^\s<>".,;:!?)\]]/g;
+
+/** Zerlegt normalen Text zusaetzlich in Links. */
+function withLinks(text: string): TextSegment[] {
+  const segments: TextSegment[] = [];
+  let last = 0;
+  for (const match of text.matchAll(URL_PATTERN)) {
+    if (match.index > last) segments.push({ text: text.slice(last, match.index) });
+    segments.push({ text: match[0], href: match[0] });
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) segments.push({ text: text.slice(last) });
+  return segments;
 }
 
 function escapeRegExp(value: string): string {
@@ -45,8 +62,12 @@ export class MentionService {
       .slice(0, max);
   }
 
-  /** Zerlegt einen Text in normale Abschnitte und "@Name"-Erwaehnungen bekannter User. */
+  /** Zerlegt einen Text in normale Abschnitte, "@Name"-Erwaehnungen bekannter User und Links. */
   segments(text: string): TextSegment[] {
+    return this.mentionSegments(text).flatMap((part) => (part.user ? [part] : withLinks(part.text)));
+  }
+
+  private mentionSegments(text: string): TextSegment[] {
     const users = this.users().filter((user) => user.name.trim());
     if (!text.includes('@') || users.length === 0) return [{ text }];
 

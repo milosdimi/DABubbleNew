@@ -1,0 +1,16 @@
+@use '../../../styles/functions' as fct;
+@use '../../../styles/mixins' as mx;
+
+:host {
+  display: block;
+}
+
+// Feste Hoehe, damit das Eingabefeld nicht springt, wenn die Zeile erscheint.
+.typing {
+  min-height: 20px;
+  margin: 0;
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  font-style: italic;
+  color: fct.color(text-gray);
+}

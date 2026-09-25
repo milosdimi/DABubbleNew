@@ -1,7 +1,6 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
-import type { Database } from 'firebase/database';
-import { environment } from '../../../environments/environment';
-import { FIREBASE_APP, FIREBASE_AUTH } from '../firebase/firebase.tokens';
+import { FIREBASE_AUTH } from '../firebase/firebase.tokens';
+import { RealtimeDbService } from '../firebase/realtime-db.service';
 import { OnlineStatus, User } from '../models';
 import { UserService } from '../user/user.service';
 
@@ -15,16 +14,12 @@ import { UserService } from '../user/user.service';
  * Angezeigt wird `effectiveStatus`: verbunden -> gewaehlter Status, sonst "offline".
  * Demo-User haben keinen echten Client und behalten ihren Firestore-Status.
  * Gaeste haben kein Profil, schreiben nichts und lesen /status nicht.
- *
- * Das Realtime-Database-SDK wird erst hier bei Bedarf geladen (eigener Chunk),
- * damit Login- und Rechtsseiten es nicht mitladen.
  */
 @Injectable({ providedIn: 'root' })
 export class PresenceService {
   private readonly auth = inject(FIREBASE_AUTH);
-  private readonly app = inject(FIREBASE_APP);
+  private readonly realtimeDb = inject(RealtimeDbService);
   private readonly userService = inject(UserService);
-  private database: Promise<{ db: Database; sdk: typeof import('firebase/database') }> | null = null;
 
   /** uid -> verbunden? `null`, solange unbekannt (z. B. fuer Gaeste). */
   private readonly connections = signal<ReadonlyMap<string, boolean> | null>(null);
@@ -42,7 +37,7 @@ export class PresenceService {
       await this.userService.updateStatus(user.uid, { onlineStatus: shown });
     }
 
-    const { db, sdk } = await this.loadDatabase();
+    const { db, sdk } = await this.realtimeDb.load();
     const { onDisconnect, onValue, ref, serverTimestamp, set } = sdk;
 
     // Eigene Verbindung melden; bei jedem (Wieder-)Verbinden neu anmelden.
@@ -74,16 +69,6 @@ export class PresenceService {
     });
   }
 
-  /** Laedt das SDK einmalig und verbindet im Emulator-Build mit dem Database-Emulator. */
-  private loadDatabase(): Promise<{ db: Database; sdk: typeof import('firebase/database') }> {
-    this.database ??= import('firebase/database').then((sdk) => {
-      const db = sdk.getDatabase(this.app);
-      if (environment.emulatorHost) sdk.connectDatabaseEmulator(db, environment.emulatorHost, 9000);
-      return { db, sdk };
-    });
-    return this.database;
-  }
-
   /** Angezeigter Status: gewaehlter Status, aber "offline", wenn nicht verbunden. */
   effectiveStatus(user: Pick<User, 'id' | 'onlineStatus'> & Partial<Pick<User, 'isDemo'>>): OnlineStatus {
     const connections = this.connections();
@@ -103,7 +88,7 @@ export class PresenceService {
     const user = this.auth.currentUser;
     if (!user || user.isAnonymous) return;
     try {
-      const { db, sdk } = await this.loadDatabase();
+      const { db, sdk } = await this.realtimeDb.load();
       await Promise.all([
         this.userService.updateStatus(user.uid, { onlineStatus: 'offline' }),
         sdk.set(sdk.ref(db, `status/${user.uid}`), { state: 'offline', lastChanged: sdk.serverTimestamp() }),

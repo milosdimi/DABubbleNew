@@ -4,6 +4,7 @@ import { ClickOutsideDirective } from '../click-outside/click-outside.directive'
 import { Icon } from '../icon/icon';
 import { MentionService } from '../mention/mention.service';
 import { User } from '../models';
+import { TypingService } from '../typing/typing.service';
 
 /** "@..." direkt vor dem Cursor (am Anfang oder nach einem Leerzeichen). */
 const MENTION_BEFORE_CARET = /(^|\s)@([^\s@]*)$/;
@@ -25,9 +26,12 @@ const MENTION_BEFORE_CARET = /(^|\s)@([^\s@]*)$/;
 })
 export class ChatInputTools {
   private readonly mentions = inject(MentionService);
+  private readonly typing = inject(TypingService);
 
   readonly field = input.required<HTMLTextAreaElement>();
   readonly disabled = input(false);
+  /** Chat, in dem eigenes Tippen gemeldet wird ("... schreibt gerade"); null = gar nicht. */
+  readonly typingKey = input<string | null>(null);
   readonly textChange = output<string>();
 
   protected readonly emojis = MAIN_CHAT_EMOJIS;
@@ -42,7 +46,10 @@ export class ChatInputTools {
 
     effect((onCleanup) => {
       const field = this.field();
-      const onInput = () => this.detectMention();
+      const onInput = () => {
+        this.detectMention();
+        this.reportTyping(field.value);
+      };
       const onKeydown = (event: KeyboardEvent) => this.onKeydown(event);
       field.addEventListener('input', onInput);
       field.addEventListener('keydown', onKeydown, true); // vor dem Enter-Senden
@@ -51,7 +58,19 @@ export class ChatInputTools {
         field.removeEventListener('keydown', onKeydown, true);
       });
     });
+    // Chatwechsel oder Verlassen: Tippen im vorherigen Chat beenden.
+    effect((onCleanup) => {
+      const key = this.typingKey();
+      if (key) onCleanup(() => this.typing.stop(key));
+    });
     destroyRef.onDestroy(() => this.closeAll());
+  }
+
+  private reportTyping(value: string): void {
+    const key = this.typingKey();
+    if (!key) return;
+    if (value.trim()) this.typing.ping(key);
+    else this.typing.stop(key);
   }
 
   protected toggleEmoji(): void {
@@ -99,6 +118,11 @@ export class ChatInputTools {
   }
 
   private onKeydown(event: KeyboardEvent): void {
+    // Enter ohne Shift sendet (ausser bei offener @-Liste): Tippen beenden.
+    const key = this.typingKey();
+    if (key && event.key === 'Enter' && !event.shiftKey && this.mentionQuery() === null) {
+      this.typing.stop(key);
+    }
     if (this.mentionQuery() === null) {
       if (event.key === 'Escape' && this.emojiOpen()) {
         event.stopPropagation();

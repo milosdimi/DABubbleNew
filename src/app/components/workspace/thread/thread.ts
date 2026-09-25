@@ -22,6 +22,7 @@ import { ProfileCard } from '../../profile/profile-card/profile-card';
 import { ChannelService } from '../../../shared/channel/channel.service';
 import { ChatInputTools } from '../../../shared/chat-input-tools/chat-input-tools';
 import { ClickOutsideDirective } from '../../../shared/click-outside/click-outside.directive';
+import { TypingIndicator } from '../../../shared/typing/typing-indicator';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
@@ -50,7 +51,7 @@ type ReactionTooltip = { replyId: string; emoji: string; text: string };
  */
 @Component({
   selector: 'app-thread',
-  imports: [Icon, ProfileCard, ClickOutsideDirective, ChatInputTools],
+  imports: [Icon, ProfileCard, ClickOutsideDirective, ChatInputTools, TypingIndicator],
   providers: [
     MainChatDateService,
     MainChatEditService,
@@ -90,6 +91,12 @@ export class Thread implements OnDestroy {
   protected readonly selectedProfileUserId = this.profileService.selectedProfileUserId;
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
+  /** "... schreibt gerade" im offenen Thread. */
+  protected readonly typingKey = computed(() => {
+    const parent = this.parentMessage();
+    return parent ? `thread:${parent.id}` : null;
+  });
+
   /** "@Name" in Antworten hervorheben. */
   protected readonly mentions = inject(MentionService);
 

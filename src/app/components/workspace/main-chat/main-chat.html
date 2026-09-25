@@ -75,6 +75,13 @@
           <span class="main-chat__date-line"></span>
         </div>
       }
+      @if (message.id === firstUnreadId()) {
+        <div class="new-messages-divider" role="separator">
+          <span class="new-messages-divider__line"></span>
+          <span class="new-messages-divider__label">Neue Nachrichten</span>
+          <span class="new-messages-divider__line"></span>
+        </div>
+      }
 
       <article
         class="main-chat__message"
@@ -103,6 +110,9 @@
               {{ profiles.getSenderName(message.senderId) }}
             </button>
             <span class="main-chat__time">{{ profiles.formatMessageTime(message.timestamp) }}</span>
+            @if (message.editedAt) {
+              <span class="edited-hint">(bearbeitet)</span>
+            }
           </div>
 
           @if (edit.isEditing(message.id)) {
@@ -166,7 +176,7 @@
                           class="mention"
                           (click)="profiles.openProfile(mentioned.id)"
                         >{{ part.text }}</button>
-                      } @else {{{ part.text }}}
+                      } @else if (part.href) {<a class="message-link" [href]="part.href" target="_blank" rel="noopener noreferrer">{{ part.text }}</a>} @else {{{ part.text }}}
                     }
                   </p>
                 }
@@ -293,6 +303,8 @@
     }
   </div>
 
+  <app-typing-indicator class="main-chat__typing" [chatKey]="typingKey()" />
+
   <div class="main-chat__input">
     @if (selectedFile(); as file) {
       <div class="main-chat__file-preview">
@@ -336,6 +348,7 @@
         <app-chat-input-tools
           [field]="draftField"
           [disabled]="!active()"
+          [typingKey]="typingKey()"
           (textChange)="draft.set($event)"
         />
       </div>

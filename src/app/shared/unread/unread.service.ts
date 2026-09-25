@@ -1,4 +1,4 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import {
   collection,
   doc,
@@ -114,6 +114,18 @@ export class UnreadService {
     if (message.lastReplyBy === this.uid) return false;
     return message.lastReplyAt > (this.readState().get(`thread:${message.id}`) ?? since);
   }
+
+  /** Gelesen-Stand eines Chats (sonst Beginn der Zaehlung); null solange unbekannt. */
+  lastReadAt(key: ChatKey): number | null {
+    const since = this.since();
+    if (since === null) return null;
+    return this.readState().get(key) ?? since;
+  }
+
+  /** Anzahl Channels + Direktchats mit ungelesenen Nachrichten (Browser-Tab). */
+  readonly unreadChatCount = computed(
+    () => [...this.latest().keys()].filter((key) => this.isUnread(key)).length,
+  );
 
   /** Offener Chat gelesen bis `timestamp`; schreibt nur, wenn das neuer ist als der Stand. */
   markRead(key: ChatKey, timestamp: number): void {

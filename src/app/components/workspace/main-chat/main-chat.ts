@@ -14,6 +14,7 @@ import {
 } from '@angular/core';
 import { ChatInputTools } from '../../../shared/chat-input-tools/chat-input-tools';
 import { ClickOutsideDirective } from '../../../shared/click-outside/click-outside.directive';
+import { TypingIndicator } from '../../../shared/typing/typing-indicator';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
@@ -35,7 +36,7 @@ import { MainChatUploadService } from './main-chat-upload.service';
 /** Mittlere Spalte des Workspace: Nachrichten eines Channels oder Direktchats. */
 @Component({
   selector: 'app-main-chat',
-  imports: [Icon, ProfileCard, ChannelInfo, ChannelMembers, ClickOutsideDirective, ChatInputTools],
+  imports: [Icon, ProfileCard, ChannelInfo, ChannelMembers, ClickOutsideDirective, ChatInputTools, TypingIndicator],
   providers: [
     MainChatDateService,
     MainChatEditService,
@@ -75,6 +76,21 @@ export class MainChat {
   readonly channelOpened = output<Channel>();
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
+  /** Gelesen-Stand beim Oeffnen des Chats (fuer die Trennlinie "Neue Nachrichten"). */
+  private readonly readMark = signal<number | null>(null);
+  /** Erste Nachricht von jemand anderem nach dem Gelesen-Stand. */
+  protected readonly firstUnreadId = computed(() => {
+    const mark = this.readMark();
+    if (mark === null) return null;
+    const own = this.auth.currentUser?.uid;
+    return this.messages().find((m) => m.senderId !== own && m.timestamp > mark)?.id ?? null;
+  });
+  /** Tippende im offenen Chat anzeigen / eigenes Tippen melden. */
+  protected readonly typingKey = computed(() => {
+    const target = this.session.target();
+    return target ? `${target.kind}:${target.id}` : null;
+  });
+
   /** Kurz hervorgehobene Nachricht nach einem Sprung. */
   protected readonly highlightedId = signal<string | null>(null);
   private readonly injector = inject(Injector);
@@ -170,6 +186,12 @@ export class MainChat {
           { injector: this.injector },
         );
       });
+    });
+
+    // Gelesen-Stand beim Oeffnen merken, bevor der Chat als gelesen markiert wird.
+    effect(() => {
+      const key = this.typingKey();
+      untracked(() => this.readMark.set(key ? this.unread.lastReadAt(key) : null));
     });
 
     // Offener Chat gilt als gelesen - aber nur, wenn der Tab sichtbar ist.
