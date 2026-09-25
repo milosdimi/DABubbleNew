@@ -1,7 +1,10 @@
 @use '../../../../styles/functions' as fct;
 @use '../../../../styles/mixins' as mx;
 
-// TODO Figma-Wert pruefen: Masse, Abstaende, Farben.
+// Figma "Menu 1 - channels + workspaces" (757:12513): Titel Bold 24px, Logo 60px,
+// Abschnitte Bold 20px mit Icon 24px + Pfeil 30px, Eintraege Regular 18px als
+// Pille (rounded-30px). Aktiv: Bg color, Bold 18px Purple 3. DM-Avatare 50px,
+// Online-Punkt 14px mit weissem Rand. Hover ist in Figma nicht definiert.
 
 :host {
   display: block;
@@ -21,12 +24,12 @@
 
 .sidebar__workspace {
   @include mx.flex(row, flex-start, center);
-  gap: 12px;
+  gap: 15px;
 }
 
 .sidebar__workspace-logo {
-  width: 48px;
-  height: 48px;
+  width: 60px;
+  height: 60px;
 }
 
 .sidebar__workspace-name {
@@ -39,10 +42,15 @@
   gap: 8px;
 }
 
+.sidebar__section-row {
+  @include mx.flex(row, space-between, center);
+  gap: 8px;
+}
+
 .sidebar__section-head {
   @include mx.flex(row, flex-start, center);
   gap: 8px;
-  padding: 6px 8px;
+  padding: 6px 8px 6px 0;
   border: none;
   border-radius: 100px;
   background: transparent;
@@ -53,13 +61,42 @@
   @include mx.transition();
 
   &:hover {
-    color: fct.color(purple-2);
+    color: fct.color(purple-3);
+  }
+}
+
+.sidebar__section-icon {
+  width: 24px;
+  height: 24px;
+}
+
+// "+" rechts im Channels-Kopf (Figma: Icon "add" 24px).
+.sidebar__head-add {
+  @include mx.flex(row, center, center);
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+    color: fct.color(purple-3);
+  }
+
+  app-icon {
+    width: 24px;
+    height: 24px;
   }
 }
 
 .sidebar__chevron {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   @include mx.transition();
 
   &--closed {
@@ -79,9 +116,10 @@
   @include mx.flex(row, flex-start, center);
   gap: 12px;
   width: 100%;
+  max-width: 306px;
   padding: 6px 16px;
   border: none;
-  border-radius: 100px;
+  border-radius: 30px;
   background: transparent;
   @include mx.typo(nunito, 400);
   font-size: 18px;
@@ -92,19 +130,19 @@
 
   &:hover {
     background: fct.color(background);
-    color: fct.color(purple-2);
+    color: fct.color(purple-3);
   }
 
   &--active {
     background: fct.color(background);
     @include mx.typo(nunito, 700);
-    color: fct.color(purple-1);
+    color: fct.color(purple-3);
   }
 
   app-icon {
     flex: 0 0 auto;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
   }
 }
 
@@ -122,8 +160,8 @@
 
 .sidebar__avatar {
   display: block;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -132,13 +170,12 @@
   position: absolute;
   right: 0;
   bottom: 0;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border: 2px solid fct.color(white);
   border-radius: 50%;
   background: fct.color(text-gray);
 
-  // TODO Figma-Wert pruefen: Farbe fuer "aktiv".
   &[data-status='online'] {
     background: fct.color(online-green);
   }
@@ -167,11 +204,11 @@
 
   &:hover {
     background: fct.color(background);
-    color: fct.color(purple-2);
+    color: fct.color(purple-3);
   }
 
   app-icon {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
   }
 }

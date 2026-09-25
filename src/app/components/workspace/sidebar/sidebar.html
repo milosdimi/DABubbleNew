@@ -1,24 +1,38 @@
 <aside class="sidebar">
-  <!-- TODO Figma-Wert pruefen: Workspace-Titel und -Logo. -->
+  <!-- Figma: rundes Workspace-Logo 60px + "Devspace". Das Logo-Bild aus Figma fehlt
+       noch (Prioritaet 4), bis dahin das Bubble-Logo. -->
   <div class="sidebar__workspace">
     <img class="sidebar__workspace-logo" src="app-img/bubble-logo.svg" alt="" />
     <span class="sidebar__workspace-name">Devspace</span>
   </div>
 
   <section class="sidebar__section">
-    <button
-      type="button"
-      class="sidebar__section-head"
-      [attr.aria-expanded]="channelsOpen()"
-      (click)="channelsOpen.set(!channelsOpen())"
-    >
-      <app-icon
-        name="chevron-down"
-        class="sidebar__chevron"
-        [class.sidebar__chevron--closed]="!channelsOpen()"
-      />
-      <span>Channels</span>
-    </button>
+    <div class="sidebar__section-row">
+      <button
+        type="button"
+        class="sidebar__section-head"
+        [attr.aria-expanded]="channelsOpen()"
+        (click)="channelsOpen.set(!channelsOpen())"
+      >
+        <app-icon
+          name="arrow-drop-down"
+          class="sidebar__chevron"
+          [class.sidebar__chevron--closed]="!channelsOpen()"
+        />
+        <app-icon name="workspaces" class="sidebar__section-icon" />
+        <span>Channels</span>
+      </button>
+      @if (!isGuest()) {
+        <button
+          type="button"
+          class="sidebar__head-add"
+          aria-label="Channel erstellen"
+          (click)="openCreateDialog()"
+        >
+          <app-icon name="add" />
+        </button>
+      }
+    </div>
 
     @if (channelsOpen()) {
       <ul class="sidebar__list">
@@ -41,7 +55,7 @@
 
       @if (!isGuest()) {
         <button type="button" class="sidebar__add" (click)="openCreateDialog()">
-          <app-icon name="plus" />
+          <app-icon name="add-circle" />
           <span>Channel hinzufügen</span>
         </button>
       }
@@ -56,10 +70,11 @@
       (click)="usersOpen.set(!usersOpen())"
     >
       <app-icon
-        name="chevron-down"
+        name="arrow-drop-down"
         class="sidebar__chevron"
         [class.sidebar__chevron--closed]="!usersOpen()"
       />
+      <app-icon name="account-circle" class="sidebar__section-icon" />
       <span>Direktnachrichten</span>
     </button>
 

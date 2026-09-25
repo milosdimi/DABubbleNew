@@ -18,7 +18,8 @@
   flex: 1 1 auto;
   gap: 20px;
   min-height: 0;
-  padding: 0 24px 24px;
+  // links Platz fuer den 32px-Reiter "Workspace-Menue schliessen"
+  padding: 0 24px 24px 48px;
 }
 
 .workspace__side {
@@ -38,31 +39,39 @@
   }
 }
 
+// Figma: Reiter 32px breit, 339px hoch, weiss, rechts rounded-30px, Schatten
+// 4px 4px 7px, am linken Bildschirmrand vertikal zentriert; Text um -90 Grad
+// gedreht, Nunito Medium 20px.
 .workspace__toggle {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  z-index: 10;
   @include mx.flex(row, center, center);
-  gap: 10px;
-  padding: 12px 20px;
+  gap: 12px;
+  width: 32px;
+  height: 339px;
+  padding: 0;
   border: none;
-  border-radius: 30px;
+  border-radius: 0 30px 30px 0;
   background: fct.color(white);
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
-  @include mx.typo(nunito, 600);
-  font-size: 16px;
+  box-shadow: 4px 4px 7px rgba(0, 0, 0, 0.2);
+  @include mx.typo(nunito, 500);
+  font-size: 20px;
+  white-space: nowrap;
   color: fct.color(black);
+  writing-mode: vertical-rl;
+  transform: translateY(-50%) rotate(180deg);
   cursor: pointer;
   @include mx.transition();
 
   &:hover {
-    color: fct.color(purple-2);
+    color: fct.color(purple-3);
   }
 
   app-icon {
-    width: 22px;
-    height: 22px;
-  }
-
-  .workspace__side--closed & {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
+    width: 24px;
+    height: 24px;
+    transform: rotate(90deg);
   }
 }

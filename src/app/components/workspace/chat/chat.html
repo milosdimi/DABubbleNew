@@ -12,7 +12,7 @@
         />
       }
 
-      <!-- TODO Figma-Wert pruefen: Beschriftung und Position des Umschalters. -->
+      <!-- Figma: senkrechter Reiter am linken Bildschirmrand. -->
       <button
         type="button"
         class="workspace__toggle"
@@ -20,7 +20,7 @@
         (click)="toggleSidebar()"
       >
         <app-icon [name]="sidebarOpen() ? 'sidebar-close' : 'sidebar-open'" />
-        <span>{{ sidebarOpen() ? 'Menü ausblenden' : 'Menü einblenden' }}</span>
+        <span>{{ sidebarOpen() ? 'Workspace-Menü schließen' : 'Workspace-Menü öffnen' }}</span>
       </button>
     </div>
 
