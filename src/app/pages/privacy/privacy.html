@@ -10,15 +10,14 @@
     </div>
 
     <!--
-      TODO vor Veroeffentlichung: fehlende Angaben (gelb markiert) ergaenzen, Text
-      rechtlich pruefen und an den tatsaechlichen Datei-Speicher anpassen
-      (derzeit Supabase, Umstellung geplant). Kein Rechtsrat.
+      Vor der Abgabe rechtlich pruefen lassen. Sobald Dateianhaenge ueber den eigenen
+      Server (QNAP + Cloudflare-Tunnel) laufen: Abschnitt 4 um Cloudflare ergaenzen.
     -->
 
     <h2>1. Verantwortlicher</h2>
     <p>
-      Milos Dimitrijevic, <span class="legal__placeholder">[Anschrift]</span>,
-      E-Mail: <span class="legal__placeholder">[E-Mail-Adresse]</span>
+      Milos Dimitrijevic, Feldgasse 70, 6330 Kufstein, Österreich,
+      E-Mail: dm@dimit.cc
     </p>
 
     <h2>2. Zweck der Anwendung</h2>
@@ -40,6 +39,11 @@
         E-Mail-Adresse werden nicht gespeichert.
       </li>
       <li>
+        <strong>Online-Status:</strong> Dein Status (Aktiv, Abwesend, Nicht stören oder Offline)
+        und der zuletzt selbst gewählte Status. Andere angemeldete Nutzerinnen und Nutzer sehen
+        deinen Status. Beim Abmelden wird er auf „Offline" gesetzt.
+      </li>
+      <li>
         <strong>Inhalte:</strong> Nachrichten, Thread-Antworten, Reaktionen, Channel-Mitgliedschaften
         sowie Name und Speicherort hochgeladener Dateien, jeweils mit Zeitstempel.
       </li>
@@ -56,13 +60,9 @@
         Dublin 4, Irland): Anmeldung (Firebase Authentication), Datenbank (Cloud Firestore) und
         Auslieferung der Website (Firebase Hosting).
       </li>
-      <li>
-        <strong>Supabase</strong> (Supabase Inc., USA): Speicherung von Dateianhängen.
-        <span class="legal__placeholder">[Serverstandort / Anbieter nach Umstellung prüfen]</span>
-      </li>
     </ul>
     <p>
-      Bei diesen Diensten kann eine Übermittlung in die USA nicht ausgeschlossen werden. Sie
+      Bei diesem Dienst kann eine Übermittlung in die USA nicht ausgeschlossen werden. Sie
       stützt sich auf das EU-US Data Privacy Framework bzw. die Standardvertragsklauseln der
       EU-Kommission.
     </p>
@@ -72,6 +72,11 @@
       DABubble setzt keine Tracking- oder Werbe-Cookies und verwendet keine Analyse-Dienste. Im
       Browser werden nur gespeichert: die Anmelde-Sitzung (Firebase, in IndexedDB) und ein Vermerk,
       dass die Start-Animation bereits gezeigt wurde (localStorage).
+    </p>
+    <p>
+      Schriften und Icons werden direkt von DABubble ausgeliefert. Es werden keine externen
+      Schrift- oder Icon-Dienste (z. B. Google Fonts) und keine Content Delivery Networks
+      eingebunden; beim Aufruf der Seite gehen dafür also keine Daten an Dritte.
     </p>
 
     <h2>6. Rechtsgrundlagen</h2>
@@ -92,7 +97,8 @@
       Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung,
       Datenübertragbarkeit und Widerspruch (Art. 15–21 DSGVO). Wende dich dafür an die oben
       genannte Kontaktadresse. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde
-      beschweren.
+      beschweren, in Österreich bei der Österreichischen Datenschutzbehörde, Barichgasse 40–42,
+      1030 Wien (www.dsb.gv.at).
     </p>
 
     <p class="legal__updated">Stand: September 2026</p>
