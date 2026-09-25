@@ -4,6 +4,15 @@
 @use 'functions' as fct;
 @use 'mixins' as mx;
 
+// Roter Punkt "ungelesen" am Thread-Teaser (wie in der Sidebar: Rosa error).
+.unread-dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: fct.color(error);
+}
+
 .mention {
   padding: 0;
   border: none;

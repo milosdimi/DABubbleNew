@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   ElementRef,
   HostListener,
   Input,
@@ -8,6 +9,7 @@ import {
   inject,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { Unsubscribe } from 'firebase/firestore';
@@ -26,6 +28,7 @@ import { MessageService } from '../../../shared/message/message';
 import { Message, Reaction } from '../../../shared/models';
 import { MentionService } from '../../../shared/mention/mention.service';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
+import { UnreadService } from '../../../shared/unread/unread.service';
 
 /** Zusammenfassung einer Reaction fuer die Anzeige. */
 type ReactionGroup = { emoji: string; count: number };
@@ -91,6 +94,15 @@ export class Thread implements OnDestroy {
   protected readonly mentions = inject(MentionService);
 
   constructor() {
+    // Offener Thread gilt als gelesen - aber nur bei sichtbarem Tab.
+    const unread = inject(UnreadService);
+    effect(() => {
+      const parent = this.parentMessage();
+      const last = this.replies().at(-1);
+      if (!parent || !last || !unread.pageVisible()) return;
+      untracked(() => unread.markRead(`thread:${parent.id}`, last.timestamp));
+    });
+
     // Immer die neueste Antwort zeigen (Details: autoScrollToLatest).
     autoScrollToLatest({
       scroller: this.scroller,

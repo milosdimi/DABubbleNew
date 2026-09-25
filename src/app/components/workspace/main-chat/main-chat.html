@@ -283,6 +283,9 @@
                   Letzte Antwort {{ profiles.formatMessageTime(message.lastReplyAt) }}
                 </span>
               }
+              @if (unread.isThreadUnread(message)) {
+                <span class="unread-dot" aria-label="Neue Antworten"></span>
+              }
             </div>
           }
         </div>

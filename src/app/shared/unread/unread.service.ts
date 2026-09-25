@@ -23,10 +23,11 @@ const SINCE_KEY = '_since';
  * Rote Punkte in der Sidebar (eigene Idee, nicht in Figma): Ein Chat ist
  * ungelesen, wenn seine neueste Nachricht von jemand anderem stammt und nach
  * dem eigenen Gelesen-Stand (users/{uid}/readState/{chatKey}) geschrieben wurde.
+ * Threads: "thread:<messageId>" gegen lastReplyAt/lastReplyBy der Elternnachricht
+ * (Punkt am Teaser im Main-Chat, nicht in der Sidebar).
  *
  * Pro Chat wird nur die neueste Nachricht beobachtet (limit 1). Beim allerersten
- * Start gilt alles Bisherige als gelesen (Eintrag "_since"). Thread-Antworten
- * zaehlen nicht mit.
+ * Start gilt alles Bisherige als gelesen (Eintrag "_since").
  */
 @Injectable({ providedIn: 'root' })
 export class UnreadService {
@@ -100,6 +101,18 @@ export class UnreadService {
   isUserUnread(partnerId: string): boolean {
     const dmId = this.dmIdByPartner().get(partnerId);
     return !!dmId && this.isUnread(`dm:${dmId}`);
+  }
+
+  /**
+   * Thread einer Nachricht ungelesen? Neueste Antwort von jemand anderem und
+   * nach dem Gelesen-Stand "thread:<messageId>". Alte Nachrichten ohne
+   * `lastReplyBy` zeigen keinen Punkt.
+   */
+  isThreadUnread(message: Pick<Message, 'id' | 'lastReplyAt' | 'lastReplyBy'>): boolean {
+    const since = this.since();
+    if (!message.lastReplyAt || !message.lastReplyBy || since === null) return false;
+    if (message.lastReplyBy === this.uid) return false;
+    return message.lastReplyAt > (this.readState().get(`thread:${message.id}`) ?? since);
   }
 
   /** Offener Chat gelesen bis `timestamp`; schreibt nur, wenn das neuer ist als der Stand. */

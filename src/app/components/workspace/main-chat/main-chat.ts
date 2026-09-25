@@ -77,7 +77,7 @@ export class MainChat {
   /** Kurz hervorgehobene Nachricht nach einem Sprung. */
   protected readonly highlightedId = signal<string | null>(null);
   private readonly injector = inject(Injector);
-  private readonly unread = inject(UnreadService);
+  protected readonly unread = inject(UnreadService);
   /** "@Name" in Nachrichten hervorheben (Liste der sichtbaren User). */
   protected readonly mentions = inject(MentionService);
 

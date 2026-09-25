@@ -206,15 +206,19 @@ export class MessageService {
     this.addAttachmentData(reply, attachmentPath, attachmentName);
 
     await setDoc(ref, reply);
-    await this.incrementReplyCount(parentMessage, reply.timestamp);
+    await this.incrementReplyCount(parentMessage, reply.timestamp, senderId);
 
     return reply.id;
   }
 
   /** Erhoeht den Antworten-Zaehler der Elternnachricht und merkt sich die Zeit der Antwort. */
-  private async incrementReplyCount(parentMessage: Message, repliedAt: number): Promise<void> {
+  private async incrementReplyCount(
+    parentMessage: Message,
+    repliedAt: number,
+    repliedBy: string,
+  ): Promise<void> {
     const ref = this.getParentMessageDoc(parentMessage);
-    await updateDoc(ref, { replyCount: increment(1), lastReplyAt: repliedAt });
+    await updateDoc(ref, { replyCount: increment(1), lastReplyAt: repliedAt, lastReplyBy: repliedBy });
   }
 
   /** Liefert die Dokument-Referenz einer Channel- oder Direktnachricht. */

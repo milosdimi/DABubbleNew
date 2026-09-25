@@ -74,4 +74,6 @@ export interface Message {
   replyCount?: number;
   /** Zeitpunkt der neuesten Thread-Antwort ("Letzte Antwort 14:56 Uhr"). */
   lastReplyAt?: number;
+  /** uid der neuesten Thread-Antwort (fuer den Ungelesen-Punkt am Teaser). */
+  lastReplyBy?: string;
 }
