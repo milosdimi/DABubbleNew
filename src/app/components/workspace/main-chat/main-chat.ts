@@ -104,7 +104,7 @@ export class MainChat {
   private readonly injector = inject(Injector);
   protected readonly unread = inject(UnreadService);
   protected readonly presence = inject(PresenceService);
-  /** Figma: hoechstens 20 Reaktionen (mobil 7), sonst "+X weitere". */
+  /** Figma: 7 Reaktionen sichtbar, danach "+X weitere". */
   protected readonly overflow = inject(ReactionOverflowService);
   /** "@Name" in Nachrichten hervorheben (Liste der sichtbaren User). */
   protected readonly mentions = inject(MentionService);

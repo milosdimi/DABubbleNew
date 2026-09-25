@@ -30,10 +30,7 @@ import { MessageService } from '../../../shared/message/message';
 import { Message, Reaction } from '../../../shared/models';
 import { MentionService } from '../../../shared/mention/mention.service';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
-import {
-  REACTION_LIMIT_COMPACT,
-  ReactionOverflowService,
-} from '../../../shared/reactions/reaction-overflow.service';
+import { ReactionOverflowService } from '../../../shared/reactions/reaction-overflow.service';
 import { UnreadService } from '../../../shared/unread/unread.service';
 
 /** Zusammenfassung einer Reaction fuer die Anzeige. */
@@ -95,9 +92,8 @@ export class Thread implements OnDestroy {
   protected readonly selectedProfileUserId = this.profileService.selectedProfileUserId;
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
-  /** Figma: im Thread hoechstens 7 Reaktionen (zwei Zeilen), sonst "+X weitere". */
+  /** Figma: 7 Reaktionen sichtbar, danach "+X weitere". */
   protected readonly overflow = inject(ReactionOverflowService);
-  protected readonly compactLimit = REACTION_LIMIT_COMPACT;
 
   /** "... schreibt gerade" im offenen Thread. */
   protected readonly typingKey = computed(() => {
