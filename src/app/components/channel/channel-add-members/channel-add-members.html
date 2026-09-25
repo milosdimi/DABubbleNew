@@ -1,7 +1,23 @@
-<div class="dialog-backdrop" (click)="onBackdropClick()">
-  <section class="dialog-card" (click)="$event.stopPropagation()">
+<div
+  class="dialog-backdrop"
+  [class.dialog-backdrop--anchored]="purpose() === 'existing-channel'"
+  (click)="onBackdropClick()"
+>
+  <section
+    class="dialog-card"
+    [class.dialog-card--anchored]="purpose() === 'existing-channel'"
+    (click)="$event.stopPropagation()"
+  >
     <header class="dialog-header">
-      <h1 class="dialog-header__title">Leute hinzufügen</h1>
+      <div class="dialog-header__heading">
+        <h1 class="dialog-header__title">Leute hinzufügen</h1>
+        @if (purpose() === 'existing-channel' && channelName()) {
+          <span class="dialog-header__tag">
+            <app-icon name="hash" />
+            {{ channelName() }}
+          </span>
+        }
+      </div>
       <button
         type="button"
         class="dialog-header__close"
@@ -12,51 +28,82 @@
       </button>
     </header>
 
-    <div class="dialog-radio-group" role="radiogroup">
-      <button
-        type="button"
-        class="dialog-radio"
-        role="radio"
-        [attr.aria-checked]="mode() === 'all'"
-        (click)="selectMode('all')"
-      >
-        <app-icon [name]="mode() === 'all' ? 'radio-checked' : 'radio-unchecked'" />
-        Alle Mitglieder von DABubble hinzufügen
-      </button>
+    @if (purpose() === 'new-channel') {
+      <div class="dialog-radio-group" role="radiogroup">
+        <button
+          type="button"
+          class="dialog-radio"
+          role="radio"
+          [attr.aria-checked]="mode() === 'all'"
+          (click)="selectMode('all')"
+        >
+          <app-icon [name]="mode() === 'all' ? 'radio-checked' : 'radio-unchecked'" />
+          <span>
+            Alle Mitglieder von <span class="dialog-radio__highlight">Devspace</span> hinzufügen
+          </span>
+        </button>
 
-      <button
-        type="button"
-        class="dialog-radio"
-        role="radio"
-        [attr.aria-checked]="mode() === 'specific'"
-        (click)="selectMode('specific')"
-      >
-        <app-icon [name]="mode() === 'specific' ? 'radio-checked' : 'radio-unchecked'" />
-        Bestimmte Leute hinzufügen
-      </button>
+        <button
+          type="button"
+          class="dialog-radio"
+          role="radio"
+          [attr.aria-checked]="mode() === 'specific'"
+          (click)="selectMode('specific')"
+        >
+          <app-icon [name]="mode() === 'specific' ? 'radio-checked' : 'radio-unchecked'" />
+          Bestimmte Leute hinzufügen
+        </button>
+      </div>
+    }
 
-      @if (mode() === 'specific') {
-        @if (users().length === 0 && purpose() === 'existing-channel') {
-          <p class="dialog-user-list__empty">Alle sind bereits Mitglied in diesem Channel.</p>
-        }
-        <ul class="dialog-user-list">
-          @for (user of users(); track user.id) {
-            <li>
-              <label class="dialog-user-row">
-                <input
-                  type="checkbox"
-                  class="dialog-user-row__checkbox"
-                  [checked]="isSelected(user.id)"
-                  (change)="toggleUser(user.id)"
-                />
-                <img class="dialog-user-row__avatar" [src]="user.avatarUrl" alt="" />
-                <span class="dialog-user-row__name">{{ user.name }}</span>
-              </label>
-            </li>
+    @if (usesSearch()) {
+      @if (users().length === 0 && purpose() === 'existing-channel') {
+        <p class="dialog-user-list__empty">Alle sind bereits Mitglied in diesem Channel.</p>
+      } @else {
+        <div class="member-search">
+          <label class="member-search__field">
+            @for (user of selectedUsers(); track user.id) {
+              <span class="member-chip">
+                <img class="member-chip__avatar" [src]="user.avatarUrl" alt="" />
+                <span class="member-chip__name">{{ user.name }}</span>
+                <button
+                  type="button"
+                  class="member-chip__remove"
+                  [attr.aria-label]="user.name + ' entfernen'"
+                  (click)="removeUser(user.id)"
+                >
+                  <app-icon name="close" />
+                </button>
+              </span>
+            }
+            <input
+              class="member-search__input"
+              type="text"
+              placeholder="Name eingeben"
+              [value]="query()"
+              (input)="onQueryInput($event)"
+            />
+          </label>
+
+          @if (query().trim()) {
+            @if (results().length > 0) {
+              <ul class="member-search__results">
+                @for (user of results(); track user.id) {
+                  <li>
+                    <button type="button" class="member-search__result" (click)="addUser(user.id)">
+                      <img class="member-search__avatar" [src]="user.avatarUrl" alt="" />
+                      <span>{{ user.name }}</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="member-search__empty">Keine passende Person gefunden.</p>
+            }
           }
-        </ul>
+        </div>
       }
-    </div>
+    }
 
     <p class="dialog-field__error" [class.is-visible]="formError()" role="alert">
       {{ formError() }}

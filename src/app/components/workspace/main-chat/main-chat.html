@@ -9,7 +9,9 @@
 
       <div class="main-chat__head-actions">
         <!-- TODO Figma-Wert pruefen: Mitglieder-Avatare statt Anzahl im Kopf. -->
-        <span class="main-chat__member-count">{{ channel.memberIds.length }} Mitglieder</span>
+        <span class="main-chat__member-count">{{ channel.memberIds.length }}
+          {{ channel.memberIds.length === 1 ? 'Mitglied' : 'Mitglieder' }}</span
+        >
         @if (canAddMembers()) {
           <button
             type="button"

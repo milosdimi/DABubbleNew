@@ -9,6 +9,9 @@ import { Toast } from '../../overlay/toast/toast';
 
 type MemberMode = 'all' | 'specific';
 
+/** So viele Treffer zeigt die Suche hoechstens an. */
+const MAX_RESULTS = 6;
+
 /**
  * Wozu der Dialog geoeffnet wurde:
  * - 'new-channel': Folgeschritt nach channel-create (Sidebar), setzt die Mitgliederliste.
@@ -38,16 +41,38 @@ export class ChannelAddMembers {
   readonly closed = output<void>();
 
   protected readonly users = signal<User[]>([]);
+  protected readonly channelName = signal('');
   protected readonly mode = signal<MemberMode>('all');
+  /** Suchtext im Feld "Name eingeben". */
+  protected readonly query = signal('');
   protected readonly selectedUserIds = signal<ReadonlySet<string>>(new Set());
   protected readonly loading = signal(false);
   protected readonly formError = signal<string | null>(null);
   protected readonly success = signal(false);
   protected readonly leaving = signal(false);
 
+  /** Bestehender Channel: immer Suche. Neuer Channel: nur bei "Bestimmte Leute". */
+  protected readonly usesSearch = computed(
+    () => this.purpose() === 'existing-channel' || this.mode() === 'specific',
+  );
+
+  protected readonly selectedUsers = computed(() =>
+    this.users().filter((user) => this.selectedUserIds().has(user.id)),
+  );
+
+  /** Treffer zum Suchtext, ohne bereits ausgewaehlte Personen. */
+  protected readonly results = computed(() => {
+    const term = this.query().trim().toLowerCase();
+    if (!term) return [];
+    return this.users()
+      .filter((user) => !this.selectedUserIds().has(user.id))
+      .filter((user) => user.name.toLowerCase().includes(term))
+      .slice(0, MAX_RESULTS);
+  });
+
   protected readonly formInvalid = computed(
     () =>
-      (this.mode() === 'specific' && this.selectedUserIds().size === 0) ||
+      (this.usesSearch() && this.selectedUserIds().size === 0) ||
       // Bestehender Channel, in dem schon alle Mitglied sind: nichts hinzuzufuegen.
       (this.purpose() === 'existing-channel' && this.users().length === 0),
   );
@@ -65,6 +90,7 @@ export class ChannelAddMembers {
     }
     const channel = await this.channelService.getChannel(this.channelId());
     const members = new Set(channel?.memberIds ?? []);
+    this.channelName.set(channel?.name ?? '');
     this.users.set(users.filter((user) => !members.has(user.id)));
   }
 
@@ -72,18 +98,22 @@ export class ChannelAddMembers {
     this.mode.set(mode);
   }
 
-  protected isSelected(userId: string): boolean {
-    return this.selectedUserIds().has(userId);
+  protected onQueryInput(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
   }
 
-  protected toggleUser(userId: string): void {
-    const next = new Set(this.selectedUserIds());
-    if (next.has(userId)) {
+  /** Treffer uebernehmen: als Chip anzeigen und die Suche leeren. */
+  protected addUser(userId: string): void {
+    this.selectedUserIds.update((ids) => new Set(ids).add(userId));
+    this.query.set('');
+  }
+
+  protected removeUser(userId: string): void {
+    this.selectedUserIds.update((ids) => {
+      const next = new Set(ids);
       next.delete(userId);
-    } else {
-      next.add(userId);
-    }
-    this.selectedUserIds.set(next);
+      return next;
+    });
   }
 
   @HostListener('document:keydown.escape')
@@ -132,8 +162,9 @@ export class ChannelAddMembers {
   /** Der Channel-Ersteller ist immer dabei, egal welche Option gewaehlt wurde. */
   private buildMemberIds(): string[] {
     const currentUid = this.auth.currentUser?.uid ?? '';
-    const chosen =
-      this.mode() === 'all' ? this.users().map((user) => user.id) : [...this.selectedUserIds()];
+    const chosen = this.usesSearch()
+      ? [...this.selectedUserIds()]
+      : this.users().map((user) => user.id);
 
     return [...new Set([currentUid, ...chosen])];
   }

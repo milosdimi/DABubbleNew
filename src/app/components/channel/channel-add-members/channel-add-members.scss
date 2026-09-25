@@ -5,6 +5,9 @@
   display: block;
 }
 
+// Figma: neuer Channel "38. Add Members after add channel" (710px, zentriert).
+// Bestehender Channel "41. Add members R corner": 514px, klappt oben rechts
+// unter dem "+" im Channel-Kopf auf, Ecke oben rechts 0.
 .dialog-backdrop {
   position: fixed;
   inset: 0;
@@ -12,6 +15,12 @@
   @include mx.flex(row, center, center);
   padding: 16px;
   background: rgba(0, 0, 0, 0.3);
+
+  &--anchored {
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 200px 70px 16px;
+  }
 }
 
 .dialog-card {
@@ -25,11 +34,36 @@
   border-radius: 30px;
   background: fct.color(white);
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+
+  &--anchored {
+    max-width: 514px;
+    border-radius: 30px 0 30px 30px;
+  }
 }
 
 .dialog-header {
   @include mx.flex(row, space-between, center);
   gap: 16px;
+}
+
+.dialog-header__heading {
+  @include mx.flex(column, flex-start, flex-start);
+  gap: 8px;
+  min-width: 0;
+}
+
+// Figma: Kontext-Tag "# Entwicklerteam" in Purple 2.
+.dialog-header__tag {
+  @include mx.flex(row, flex-start, center);
+  gap: 4px;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(purple-2);
+
+  app-icon {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .dialog-header__title {
@@ -92,61 +126,143 @@
   }
 }
 
-.dialog-user-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  padding-left: 32px;
+// Figma: Workspace-Name in der Option farblich hervorgehoben (Purple 3).
+.dialog-radio__highlight {
+  color: fct.color(purple-3);
+}
+
+// --- Suche mit Chips (Figma: nur das Feld "Name eingeben", 434px, rounded-30px,
+// Rahmen Light purple; Trefferliste und Chips sind eigener Entwurf im selben Stil).
+
+.member-search {
+  position: relative;
   @include mx.flex(column, flex-start, stretch);
-  gap: 4px;
-  max-height: 240px;
-  overflow-y: auto;
+  gap: 8px;
 }
 
-.dialog-user-row {
+.member-search__field {
   @include mx.flex(row, flex-start, center);
-  gap: 12px;
-  padding: 8px;
-  border-radius: 12px;
-  cursor: pointer;
-  @include mx.transition(150ms);
-
-  &:hover {
-    background: fct.color(background);
-  }
-}
-
-.dialog-user-row__checkbox {
-  flex: 0 0 auto;
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  appearance: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 60px;
+  padding: 10px 20px;
   border: 1px solid fct.color(light-purple);
-  border-radius: 4px;
-  cursor: pointer;
-  @include mx.transition(150ms);
+  border-radius: 30px;
+  cursor: text;
+  @include mx.transition();
 
-  &:checked {
-    background: fct.color(purple-1)
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E")
-      center / 12px no-repeat;
+  &:focus-within {
     border-color: fct.color(purple-1);
   }
 }
 
-.dialog-user-row__avatar {
-  flex: 0 0 auto;
+.member-search__input {
+  flex: 1 1 120px;
+  min-width: 0;
+  padding: 8px 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+
+  &::placeholder {
+    color: fct.color(text-gray);
+  }
+}
+
+.member-chip {
+  @include mx.flex(row, flex-start, center);
+  gap: 8px;
+  padding: 4px 6px 4px 4px;
+  border-radius: 30px;
+  background: fct.color(background);
+}
+
+.member-chip__avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.dialog-user-row__name {
-  @include mx.typo(nunito, 500);
+.member-chip__name {
+  @include mx.typo(nunito, 400);
   font-size: 16px;
   color: fct.color(black);
+}
+
+.member-chip__remove {
+  @include mx.flex(row, center, center);
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(white);
+    color: fct.color(purple-3);
+  }
+
+  app-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.member-search__results {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  @include mx.flex(column, flex-start, stretch);
+  gap: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+  border-radius: 20px;
+  background: fct.color(white);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.member-search__result {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  width: 100%;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 30px;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+  text-align: left;
+  cursor: pointer;
+  @include mx.transition(150ms);
+
+  &:hover {
+    background: fct.color(background);
+    color: fct.color(purple-3);
+  }
+}
+
+.member-search__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.member-search__empty {
+  margin: 0;
+  padding: 0 20px;
+  @include mx.typo(nunito, 400);
+  font-size: 16px;
+  color: fct.color(text-gray);
 }
 
 // Fehlertext-Slot: immer im DOM, nur visibility toggeln -> kein Layout-Sprung.
@@ -170,11 +286,11 @@
 
 .dialog-btn {
   @include mx.flex(row, center, center);
-  width: 125px;
+  min-width: 125px;
   border: none;
   outline: none;
   cursor: pointer;
-  padding: 14px 28px;
+  padding: 12px 25px;
   border-radius: 25px;
   background: fct.color(purple-1);
   color: fct.color(white);
