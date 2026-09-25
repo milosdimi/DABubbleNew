@@ -61,7 +61,6 @@
   white-space: nowrap;
   color: fct.color(black);
   writing-mode: vertical-rl;
-  transform: translateY(-50%) rotate(180deg);
   cursor: pointer;
   @include mx.transition();
 
