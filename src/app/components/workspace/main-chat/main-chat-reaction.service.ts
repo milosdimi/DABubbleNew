@@ -41,7 +41,7 @@ export class MainChatReactionService {
     this.pickerMessageId.set(null);
   }
 
-  /** Alle Gruppen, haeufigste zuerst. Laut Figma kein "+N"-Overflow: jede Emoji-Art eine Pille (umbrechend). */
+  /** Alle Gruppen, haeufigste zuerst (Ueberlauf "+X weitere": ReactionOverflowService). */
   groups(message: Message): ReactionGroup[] {
     const uid = this.auth.currentUser?.uid;
     const byEmoji = new Map<string, ReactionGroup>();

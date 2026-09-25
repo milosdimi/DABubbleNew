@@ -23,6 +23,7 @@ import { Channel, Message, User } from '../../../shared/models';
 import { MentionService } from '../../../shared/mention/mention.service';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
 import { PresenceService } from '../../../shared/presence/presence.service';
+import { ReactionOverflowService } from '../../../shared/reactions/reaction-overflow.service';
 import { UnreadService } from '../../../shared/unread/unread.service';
 import { ChannelInfo } from '../../channel/channel-info/channel-info';
 import { ChannelMembers } from '../../channel/channel-members/channel-members';
@@ -103,6 +104,8 @@ export class MainChat {
   private readonly injector = inject(Injector);
   protected readonly unread = inject(UnreadService);
   protected readonly presence = inject(PresenceService);
+  /** Figma: hoechstens 20 Reaktionen (mobil 7), sonst "+X weitere". */
+  protected readonly overflow = inject(ReactionOverflowService);
   /** "@Name" in Nachrichten hervorheben (Liste der sichtbaren User). */
   protected readonly mentions = inject(MentionService);
 

@@ -265,7 +265,8 @@
             }
 
             <div class="thread__reactions">
-              @for (reaction of getReactionGroups(reply); track reaction.emoji) {
+              @let groups = getReactionGroups(reply);
+              @for (reaction of overflow.visible(groups, reply.id, compactLimit); track reaction.emoji) {
                 <div class="thread__reaction-wrap">
                   <button
                     type="button"
@@ -287,6 +288,15 @@
                     </div>
                   }
                 </div>
+              }
+              @if (overflow.overflow(groups, compactLimit) > 0) {
+                <button type="button" class="reaction-more" (click)="overflow.toggle(reply.id)">
+                  @if (overflow.isExpanded(reply.id)) {
+                    Weniger anzeigen
+                  } @else {
+                    +{{ overflow.overflow(groups, compactLimit) }} weitere
+                  }
+                </button>
               }
             </div>
           </div>

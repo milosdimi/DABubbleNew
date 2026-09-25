@@ -96,6 +96,23 @@
   font-size: 0.9em;
 }
 
+// "+X weitere" / "Weniger anzeigen" (Figma-Hinweis zum Ueberlauf der Reaktionen).
+.reaction-more {
+  padding: 5px 12px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 20px;
+  background: fct.color(white);
+  @include mx.typo(nunito, 400);
+  font-size: 16px;
+  color: fct.color(purple-3);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    border-color: fct.color(purple-2);
+  }
+}
+
 // Tooltip an einer Reaktion: "Anna und Du haben mit 🚀 reagiert".
 .main-chat__reaction {
   position: relative;

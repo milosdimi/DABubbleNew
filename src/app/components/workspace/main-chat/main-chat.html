@@ -276,7 +276,11 @@
 
           @if (message.reactions.length > 0) {
             <div class="main-chat__reactions">
-              @for (group of reactions.groups(message); track group.emoji) {
+              @let groups = reactions.groups(message);
+              @for (
+                group of overflow.visible(groups, message.id, overflow.mainChatLimit());
+                track group.emoji
+              ) {
                 <button
                   type="button"
                   class="main-chat__reaction"
@@ -288,6 +292,15 @@
                   <span class="reaction-tooltip" role="tooltip">
                     {{ reactions.tooltip(message, group.emoji) }}
                   </span>
+                </button>
+              }
+              @if (overflow.overflow(groups, overflow.mainChatLimit()) > 0) {
+                <button type="button" class="reaction-more" (click)="overflow.toggle(message.id)">
+                  @if (overflow.isExpanded(message.id)) {
+                    Weniger anzeigen
+                  } @else {
+                    +{{ overflow.overflow(groups, overflow.mainChatLimit()) }} weitere
+                  }
                 </button>
               }
             </div>
