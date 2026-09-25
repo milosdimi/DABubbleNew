@@ -20,6 +20,7 @@ yarn-error.log
 .settings/
 *.sublime-workspace
 TODO.md
+MINIO-UEBERGABE.md
 
 # Visual Studio Code
 .vscode/*
