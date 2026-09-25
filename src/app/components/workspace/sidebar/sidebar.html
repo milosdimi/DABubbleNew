@@ -101,7 +101,7 @@
             >
               <span class="sidebar__avatar-wrap">
                 <img class="sidebar__avatar" [src]="user.avatarUrl" alt="" />
-                <span class="sidebar__status" [attr.data-status]="user.onlineStatus"></span>
+                <span class="sidebar__status" [attr.data-status]="presence.effectiveStatus(user)"></span>
               </span>
               <span class="sidebar__item-label">
                 {{ user.name }}@if (user.id === currentUid()) { (Du)}

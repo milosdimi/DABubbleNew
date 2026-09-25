@@ -2,6 +2,7 @@ import { Component, computed, effect, HostListener, inject, input, output, signa
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { User } from '../../../shared/models';
+import { PresenceService } from '../../../shared/presence/presence.service';
 import { STATUS_LABELS } from '../../../shared/status/status';
 import { Spinner } from '../../../shared/spinner/spinner';
 import { UserService } from '../../../shared/user/user.service';
@@ -25,6 +26,7 @@ const GUEST_PROFILE: Omit<User, 'id'> = {
 export class ProfileCard {
   private readonly auth = inject(FIREBASE_AUTH);
   private readonly userService = inject(UserService);
+  private readonly presence = inject(PresenceService);
 
   readonly userId = input.required<string>();
   readonly closed = output<void>();
@@ -41,8 +43,14 @@ export class ProfileCard {
     () => this.isOwn() && (this.auth.currentUser?.isAnonymous ?? false),
   );
 
+  /** Angezeigter Status: "offline", wenn der User gerade nicht verbunden ist. */
+  protected readonly status = computed(() => {
+    const user = this.user();
+    return user ? this.presence.effectiveStatus(user) : null;
+  });
+
   protected readonly statusLabel = computed(() => {
-    const status = this.user()?.onlineStatus;
+    const status = this.status();
     return status ? STATUS_LABELS[status] : '';
   });
 

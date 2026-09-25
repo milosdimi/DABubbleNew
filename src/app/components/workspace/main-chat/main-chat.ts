@@ -20,6 +20,7 @@ import { MessageService } from '../../../shared/message/message';
 import { Channel, Message, User } from '../../../shared/models';
 import { MentionService } from '../../../shared/mention/mention.service';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
+import { PresenceService } from '../../../shared/presence/presence.service';
 import { UnreadService } from '../../../shared/unread/unread.service';
 import { ChannelInfo } from '../../channel/channel-info/channel-info';
 import { ChannelMembers } from '../../channel/channel-members/channel-members';
@@ -78,6 +79,7 @@ export class MainChat {
   protected readonly highlightedId = signal<string | null>(null);
   private readonly injector = inject(Injector);
   protected readonly unread = inject(UnreadService);
+  protected readonly presence = inject(PresenceService);
   /** "@Name" in Nachrichten hervorheben (Liste der sichtbaren User). */
   protected readonly mentions = inject(MentionService);
 

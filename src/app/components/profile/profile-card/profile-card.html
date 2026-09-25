@@ -34,7 +34,7 @@
           }
         </div>
 
-        <p class="profile-card__status" [attr.data-status]="profile.onlineStatus">
+        <p class="profile-card__status" [attr.data-status]="status()">
           <span class="profile-card__status-dot"></span>
           {{ statusLabel() }}
         </p>

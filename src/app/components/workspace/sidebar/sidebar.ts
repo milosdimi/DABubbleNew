@@ -3,6 +3,7 @@ import { ChannelService } from '../../../shared/channel/channel.service';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { Channel, User } from '../../../shared/models';
+import { PresenceService } from '../../../shared/presence/presence.service';
 import { UnreadService } from '../../../shared/unread/unread.service';
 import { UserService } from '../../../shared/user/user.service';
 import { ChannelAddMembers } from '../../channel/channel-add-members/channel-add-members';
@@ -23,6 +24,7 @@ export class Sidebar {
   private readonly channelService = inject(ChannelService);
   private readonly userService = inject(UserService);
   protected readonly unread = inject(UnreadService);
+  protected readonly presence = inject(PresenceService);
   private readonly destroyRef = inject(DestroyRef);
 
   /** Markierung kommt von aussen, weil auch der Main-Chat Chats oeffnen kann. */
