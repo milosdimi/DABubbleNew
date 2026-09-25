@@ -31,6 +31,7 @@ import {
   deleteDoc,
   where,
 } from 'firebase/firestore';
+import { getDatabase, ref as dbRef, remove as dbRemove, set as dbSet } from 'firebase/database';
 import { environment } from '../src/environments/environment.ts';
 
 const config = environment.firebase;
@@ -286,6 +287,13 @@ describe('Live: Users', () => {
     const ref = doc(clients.A.db, 'users', clients.A.uid, 'readState', 'channel:x');
     await ok(setDoc(ref, { lastReadAt: Date.now() }));
     await denied(getDoc(doc(clients.B.db, 'users', clients.A.uid, 'readState', 'channel:x')));
+  });
+
+  test('Realtime Database: A setzt eigenen Verbindungsstatus, B nicht den von A', async () => {
+    const own = dbRef(getDatabase(clients.A.app), `status/${clients.A.uid}`);
+    await ok(dbSet(own, { state: 'online', lastChanged: Date.now() }));
+    await assert.rejects(dbSet(dbRef(getDatabase(clients.B.app), `status/${clients.A.uid}`), { state: 'offline', lastChanged: 1 }));
+    await ok(dbRemove(own)); // aufraeumen
   });
 
   test('A aendert eigenen Namen, aber nicht isDemo', async () => {

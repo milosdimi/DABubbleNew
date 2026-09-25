@@ -16,6 +16,8 @@ export const environment = {
     storageBucket: '',
     messagingSenderId: '',
     appId: '',
+    /** Realtime Database (nur fuer den Online-Status / Verbindungserkennung). */
+    databaseURL: '',
   },
 
   /** Datei-Storage fuer Nachrichtenanhaenge (vorlaeufig Supabase, Wechsel geplant). */

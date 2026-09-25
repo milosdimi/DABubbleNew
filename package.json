@@ -8,8 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:rules:live": "node --test firestore-tests/live-smoke.mjs",
-    "test:rules": "npx -y firebase-tools@13 emulators:exec --only firestore --project demo-dabubble-rules \"node --test firestore-tests/*.test.mjs\"",
-    "emulators": "npx -y firebase-tools@13 emulators:start --only auth,firestore --project demo-dabubble",
+    "test:rules": "npx -y firebase-tools@13 emulators:exec --only firestore,database --project demo-dabubble-rules \"node --test firestore-tests/*.test.mjs\"",
+    "emulators": "npx -y firebase-tools@13 emulators:start --only auth,firestore,database --project demo-dabubble",
     "start:emulator": "ng serve --configuration emulator",
     "seed:emulator": "node firestore-tests/seed-emulator.mjs"
   },

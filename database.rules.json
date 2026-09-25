@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "status": {
+      ".read": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous'",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['state', 'lastChanged']) && (newData.child('state').val() === 'online' || newData.child('state').val() === 'offline') && newData.child('lastChanged').isNumber()",
+        "state": { ".validate": true },
+        "lastChanged": { ".validate": true },
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}
