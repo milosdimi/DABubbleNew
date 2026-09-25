@@ -171,6 +171,18 @@
   }
 }
 
+// Roter Punkt fuer ungelesene Nachrichten (eigene Idee, nicht in Figma). Rechts am
+// Eintrag und in "Rosa error", damit er nicht mit dem Status-Punkt am Avatar
+// (z. B. "Nicht stoeren" in Rot) verwechselt wird.
+.sidebar__unread {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: fct.color(error);
+}
+
 .sidebar__item-label {
   min-width: 0;
   overflow: hidden;

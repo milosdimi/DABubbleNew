@@ -16,6 +16,7 @@ import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
 import { Channel, Message, User } from '../../../shared/models';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
+import { UnreadService } from '../../../shared/unread/unread.service';
 import { ChannelInfo } from '../../channel/channel-info/channel-info';
 import { ChannelMembers } from '../../channel/channel-members/channel-members';
 import { ProfileCard } from '../../profile/profile-card/profile-card';
@@ -66,6 +67,7 @@ export class MainChat {
   readonly channelOpened = output<Channel>();
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
+  private readonly unread = inject(UnreadService);
 
   /** Mitgliederliste (Figma "43. Members") offen? */
   protected readonly membersOpen = signal(false);
@@ -134,6 +136,14 @@ export class MainChat {
         return target ? `${target.kind}:${target.id}` : null;
       }),
       currentUid: () => this.auth.currentUser?.uid,
+    });
+
+    // Offener Chat gilt als gelesen - aber nur, wenn der Tab sichtbar ist.
+    effect(() => {
+      const target = this.session.target();
+      const last = this.messages().at(-1);
+      if (!target || !last || !this.unread.pageVisible()) return;
+      untracked(() => this.unread.markRead(`${target.kind}:${target.id}`, last.timestamp));
     });
 
     // Profile der Mitglieder fuer die Avatare im Kopf laden.

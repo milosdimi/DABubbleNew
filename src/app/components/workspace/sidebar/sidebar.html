@@ -54,6 +54,9 @@
             >
               <app-icon name="hash" />
               <span class="sidebar__item-label">{{ channel.name }}</span>
+              @if (unread.isChannelUnread(channel.id)) {
+                <span class="sidebar__unread" aria-label="Ungelesene Nachrichten"></span>
+              }
             </button>
           </li>
         } @empty {
@@ -103,6 +106,9 @@
               <span class="sidebar__item-label">
                 {{ user.name }}@if (user.id === currentUid()) { (Du)}
               </span>
+              @if (unread.isUserUnread(user.id)) {
+                <span class="sidebar__unread" aria-label="Ungelesene Nachrichten"></span>
+              }
             </button>
           </li>
         } @empty {

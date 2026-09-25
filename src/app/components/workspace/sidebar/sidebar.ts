@@ -1,8 +1,9 @@
-import { Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
 import { ChannelService } from '../../../shared/channel/channel.service';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { Channel, User } from '../../../shared/models';
+import { UnreadService } from '../../../shared/unread/unread.service';
 import { UserService } from '../../../shared/user/user.service';
 import { ChannelAddMembers } from '../../channel/channel-add-members/channel-add-members';
 import { ChannelCreate } from '../../channel/channel-create/channel-create';
@@ -21,6 +22,7 @@ export class Sidebar {
   private readonly auth = inject(FIREBASE_AUTH);
   private readonly channelService = inject(ChannelService);
   private readonly userService = inject(UserService);
+  protected readonly unread = inject(UnreadService);
   private readonly destroyRef = inject(DestroyRef);
 
   /** Markierung kommt von aussen, weil auch der Main-Chat Chats oeffnen kann. */
@@ -58,6 +60,9 @@ export class Sidebar {
 
   constructor() {
     void this.startListening();
+    void this.unread.start(this.destroyRef);
+    // Fuer jeden sichtbaren Channel die neueste Nachricht beobachten (rote Punkte).
+    effect(() => this.unread.watchChannels(this.channels()));
   }
 
   private async startListening(): Promise<void> {
