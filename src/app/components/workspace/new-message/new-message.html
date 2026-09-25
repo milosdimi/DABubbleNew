@@ -71,6 +71,7 @@
 
   <div class="new-message__input">
     <textarea
+      #draftField
       class="new-message__field"
       rows="1"
       [placeholder]="placeholder()"
@@ -80,6 +81,11 @@
       (keydown)="onDraftKeydown($event)"
     ></textarea>
     <div class="new-message__input-row">
+      <app-chat-input-tools
+        [field]="draftField"
+        [disabled]="!recipient()"
+        (textChange)="draft.set($event)"
+      />
       <button
         type="button"
         class="new-message__send"

@@ -562,6 +562,12 @@
   }
 }
 
+.main-chat__input-tools {
+  @include mx.flex(row, flex-start, center);
+  gap: 4px;
+}
+
+
 .main-chat__input-row {
   @include mx.flex(row, space-between, center);
 }

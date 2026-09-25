@@ -1,0 +1,125 @@
+@use '../../../styles/functions' as fct;
+@use '../../../styles/mixins' as mx;
+
+// Smiley + @ im Eingabefeld (eigene Erweiterung). Buttons wie die Icon-Buttons
+// der Hover-Leiste (Figma: Hover-Pille Bg color, Icon Purple 3); Listen im Stil
+// des Emoji-Pickers, oeffnen nach oben, da das Feld unten sitzt.
+
+:host {
+  display: block;
+}
+
+.tools {
+  position: relative;
+  @include mx.flex(row, flex-start, center);
+  gap: 4px;
+}
+
+.tools__btn {
+  @include mx.flex(row, center, center);
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover:not(:disabled) {
+    background: fct.color(background);
+    color: fct.color(purple-3);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  app-icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.tools__at {
+  @include mx.typo(nunito, 600);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.tools__panel {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  padding: 6px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 20px;
+  background: fct.color(white);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+
+  &--emoji {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+  }
+
+  &--mention {
+    @include mx.flex(column, flex-start, stretch);
+    gap: 2px;
+    min-width: 260px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+}
+
+.tools__emoji {
+  padding: 4px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+
+  &:hover {
+    background: fct.color(background);
+  }
+}
+
+.tools__person {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 30px;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+  text-align: left;
+  cursor: pointer;
+
+  // Erster Treffer = Enter/Tab
+  &:first-child,
+  &:hover {
+    background: fct.color(background);
+    color: fct.color(purple-3);
+  }
+}
+
+.tools__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.tools__empty {
+  margin: 0;
+  padding: 6px 12px;
+  @include mx.typo(nunito, 400);
+  font-size: 16px;
+  color: fct.color(text-gray);
+}

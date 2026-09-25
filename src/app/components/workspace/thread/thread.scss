@@ -439,6 +439,12 @@
   color: fct.color(text-gray);
 }
 
+.thread__input-tools {
+  @include mx.flex(row, flex-start, center);
+  gap: 4px;
+}
+
+
 .thread__input-row {
   @include mx.flex(row, space-between, center);
 }

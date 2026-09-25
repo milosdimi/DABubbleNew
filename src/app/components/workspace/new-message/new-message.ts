@@ -1,5 +1,6 @@
 import { Component, computed, inject, output, signal } from '@angular/core';
 import { ChannelService } from '../../../shared/channel/channel.service';
+import { ChatInputTools } from '../../../shared/chat-input-tools/chat-input-tools';
 import { ClickOutsideDirective } from '../../../shared/click-outside/click-outside.directive';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
@@ -20,7 +21,7 @@ const MAX_SUGGESTIONS = 6;
  */
 @Component({
   selector: 'app-new-message',
-  imports: [Icon, ClickOutsideDirective],
+  imports: [Icon, ClickOutsideDirective, ChatInputTools],
   templateUrl: './new-message.html',
   styleUrl: './new-message.scss',
 })

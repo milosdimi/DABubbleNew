@@ -42,7 +42,13 @@
           <div class="thread__message-bubble-wrap">
             <div class="thread__message-bubble">
               @if (parent.text) {
-                <p class="thread__message-text">{{ parent.text }}</p>
+                <p class="thread__message-text">
+                  @for (part of mentions.segments(parent.text); track $index) {
+                    @if (part.user; as mentioned) {
+                      <button type="button" class="mention" (click)="openProfile(mentioned.id)">{{ part.text }}</button>
+                    } @else {{{ part.text }}}
+                  }
+                </p>
               }
               @if (parent.attachmentPath && parent.attachmentName) {
                 <button
@@ -153,7 +159,13 @@
               <div class="thread__message-bubble-wrap">
                 <div class="thread__message-bubble">
                   @if (reply.text) {
-                    <p class="thread__message-text">{{ reply.text }}</p>
+                    <p class="thread__message-text">
+                  @for (part of mentions.segments(reply.text); track $index) {
+                    @if (part.user; as mentioned) {
+                      <button type="button" class="mention" (click)="openProfile(mentioned.id)">{{ part.text }}</button>
+                    } @else {{{ part.text }}}
+                  }
+                </p>
                   }
                   @if (reply.attachmentPath && reply.attachmentName) {
                     <button
@@ -283,6 +295,7 @@
       }
 
       <textarea
+        #replyField
         class="thread__input-field"
         placeholder="Antworten..."
         rows="1"
@@ -294,14 +307,17 @@
       <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
 
       <div class="thread__input-row">
-        <button
-          type="button"
-          class="thread__input-icon"
-          aria-label="Datei anhängen"
-          (click)="fileInput.click()"
-        >
-          <app-icon name="attachment" />
-        </button>
+        <div class="thread__input-tools">
+          <button
+            type="button"
+            class="thread__input-icon"
+            aria-label="Datei anhängen"
+            (click)="fileInput.click()"
+          >
+            <app-icon name="attachment" />
+          </button>
+          <app-chat-input-tools [field]="replyField" (textChange)="replyText.set($event)" />
+        </div>
         <button type="button" class="thread__send" aria-label="Senden" (click)="onSendReply()">
           <app-icon name="send" />
         </button>

@@ -10,11 +10,13 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { ChatInputTools } from '../../../shared/chat-input-tools/chat-input-tools';
 import { ClickOutsideDirective } from '../../../shared/click-outside/click-outside.directive';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
 import { Channel, Message, User } from '../../../shared/models';
+import { MentionService } from '../../../shared/mention/mention.service';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
 import { UnreadService } from '../../../shared/unread/unread.service';
 import { ChannelInfo } from '../../channel/channel-info/channel-info';
@@ -30,7 +32,7 @@ import { MainChatUploadService } from './main-chat-upload.service';
 /** Mittlere Spalte des Workspace: Nachrichten eines Channels oder Direktchats. */
 @Component({
   selector: 'app-main-chat',
-  imports: [Icon, ProfileCard, ChannelInfo, ChannelMembers, ClickOutsideDirective],
+  imports: [Icon, ProfileCard, ChannelInfo, ChannelMembers, ClickOutsideDirective, ChatInputTools],
   providers: [
     MainChatDateService,
     MainChatEditService,
@@ -68,6 +70,8 @@ export class MainChat {
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
   private readonly unread = inject(UnreadService);
+  /** "@Name" in Nachrichten hervorheben (Liste der sichtbaren User). */
+  protected readonly mentions = inject(MentionService);
 
   /** Mitgliederliste (Figma "43. Members") offen? */
   protected readonly membersOpen = signal(false);

@@ -156,7 +156,17 @@
             <div class="main-chat__bubble-wrap">
               <div class="main-chat__bubble">
                 @if (message.text) {
-                  <p class="main-chat__text">{{ message.text }}</p>
+                  <p class="main-chat__text">
+                    @for (part of mentions.segments(message.text); track $index) {
+                      @if (part.user; as mentioned) {
+                        <button
+                          type="button"
+                          class="mention"
+                          (click)="profiles.openProfile(mentioned.id)"
+                        >{{ part.text }}</button>
+                      } @else {{{ part.text }}}
+                    }
+                  </p>
                 }
                 @if (message.attachmentPath && message.attachmentName) {
                   <button
@@ -295,6 +305,7 @@
     }
 
     <textarea
+      #draftField
       class="main-chat__input-field"
       rows="1"
       [placeholder]="placeholder()"
@@ -307,15 +318,22 @@
     <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
 
     <div class="main-chat__input-row">
-      <button
-        type="button"
-        class="main-chat__icon-btn"
-        aria-label="Datei anhängen"
-        [disabled]="!active()"
-        (click)="fileInput.click()"
-      >
-        <app-icon name="attachment" />
-      </button>
+      <div class="main-chat__input-tools">
+        <button
+          type="button"
+          class="main-chat__icon-btn"
+          aria-label="Datei anhängen"
+          [disabled]="!active()"
+          (click)="fileInput.click()"
+        >
+          <app-icon name="attachment" />
+        </button>
+        <app-chat-input-tools
+          [field]="draftField"
+          [disabled]="!active()"
+          (textChange)="draft.set($event)"
+        />
+      </div>
       <button
         type="button"
         class="main-chat__send"

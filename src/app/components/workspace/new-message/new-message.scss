@@ -217,7 +217,7 @@
 }
 
 .new-message__input-row {
-  @include mx.flex(row, flex-end, center);
+  @include mx.flex(row, space-between, center);
 }
 
 .new-message__send {

@@ -18,11 +18,13 @@ import { MainChatProfileService } from '../main-chat/main-chat-profile.service';
 import { AttachmentData, MainChatUploadService } from '../main-chat/main-chat-upload.service';
 import { ProfileCard } from '../../profile/profile-card/profile-card';
 import { ChannelService } from '../../../shared/channel/channel.service';
+import { ChatInputTools } from '../../../shared/chat-input-tools/chat-input-tools';
 import { ClickOutsideDirective } from '../../../shared/click-outside/click-outside.directive';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
 import { Message, Reaction } from '../../../shared/models';
+import { MentionService } from '../../../shared/mention/mention.service';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
 
 /** Zusammenfassung einer Reaction fuer die Anzeige. */
@@ -45,7 +47,7 @@ type ReactionTooltip = { replyId: string; emoji: string; text: string };
  */
 @Component({
   selector: 'app-thread',
-  imports: [Icon, ProfileCard, ClickOutsideDirective],
+  imports: [Icon, ProfileCard, ClickOutsideDirective, ChatInputTools],
   providers: [
     MainChatDateService,
     MainChatEditService,
@@ -85,6 +87,8 @@ export class Thread implements OnDestroy {
   protected readonly selectedProfileUserId = this.profileService.selectedProfileUserId;
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
+  /** "@Name" in Antworten hervorheben. */
+  protected readonly mentions = inject(MentionService);
 
   constructor() {
     // Immer die neueste Antwort zeigen (Details: autoScrollToLatest).

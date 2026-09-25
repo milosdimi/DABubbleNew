@@ -1,0 +1,25 @@
+// @-Erwaehnung in einer Nachricht (eigene Erweiterung, Main-Chat und Thread):
+// Purple 3, in der eigenen (lila) Blase weiss unterstrichen. Klick oeffnet das Profil.
+// Global, weil beide Komponenten sie nutzen.
+@use 'functions' as fct;
+@use 'mixins' as mx;
+
+.mention {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  @include mx.typo(nunito, 700);
+  color: fct.color(purple-3);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  .main-chat__message--own &,
+  .thread__message--own & {
+    color: fct.color(white);
+    text-decoration: underline;
+  }
+}

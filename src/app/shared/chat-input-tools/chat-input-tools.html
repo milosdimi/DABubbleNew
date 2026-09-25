@@ -1,0 +1,41 @@
+<div class="tools" appClickOutside (appClickOutside)="closeAll()">
+  <button
+    type="button"
+    class="tools__btn"
+    aria-label="Emoji einfügen"
+    [disabled]="disabled()"
+    (click)="toggleEmoji()"
+  >
+    <app-icon name="emoji" />
+  </button>
+  <button
+    type="button"
+    class="tools__btn"
+    aria-label="Person erwähnen"
+    [disabled]="disabled()"
+    (click)="startMention()"
+  >
+    <span class="tools__at">&#64;</span>
+  </button>
+
+  @if (emojiOpen()) {
+    <div class="tools__panel tools__panel--emoji">
+      @for (emoji of emojis; track emoji) {
+        <button type="button" class="tools__emoji" (click)="insertEmoji(emoji)">{{ emoji }}</button>
+      }
+    </div>
+  }
+
+  @if (mentionQuery() !== null) {
+    <div class="tools__panel tools__panel--mention" role="listbox" aria-label="Personen erwähnen">
+      @for (user of suggestions(); track user.id) {
+        <button type="button" class="tools__person" (click)="pickMention(user)">
+          <img class="tools__avatar" [src]="user.avatarUrl" alt="" />
+          {{ user.name }}
+        </button>
+      } @empty {
+        <p class="tools__empty">Keine passende Person.</p>
+      }
+    </div>
+  }
+</div>
