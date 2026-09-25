@@ -46,6 +46,8 @@ export class Header implements OnInit {
   /** Treffer der Suche angeklickt -> Workspace oeffnet Channel bzw. Direktchat. */
   readonly channelSelected = output<Channel>();
   readonly userSelected = output<User>();
+  /** Nachrichten-Treffer: Workspace oeffnet den Chat und springt zur Nachricht. */
+  readonly messageSelected = output<MessageHit>();
 
   protected readonly uid = signal<string | null>(null);
   protected readonly displayName = signal('');
@@ -148,8 +150,8 @@ export class Header implements OnInit {
   }
 
   protected pickMessage(hit: MessageHit): void {
-    if (hit.place.kind === 'channel') this.pickChannel(hit.place.channel);
-    else this.pickUser(hit.place.partner);
+    this.finishSearch();
+    this.messageSelected.emit(hit);
   }
 
   protected placeLabel(place: SearchPlace): string {

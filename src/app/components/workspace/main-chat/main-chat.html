@@ -78,7 +78,9 @@
 
       <article
         class="main-chat__message"
+        [attr.data-message-id]="message.id"
         [class.main-chat__message--own]="isOwn(message)"
+        [class.main-chat__message--highlight]="highlightedId() === message.id"
         [class.main-chat__message--editing]="edit.isEditing(message.id)"
       >
         <img

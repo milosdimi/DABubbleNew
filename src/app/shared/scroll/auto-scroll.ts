@@ -21,6 +21,10 @@ function scrollToBottom(element: HTMLElement): void {
  * - waechst der Inhalt nachtraeglich (Namen/Profile laden nach), bleibt eine
  *   Liste, die unten war, auch unten ("kleben")
  * Muss im Injection-Kontext aufgerufen werden (z. B. im Konstruktor).
+ *
+ * `holdPosition()` des Rueckgabewerts setzt das alles aus, bis der naechste
+ * Chat geoeffnet wird oder man selbst wieder nach unten scrollt (z. B. nach
+ * dem Sprung zu einem Suchtreffer).
  */
 export function autoScrollToLatest(options: {
   scroller: Signal<ElementRef<HTMLElement> | undefined>;
@@ -28,7 +32,7 @@ export function autoScrollToLatest(options: {
   /** Kennung des offenen Chats; ein Wechsel loest den Sprung nach unten aus. */
   chatKey: Signal<string | null>;
   currentUid: () => string | null | undefined;
-}): void {
+}): { holdPosition: () => void } {
   const injector = inject(Injector);
   let jumpOnNextLoad = true;
   let lastSeenId: string | undefined;
@@ -91,4 +95,11 @@ export function autoScrollToLatest(options: {
       lastSeenId = last?.id;
     });
   });
+
+  return {
+    holdPosition: () => {
+      jumpOnNextLoad = false;
+      stuckToBottom = false;
+    },
+  };
 }

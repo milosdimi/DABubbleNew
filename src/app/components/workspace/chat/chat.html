@@ -3,6 +3,7 @@
     variant="app"
     (channelSelected)="showChannel($event)"
     (userSelected)="showDirectChat($event)"
+    (messageSelected)="showMessage($event)"
   />
 
   <div class="workspace__columns">
@@ -38,6 +39,8 @@
 
     <app-main-chat
       [class.workspace__hidden]="composing()"
+      [focusMessageId]="focusMessageId()"
+      (focusHandled)="focusMessageId.set(null)"
       [channel]="selectedChannel()"
       [user]="selectedUser()"
       (channelOpened)="showChannel($event)"

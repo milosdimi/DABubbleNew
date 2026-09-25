@@ -236,6 +236,11 @@
     background: fct.color(background);
   }
 
+  // Nach dem Sprung zu einem Suchtreffer kurz hervorgehoben.
+  &--highlight {
+    background: fct.color(background);
+  }
+
   &--own {
     flex-direction: row-reverse;
 
@@ -320,7 +325,8 @@
 
 // Figma: beim Hover wird die fremde Blase weiss (Zeile ist dann Bg color),
 // die eigene bleibt Purple 2.
-.main-chat__message:not(.main-chat__message--own):hover .main-chat__bubble {
+.main-chat__message:not(.main-chat__message--own):hover .main-chat__bubble,
+.main-chat__message--highlight:not(.main-chat__message--own) .main-chat__bubble {
   background: fct.color(white);
 }
 

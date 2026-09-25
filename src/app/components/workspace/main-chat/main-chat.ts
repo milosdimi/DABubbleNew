@@ -1,9 +1,11 @@
 import {
+  afterNextRender,
   Component,
   computed,
   effect,
   ElementRef,
   inject,
+  Injector,
   input,
   output,
   signal,
@@ -58,6 +60,9 @@ export class MainChat {
   readonly channel = input<Channel | null>(null);
   /** In der Sidebar (oder per Profil) gewaehlter Direktchat-Partner. */
   readonly user = input<User | null>(null);
+  /** Zu dieser Nachricht springen und sie kurz hervorheben (Suchtreffer). */
+  readonly focusMessageId = input<string | null>(null);
+  readonly focusHandled = output<void>();
 
   /** "Antworten" / "X Antworten" angeklickt -> Thread oeffnen. */
   readonly replyClicked = output<Message>();
@@ -69,6 +74,9 @@ export class MainChat {
   readonly channelOpened = output<Channel>();
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
+  /** Kurz hervorgehobene Nachricht nach einem Sprung. */
+  protected readonly highlightedId = signal<string | null>(null);
+  private readonly injector = inject(Injector);
   private readonly unread = inject(UnreadService);
   /** "@Name" in Nachrichten hervorheben (Liste der sichtbaren User). */
   protected readonly mentions = inject(MentionService);
@@ -132,7 +140,7 @@ export class MainChat {
     });
 
     // Immer die neueste Nachricht zeigen (Details: autoScrollToLatest).
-    autoScrollToLatest({
+    const autoScroll = autoScrollToLatest({
       scroller: this.scroller,
       messages: this.messages,
       chatKey: computed(() => {
@@ -140,6 +148,26 @@ export class MainChat {
         return target ? `${target.kind}:${target.id}` : null;
       }),
       currentUid: () => this.auth.currentUser?.uid,
+    });
+
+    // Suchtreffer: sobald die Nachricht geladen ist, dorthin springen.
+    effect(() => {
+      const id = this.focusMessageId();
+      if (!id || !this.messages().some((message) => message.id === id)) return;
+      untracked(() => {
+        autoScroll.holdPosition();
+        afterNextRender(
+          () => {
+            const element = this.scroller()?.nativeElement.querySelector(`[data-message-id="${id}"]`);
+            element?.scrollIntoView({ block: 'center' });
+            autoScroll.holdPosition(); // falls der Sprung nach unten schon eingeplant war
+            this.highlightedId.set(id);
+            setTimeout(() => this.highlightedId.set(null), 2000);
+            this.focusHandled.emit();
+          },
+          { injector: this.injector },
+        );
+      });
     });
 
     // Offener Chat gilt als gelesen - aber nur, wenn der Tab sichtbar ist.

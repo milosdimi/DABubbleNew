@@ -1,6 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { Icon } from '../../../shared/icon/icon';
 import { Channel, Message, User } from '../../../shared/models';
+import { MessageHit } from '../../../shared/search/search.service';
 import { PresenceService } from '../../../shared/presence/presence.service';
 import { ChannelAddMembers } from '../../channel/channel-add-members/channel-add-members';
 import { Header } from '../header/header';
@@ -33,6 +34,8 @@ export class Chat {
   /** "Neue Nachricht" statt Main-Chat im Mittelbereich (Main-Chat bleibt im Hintergrund bestehen). */
   protected readonly composing = signal(false);
   protected readonly threadMessage = signal<Message | null>(null);
+  /** Nachricht, zu der der Main-Chat springen soll (Suchtreffer). */
+  protected readonly focusMessageId = signal<string | null>(null);
   /** Channel, fuer den der "+"-Dialog aus dem Main-Chat-Kopf offen ist. */
   protected readonly addMembersChannelId = signal<string | null>(null);
 
@@ -48,6 +51,12 @@ export class Chat {
     if (user.id !== this.selectedUser()?.id) this.threadMessage.set(null);
     this.selectedChannel.set(null);
     this.selectedUser.set(user);
+  }
+
+  protected showMessage(hit: MessageHit): void {
+    if (hit.place.kind === 'channel') this.showChannel(hit.place.channel);
+    else this.showDirectChat(hit.place.partner);
+    this.focusMessageId.set(hit.message.id);
   }
 
   protected startNewMessage(): void {
