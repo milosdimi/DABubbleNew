@@ -16,7 +16,11 @@
 
   @if (parentMessage(); as parent) {
     <div class="thread__scroll" #scroller>
-      <div class="thread__message" [class.thread__message--own]="isOwnMessage(parent.senderId)">
+      <div
+        class="thread__message"
+        [class.thread__message--own]="isOwnMessage(parent.senderId)"
+        [class.thread__message--deleted]="parent.deleted"
+      >
         <img
           class="thread__message-avatar"
           [src]="getSenderAvatar(parent.senderId)"
@@ -44,13 +48,11 @@
 
           <div class="thread__message-bubble-wrap">
             <div class="thread__message-bubble">
-              @if (parent.text) {
+              @if (parent.deleted) {
+                <p class="thread__message-text message-deleted">Diese Nachricht wurde gelöscht</p>
+              } @else if (parent.text) {
                 <p class="thread__message-text">
-                  @for (part of mentions.segments(parent.text); track $index) {
-                    @if (part.user; as mentioned) {
-                      <button type="button" class="mention" (click)="openProfile(mentioned.id)">{{ part.text }}</button>
-                    } @else if (part.href) {<a class="message-link" [href]="part.href" target="_blank" rel="noopener noreferrer">{{ part.text }}</a>} @else {{{ part.text }}}
-                  }
+                  <app-message-text [text]="parent.text" (mentionClicked)="openProfile($event)" />
                 </p>
               }
               @if (parent.attachmentPath && parent.attachmentName) {
@@ -85,6 +87,7 @@
         <div
           class="thread__message"
           [class.thread__message--own]="isOwnMessage(reply.senderId)"
+          [class.thread__message--deleted]="reply.deleted"
           [class.thread__message--editing]="edit.isEditing(reply.id)"
         >
           <img
@@ -164,13 +167,11 @@
             } @else {
               <div class="thread__message-bubble-wrap">
                 <div class="thread__message-bubble">
-                  @if (reply.text) {
+                  @if (reply.deleted) {
+                <p class="thread__message-text message-deleted">Diese Nachricht wurde gelöscht</p>
+              } @else if (reply.text) {
                     <p class="thread__message-text">
-                  @for (part of mentions.segments(reply.text); track $index) {
-                    @if (part.user; as mentioned) {
-                      <button type="button" class="mention" (click)="openProfile(mentioned.id)">{{ part.text }}</button>
-                    } @else if (part.href) {<a class="message-link" [href]="part.href" target="_blank" rel="noopener noreferrer">{{ part.text }}</a>} @else {{{ part.text }}}
-                  }
+                  <app-message-text [text]="reply.text" (mentionClicked)="openProfile($event)" />
                 </p>
                   }
                   @if (reply.attachmentPath && reply.attachmentName) {
@@ -243,9 +244,18 @@
                           appClickOutside
                           (appClickOutside)="edit.closeMenu()"
                         >
-                          <button type="button" (click)="edit.start(reply)">
-                            Nachricht bearbeiten
-                          </button>
+                          @if (edit.confirmDeleteId() === reply.id) {
+                            <p class="message-menu__question">Nachricht wirklich löschen?</p>
+                            <div class="message-menu__actions">
+                              <button type="button" (click)="edit.cancelDelete()">Abbrechen</button>
+                              <button type="button" class="message-menu__danger" (click)="deleteOwn(reply)">
+                                Löschen
+                              </button>
+                            </div>
+                          } @else {
+                            <button type="button" (click)="edit.start(reply)">Nachricht bearbeiten</button>
+                            <button type="button" (click)="edit.askDelete(reply.id)">Nachricht löschen</button>
+                          }
                         </div>
                       }
                     </div>

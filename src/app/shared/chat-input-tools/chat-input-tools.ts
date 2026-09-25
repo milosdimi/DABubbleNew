@@ -39,6 +39,8 @@ export class ChatInputTools {
   /** Suchtext nach dem "@", oder null wenn die Liste zu ist. */
   protected readonly mentionQuery = signal<string | null>(null);
   protected readonly suggestions = signal<User[]>([]);
+  /** Mit Pfeiltasten gewaehlter Vorschlag (Enter/Tab uebernimmt ihn). */
+  protected readonly activeIndex = signal(0);
 
   constructor() {
     void this.mentions.ensureLoaded();
@@ -115,6 +117,7 @@ export class ChatInputTools {
     }
     this.mentionQuery.set(match[2]);
     this.suggestions.set(this.mentions.suggestions(match[2]));
+    this.activeIndex.set(0);
   }
 
   private onKeydown(event: KeyboardEvent): void {
@@ -135,11 +138,18 @@ export class ChatInputTools {
       this.mentionQuery.set(null);
       return;
     }
-    const first = this.suggestions()[0];
-    if ((event.key === 'Enter' || event.key === 'Tab') && first) {
+    const count = this.suggestions().length;
+    if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && count > 0) {
+      event.preventDefault();
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      this.activeIndex.update((index) => (index + step + count) % count);
+      return;
+    }
+    const active = this.suggestions()[this.activeIndex()];
+    if ((event.key === 'Enter' || event.key === 'Tab') && active) {
       event.preventDefault();
       event.stopImmediatePropagation(); // nicht senden
-      this.pickMention(first);
+      this.pickMention(active);
     }
   }
 

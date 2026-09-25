@@ -21,6 +21,7 @@ import { AttachmentData, MainChatUploadService } from '../main-chat/main-chat-up
 import { ProfileCard } from '../../profile/profile-card/profile-card';
 import { ChannelService } from '../../../shared/channel/channel.service';
 import { ChatInputTools } from '../../../shared/chat-input-tools/chat-input-tools';
+import { MessageText } from '../../../shared/message-text/message-text';
 import { ClickOutsideDirective } from '../../../shared/click-outside/click-outside.directive';
 import { TypingIndicator } from '../../../shared/typing/typing-indicator';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
@@ -51,7 +52,7 @@ type ReactionTooltip = { replyId: string; emoji: string; text: string };
  */
 @Component({
   selector: 'app-thread',
-  imports: [Icon, ProfileCard, ClickOutsideDirective, ChatInputTools, TypingIndicator],
+  imports: [Icon, ProfileCard, ClickOutsideDirective, ChatInputTools, TypingIndicator, MessageText],
   providers: [
     MainChatDateService,
     MainChatEditService,
@@ -211,6 +212,12 @@ export class Thread implements OnDestroy {
       if (!parent) return Promise.reject(new Error('Kein Thread geoeffnet'));
       return this.messageService.editReply(parent, reply.id, text);
     };
+  }
+
+  protected deleteOwn(reply: Message): void {
+    const parent = this.parentMessage();
+    if (!parent) return;
+    void this.edit.confirmDelete(() => this.messageService.deleteReply(parent, reply.id));
   }
 
   protected saveEdit(reply: Message): void {

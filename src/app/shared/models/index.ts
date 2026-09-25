@@ -66,6 +66,9 @@ export interface Message {
   channelId?: string;
   /** Gesetzt bei Direktnachrichten (und deren Thread-Antworten). */
   dmId?: string;
+  /** Vom Absender geloescht: bleibt als Platzhalter "Diese Nachricht wurde geloescht". */
+  deleted?: boolean;
+  deletedAt?: number;
   /** Zeitpunkt der letzten Bearbeitung -> Hinweis "(bearbeitet)". */
   editedAt?: number;
   /** Nur bei Thread-Antworten: ID der Elternnachricht. */

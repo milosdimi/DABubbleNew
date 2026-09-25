@@ -56,6 +56,78 @@
   color: fct.color(error);
 }
 
+// Geloeschte Nachricht: Platzhalter statt Text; ohne Hover-Leiste und Reaktionen.
+.message-deleted {
+  font-style: italic;
+  color: fct.color(text-gray) !important;
+}
+
+// Doppelte Klasse: muss die (spaeter geladenen) Komponenten-Styles schlagen.
+.main-chat__message.main-chat__message--deleted .main-chat__toolbar,
+.main-chat__message.main-chat__message--deleted .main-chat__reactions,
+.thread__message.thread__message--deleted .thread__message-toolbar,
+.thread__message.thread__message--deleted .thread__reactions {
+  display: none;
+}
+
+// Rueckfrage "Nachricht wirklich loeschen?" im ⋮-Menue.
+.message-menu__question {
+  margin: 0 0 12px;
+  @include mx.typo(nunito, 500);
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.message-menu__actions {
+  @include mx.flex(row, flex-end, center);
+  gap: 20px;
+}
+
+.message-menu .message-menu__danger {
+  color: fct.color(error);
+}
+
+// Formatierung in Nachrichten: `Code`.
+.message-code {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.08);
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+// Tooltip an einer Reaktion: "Anna und Du haben mit 🚀 reagiert".
+.main-chat__reaction {
+  position: relative;
+
+  &:hover .reaction-tooltip {
+    display: block;
+  }
+}
+
+.reaction-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  z-index: 10;
+  padding: 8px 14px;
+  border-radius: 20px 20px 20px 0;
+  background: fct.color(purple-1); // wie der Reaktions-Tooltip im Thread
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(white);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+// Eigene Nachrichten stehen rechts: Tooltip nach links oeffnen.
+.main-chat__message--own .reaction-tooltip {
+  left: auto;
+  right: 50%;
+  border-radius: 20px 20px 0 20px;
+}
+
 .mention {
   padding: 0;
   border: none;

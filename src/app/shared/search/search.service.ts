@@ -100,7 +100,11 @@ export class SearchService {
     return {
       channels: prefix === '@' ? [] : index.channels.filter((c) => matches(c.name)).slice(0, MAX_CHANNELS),
       users: prefix === '#' ? [] : index.users.filter((u) => matches(u.name)).slice(0, MAX_USERS),
-      messages: prefix ? [] : index.messages.filter((hit) => matches(hit.message.text)).slice(0, MAX_MESSAGES),
+      messages: prefix
+        ? []
+        : index.messages
+            .filter((hit) => !hit.message.deleted && matches(hit.message.text))
+            .slice(0, MAX_MESSAGES),
     };
   }
 

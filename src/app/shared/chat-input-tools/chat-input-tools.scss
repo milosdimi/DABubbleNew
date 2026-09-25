@@ -101,9 +101,8 @@
   text-align: left;
   cursor: pointer;
 
-  // Erster Treffer = Enter/Tab
-  &:first-child,
-  &:hover {
+  // Aktiver Treffer (Pfeiltasten / Maus) = Enter/Tab
+  &--active {
     background: fct.color(background);
     color: fct.color(purple-3);
   }

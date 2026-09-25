@@ -3,6 +3,7 @@ import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { MessageService } from '../../../shared/message/message';
 import { Message, Reaction } from '../../../shared/models';
 import { MAIN_CHAT_EMOJIS, pickerOpensBelow, QUICK_REACTIONS } from './main-chat-emojis';
+import { MainChatProfileService } from './main-chat-profile.service';
 
 /** Ein Emoji mit der Anzahl, wie oft es an einer Nachricht haengt. */
 export interface ReactionGroup {
@@ -20,6 +21,7 @@ export interface ReactionGroup {
 export class MainChatReactionService {
   private readonly auth = inject(FIREBASE_AUTH);
   private readonly messageService = inject(MessageService);
+  private readonly profiles = inject(MainChatProfileService);
 
   readonly emojis = MAIN_CHAT_EMOJIS;
   readonly quickReactions = QUICK_REACTIONS;
@@ -50,6 +52,20 @@ export class MainChatReactionService {
       byEmoji.set(reaction.emoji, group);
     }
     return [...byEmoji.values()].sort((a, b) => b.count - a.count);
+  }
+
+  /** "Anna und Du haben mit 🚀 reagiert" (wie im Thread; "Du" immer zuletzt). */
+  tooltip(message: Message, emoji: string): string {
+    const uid = this.auth.currentUser?.uid;
+    const reactors = (message.reactions ?? []).filter((r) => r.emoji === emoji).map((r) => r.userId);
+    void this.profiles.loadProfiles(reactors);
+    const others = reactors.filter((id) => id !== uid).map((id) => this.profiles.getSenderName(id) || 'Jemand');
+    const names = reactors.includes(uid ?? '') ? [...others, 'Du'] : others;
+    if (names.length === 0) return '';
+    if (names.length === 1) {
+      return names[0] === 'Du' ? `Du hast mit ${emoji} reagiert` : `${names[0]} hat mit ${emoji} reagiert`;
+    }
+    return `${names.slice(0, -1).join(', ')} und ${names.at(-1)} haben mit ${emoji} reagiert`;
   }
 
   /** Setzt oder entfernt die eigene Reaction `emoji` an `message`. */

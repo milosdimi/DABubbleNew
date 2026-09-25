@@ -15,6 +15,8 @@ export class MainChatEditService {
   readonly editingId = signal<string | null>(null);
   readonly draft = signal('');
   readonly saving = signal(false);
+  /** Nachricht, fuer die im Menue "wirklich loeschen?" gefragt wird. */
+  readonly confirmDeleteId = signal<string | null>(null);
   /** Emoji-Auswahl am Smiley-Icon der Edit-Ansicht. */
   readonly emojiPickerOpen = signal(false);
   readonly emojis = MAIN_CHAT_EMOJIS;
@@ -28,6 +30,26 @@ export class MainChatEditService {
 
   closeMenu(): void {
     this.menuMessageId.set(null);
+    this.confirmDeleteId.set(null);
+  }
+
+  askDelete(messageId: string): void {
+    this.confirmDeleteId.set(messageId);
+  }
+
+  cancelDelete(): void {
+    this.confirmDeleteId.set(null);
+  }
+
+  /** Nach der Rueckfrage im Menue: loeschen (wohin, entscheidet der Aufrufer). */
+  async confirmDelete(persist: () => Promise<void>): Promise<void> {
+    try {
+      await persist();
+    } catch (error) {
+      console.warn('[edit] Nachricht konnte nicht geloescht werden:', error);
+    } finally {
+      this.closeMenu();
+    }
   }
 
   start(message: Message): void {

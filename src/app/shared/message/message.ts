@@ -3,6 +3,7 @@ import {
   arrayRemove,
   arrayUnion,
   collection,
+  deleteField,
   CollectionReference,
   doc,
   getDocs,
@@ -113,6 +114,26 @@ export class MessageService {
   /** Reaction an einer Channel- ODER Direktnachricht entfernen. */
   async removeReaction(message: Message, reaction: Reaction): Promise<void> {
     await updateDoc(this.getParentMessageDoc(message), { reactions: arrayRemove(reaction) });
+  }
+
+  /** Eigene Nachricht "loeschen": bleibt als Platzhalter stehen (Rules: isOwnSoftDelete). */
+  async deleteMessage(message: Message): Promise<void> {
+    await updateDoc(this.getParentMessageDoc(message), this.softDeleteChanges());
+  }
+
+  /** Eigene Thread-Antwort "loeschen" (wie deleteMessage). */
+  async deleteReply(parentMessage: Message, replyId: string): Promise<void> {
+    await updateDoc(this.createThreadReplyDoc(parentMessage, replyId), this.softDeleteChanges());
+  }
+
+  private softDeleteChanges() {
+    return {
+      deleted: true,
+      deletedAt: Date.now(),
+      text: '',
+      attachmentPath: deleteField(),
+      attachmentName: deleteField(),
+    };
   }
 
   /** Text einer eigenen Channel- ODER Direktnachricht aendern (Rules: nur Absender, nur `text`). */

@@ -13,6 +13,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { ChatInputTools } from '../../../shared/chat-input-tools/chat-input-tools';
+import { MessageText } from '../../../shared/message-text/message-text';
 import { ClickOutsideDirective } from '../../../shared/click-outside/click-outside.directive';
 import { TypingIndicator } from '../../../shared/typing/typing-indicator';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
@@ -36,7 +37,7 @@ import { MainChatUploadService } from './main-chat-upload.service';
 /** Mittlere Spalte des Workspace: Nachrichten eines Channels oder Direktchats. */
 @Component({
   selector: 'app-main-chat',
-  imports: [Icon, ProfileCard, ChannelInfo, ChannelMembers, ClickOutsideDirective, ChatInputTools, TypingIndicator],
+  imports: [Icon, ProfileCard, ChannelInfo, ChannelMembers, ClickOutsideDirective, ChatInputTools, TypingIndicator, MessageText],
   providers: [
     MainChatDateService,
     MainChatEditService,
@@ -322,6 +323,10 @@ export class MainChat {
 
   private persistEdit(message: Message): (text: string) => Promise<void> {
     return (text) => this.messageService.editMessage(message, text);
+  }
+
+  protected deleteOwn(message: Message): void {
+    void this.edit.confirmDelete(() => this.messageService.deleteMessage(message));
   }
 
   protected saveEdit(message: Message): void {

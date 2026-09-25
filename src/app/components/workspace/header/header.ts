@@ -1,4 +1,16 @@
-import { Component, computed, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  ElementRef,
+  HostListener,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { signOut } from 'firebase/auth';
 import { Unsubscribe } from 'firebase/firestore';
@@ -62,6 +74,19 @@ export class Header implements OnInit {
   protected readonly profileOpen = signal(false);
 
   // --- Suche -------------------------------------------------------------------
+  private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+
+  /** Strg+K (Mac: Cmd+K) springt in die Suche. */
+  @HostListener('document:keydown', ['$event'])
+  protected onShortcut(event: KeyboardEvent): void {
+    if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'k') return;
+    const input = this.searchInput()?.nativeElement;
+    if (!input) return;
+    event.preventDefault();
+    input.focus();
+    input.select();
+  }
+
   protected readonly searchTerm = signal('');
   protected readonly searchOpen = signal(false);
   protected readonly searchLoading = signal(false);

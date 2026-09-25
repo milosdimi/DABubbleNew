@@ -87,6 +87,7 @@
         class="main-chat__message"
         [attr.data-message-id]="message.id"
         [class.main-chat__message--own]="isOwn(message)"
+        [class.main-chat__message--deleted]="message.deleted"
         [class.main-chat__message--highlight]="highlightedId() === message.id"
         [class.main-chat__message--editing]="edit.isEditing(message.id)"
       >
@@ -167,17 +168,14 @@
           } @else {
             <div class="main-chat__bubble-wrap">
               <div class="main-chat__bubble">
-                @if (message.text) {
+                @if (message.deleted) {
+                <p class="main-chat__text message-deleted">Diese Nachricht wurde gelöscht</p>
+              } @else if (message.text) {
                   <p class="main-chat__text">
-                    @for (part of mentions.segments(message.text); track $index) {
-                      @if (part.user; as mentioned) {
-                        <button
-                          type="button"
-                          class="mention"
-                          (click)="profiles.openProfile(mentioned.id)"
-                        >{{ part.text }}</button>
-                      } @else if (part.href) {<a class="message-link" [href]="part.href" target="_blank" rel="noopener noreferrer">{{ part.text }}</a>} @else {{{ part.text }}}
-                    }
+                    <app-message-text
+                      [text]="message.text"
+                      (mentionClicked)="profiles.openProfile($event)"
+                    />
                   </p>
                 }
                 @if (message.attachmentPath && message.attachmentName) {
@@ -256,9 +254,18 @@
                         appClickOutside
                         (appClickOutside)="edit.closeMenu()"
                       >
-                        <button type="button" (click)="edit.start(message)">
-                          Nachricht bearbeiten
-                        </button>
+                        @if (edit.confirmDeleteId() === message.id) {
+                          <p class="message-menu__question">Nachricht wirklich löschen?</p>
+                          <div class="message-menu__actions">
+                            <button type="button" (click)="edit.cancelDelete()">Abbrechen</button>
+                            <button type="button" class="message-menu__danger" (click)="deleteOwn(message)">
+                              Löschen
+                            </button>
+                          </div>
+                        } @else {
+                          <button type="button" (click)="edit.start(message)">Nachricht bearbeiten</button>
+                          <button type="button" (click)="edit.askDelete(message.id)">Nachricht löschen</button>
+                        }
                       </div>
                     }
                   </div>
@@ -278,6 +285,9 @@
                 >
                   <span class="main-chat__reaction-emoji">{{ group.emoji }}</span>
                   <span>{{ group.count }}</span>
+                  <span class="reaction-tooltip" role="tooltip">
+                    {{ reactions.tooltip(message, group.emoji) }}
+                  </span>
                 </button>
               }
             </div>

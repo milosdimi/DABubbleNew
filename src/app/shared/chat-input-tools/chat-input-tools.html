@@ -28,8 +28,14 @@
 
   @if (mentionQuery() !== null) {
     <div class="tools__panel tools__panel--mention" role="listbox" aria-label="Personen erwähnen">
-      @for (user of suggestions(); track user.id) {
-        <button type="button" class="tools__person" (click)="pickMention(user)">
+      @for (user of suggestions(); track user.id; let index = $index) {
+        <button
+          type="button"
+          class="tools__person"
+          [class.tools__person--active]="index === activeIndex()"
+          (click)="pickMention(user)"
+          (mouseenter)="activeIndex.set(index)"
+        >
           <img class="tools__avatar" [src]="user.avatarUrl" alt="" />
           {{ user.name }}
         </button>

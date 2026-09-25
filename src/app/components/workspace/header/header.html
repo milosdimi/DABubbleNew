@@ -24,6 +24,8 @@
             type="search"
             placeholder="Devspace durchsuchen"
             aria-label="Devspace durchsuchen"
+            #searchInput
+            title="Suchen (Strg+K)"
             [value]="searchTerm()"
             (focus)="openSearch()"
             (input)="onSearchInput($event)"
