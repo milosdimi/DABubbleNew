@@ -1,9 +1,21 @@
-import { Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { ClickOutsideDirective } from '../../../shared/click-outside/click-outside.directive';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
 import { Channel, Message, User } from '../../../shared/models';
+import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
 import { ChannelInfo } from '../../channel/channel-info/channel-info';
 import { ChannelMembers } from '../../channel/channel-members/channel-members';
 import { ProfileCard } from '../../profile/profile-card/profile-card';
@@ -52,6 +64,8 @@ export class MainChat {
   readonly directChatOpened = output<User>();
   /** Ein Channel wurde ohne Sidebar-Auswahl geoeffnet (Start-Channel). */
   readonly channelOpened = output<Channel>();
+
+  private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
 
   /** Mitgliederliste (Figma "43. Members") offen? */
   protected readonly membersOpen = signal(false);
@@ -109,6 +123,17 @@ export class MainChat {
     effect(() => {
       const user = this.user();
       if (user) untracked(() => void this.session.openDirectChat(user));
+    });
+
+    // Immer die neueste Nachricht zeigen (Details: autoScrollToLatest).
+    autoScrollToLatest({
+      scroller: this.scroller,
+      messages: this.messages,
+      chatKey: computed(() => {
+        const target = this.session.target();
+        return target ? `${target.kind}:${target.id}` : null;
+      }),
+      currentUid: () => this.auth.currentUser?.uid,
     });
 
     // Profile der Mitglieder fuer die Avatare im Kopf laden.

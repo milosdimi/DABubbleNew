@@ -1,4 +1,15 @@
-import { Component, HostListener, Input, OnDestroy, inject, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  ElementRef,
+  HostListener,
+  Input,
+  OnDestroy,
+  inject,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { Unsubscribe } from 'firebase/firestore';
 import { MAIN_CHAT_EMOJIS, pickerOpensBelow, QUICK_REACTIONS } from '../main-chat/main-chat-emojis';
 import { MainChatDateService } from '../main-chat/main-chat-date.service';
@@ -12,6 +23,7 @@ import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
 import { Message, Reaction } from '../../../shared/models';
+import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
 
 /** Zusammenfassung einer Reaction fuer die Anzeige. */
 type ReactionGroup = { emoji: string; count: number };
@@ -71,6 +83,18 @@ export class Thread implements OnDestroy {
   protected readonly reactionTooltip = signal<ReactionTooltip | null>(null);
 
   protected readonly selectedProfileUserId = this.profileService.selectedProfileUserId;
+
+  private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
+
+  constructor() {
+    // Immer die neueste Antwort zeigen (Details: autoScrollToLatest).
+    autoScrollToLatest({
+      scroller: this.scroller,
+      messages: this.replies,
+      chatKey: computed(() => this.parentMessage()?.id ?? null),
+      currentUid: () => this.auth.currentUser?.uid,
+    });
+  }
 
   private unsubscribeReplies: Unsubscribe | null = null;
   private tooltipTimeout: ReturnType<typeof setTimeout> | null = null;

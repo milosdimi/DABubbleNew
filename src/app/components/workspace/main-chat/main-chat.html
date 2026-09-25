@@ -45,7 +45,7 @@
     }
   </header>
 
-  <div class="main-chat__scroll">
+  <div class="main-chat__scroll" #scroller>
     @if (active() && messages().length === 0) {
       @if (activePartner(); as partner) {
         <p class="main-chat__empty">

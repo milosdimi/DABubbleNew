@@ -15,7 +15,7 @@
   </header>
 
   @if (parentMessage(); as parent) {
-    <div class="thread__scroll">
+    <div class="thread__scroll" #scroller>
       <div class="thread__message" [class.thread__message--own]="isOwnMessage(parent.senderId)">
         <img
           class="thread__message-avatar"
