@@ -1,0 +1,92 @@
+// Main-Chat: Eingabefeld (aus main-chat.scss ausgelagert).
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+// --- Eingabe -----------------------------------------------------------------
+
+.main-chat__input {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 8px;
+  margin: 0 40px 32px;
+  padding: 16px 20px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 20px;
+  @include mx.transition();
+
+  &:focus-within {
+    border-color: fct.color(purple-2);
+  }
+}
+
+.main-chat__file-preview {
+  @include mx.flex(row, flex-start, center);
+  gap: 8px;
+  @include mx.typo(nunito, 600);
+  font-size: 14px;
+  color: fct.color(purple-1);
+
+  app-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.main-chat__file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.main-chat__input-field {
+  min-height: 48px;
+  max-height: 160px;
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+
+  &::placeholder {
+    color: fct.color(text-gray);
+  }
+}
+
+.main-chat__input-tools {
+  @include mx.flex(row, flex-start, center);
+  gap: 4px;
+}
+
+
+.main-chat__input-row {
+  @include mx.flex(row, space-between, center);
+}
+
+.main-chat__send {
+  @include mx.flex(row, center, center);
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: fct.color(purple-1);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover:not(:disabled) {
+    background: fct.color(background);
+  }
+
+  &:disabled {
+    color: fct.color(light-purple);
+    cursor: default;
+  }
+
+  app-icon {
+    width: 26px;
+    height: 26px;
+  }
+}

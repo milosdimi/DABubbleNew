@@ -21,8 +21,7 @@ body {
 
 body {
   font-family: 'Nunito', sans-serif;
-  // TODO Figma-Wert pruefen: Standard-Schriftgewicht.
-  font-weight: 400;
+  font-weight: 400; // Figma: Nunito Regular
   min-height: 100dvh;
   background: fct.color(background);
   color: fct.color(black);

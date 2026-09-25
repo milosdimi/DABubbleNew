@@ -19,7 +19,7 @@ import {
 import { FIRESTORE } from '../firebase/firebase.tokens';
 import { Channel } from '../models';
 
-/** Feste Channels, immer in dieser Reihenfolge ganz oben. TODO Figma-Wert pruefen. */
+/** Feste Channels, immer in dieser Reihenfolge ganz oben (wie in Figma). */
 const PINNED_CHANNEL_NAMES = ['Entwicklerteam', 'Office-Team'];
 
 /** Dieser feste Channel ist fuer alle registrierten User sichtbar. */

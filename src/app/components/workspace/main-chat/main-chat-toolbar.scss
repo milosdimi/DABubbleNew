@@ -1,0 +1,145 @@
+// Main-Chat: Hover-Leiste, Emoji-Picker, Reaktionen, Thread-Teaser (aus main-chat.scss ausgelagert).
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+// --- Toolbar & Reactions -----------------------------------------------------
+
+.main-chat__toolbar {
+  position: absolute;
+  top: -18px;
+  right: 43px;
+  z-index: 4;
+  @include mx.flex(row, flex-start, center);
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 25px;
+  background: fct.color(white);
+  opacity: 0;
+  pointer-events: none;
+  @include mx.transition();
+
+  &--active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// Figma: Icon 24px schwarz; Hover = Pille Bg color, rounded-20px, Padding 8px, Icon Purple 3.
+.main-chat__toolbar-btn {
+  @include mx.flex(row, center, center);
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(background);
+    color: fct.color(purple-3);
+  }
+
+  app-icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.main-chat__picker-anchor {
+  position: relative;
+}
+
+.main-chat__picker {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 20px;
+  background: fct.color(white);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+
+  &--below {
+    top: calc(100% + 6px);
+    bottom: auto;
+  }
+
+  button {
+    padding: 4px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+
+    &:hover {
+      background: fct.color(background);
+    }
+  }
+}
+
+.main-chat__reactions {
+  @include mx.flex(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.main-chat__reaction {
+  @include mx.flex(row, center, center);
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 20px;
+  background: fct.color(white);
+  @include mx.typo(nunito, 400);
+  font-size: 16px;
+  color: fct.color(black);
+  cursor: pointer;
+  @include mx.transition();
+
+  &:hover,
+  &--mine {
+    border-color: fct.color(purple-2);
+  }
+}
+
+.main-chat__reaction-emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.main-chat__thread-teaser {
+  @include mx.flex(row, flex-start, center);
+  gap: 20px;
+}
+
+.main-chat__last-reply {
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(text-gray);
+}
+
+// Figma: "2 Antworten" Nunito Regular 18px Purple 3.
+.main-chat__thread-link {
+  padding: 0;
+  border: none;
+  background: none;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(purple-3);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

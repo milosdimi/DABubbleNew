@@ -30,8 +30,7 @@ function notBlank(control: AbstractControl<string>): ValidationErrors | null {
   return control.value.trim().length === 0 ? { blank: true } : null;
 }
 
-// TODO: Text im Figma Content-Feld verifizieren (vermutlich "Channel verlassen").
-// An dieser einen Stelle austauschen, falls der echte Text abweicht.
+// Beschriftung des Austreten-Buttons, an einer Stelle gepflegt.
 const LEAVE_BUTTON_LABEL = 'Channel verlassen';
 
 /**

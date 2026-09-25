@@ -1,7 +1,7 @@
 @use '../../../../styles/functions' as fct;
 @use '../../../../styles/mixins' as mx;
 
-// TODO Figma-Wert pruefen: Spaltenbreiten, Abstaende; Mobile-Layout fehlt noch.
+// TODO Responsive: Spaltenbreiten und Abstaende fuer Tablet/Mobile nach Figma.
 
 :host {
   display: block;

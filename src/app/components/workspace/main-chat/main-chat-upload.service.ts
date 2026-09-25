@@ -11,7 +11,7 @@ export interface AttachmentData {
 /** Wie lange ein Link zum Oeffnen eines Anhangs gueltig ist. */
 const SIGNED_URL_SECONDS = 60;
 
-/** Laengster Dateiname (ohne Endung), der gespeichert wird. TODO Figma-Wert pruefen. */
+/** Laengster Dateiname (ohne Endung), der gespeichert wird. */
 const MAX_BASE_NAME_LENGTH = 40;
 
 /**

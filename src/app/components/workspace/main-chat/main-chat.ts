@@ -47,7 +47,13 @@ import { MainChatUploadService } from './main-chat-upload.service';
     MainChatUploadService,
   ],
   templateUrl: './main-chat.html',
-  styleUrl: './main-chat.scss',
+  // Aufgeteilt, damit jede Datei unter dem Budget von 10 kB pro Stylesheet bleibt.
+  styleUrls: [
+    './main-chat.scss',
+    './main-chat-messages.scss',
+    './main-chat-toolbar.scss',
+    './main-chat-input.scss',
+  ],
 })
 export class MainChat {
   private readonly auth = inject(FIREBASE_AUTH);

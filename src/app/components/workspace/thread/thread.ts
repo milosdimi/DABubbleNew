@@ -48,7 +48,6 @@ type ReactionTooltip = { replyId: string; emoji: string; text: string };
  * addReplyReaction/removeReplyReaction im MessageService finden ueber die
  * Elternnachricht selbst heraus, wohin geschrieben wird (Channel oder Direktchat).
  * Die Emoji-Liste ist dieselbe wie im main-chat (MAIN_CHAT_EMOJIS).
- * TODO: mit MainChatReactionService zusammenfuehren, sobald beide stabil sind.
  */
 @Component({
   selector: 'app-thread',

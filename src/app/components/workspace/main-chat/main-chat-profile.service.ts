@@ -3,7 +3,7 @@ import { Message, OnlineStatus, User } from '../../../shared/models';
 import { PresenceService } from '../../../shared/presence/presence.service';
 import { UserService } from '../../../shared/user/user.service';
 
-// TODO Figma-Wert pruefen: Anzeige fuer Absender ohne (lesbares) Profil, z. B. Gaeste.
+// Anzeige fuer Absender ohne (lesbares) Profil, z. B. Gaeste.
 const UNKNOWN_SENDER_NAME = 'Gast';
 const FALLBACK_AVATAR = 'img/avatar/profile_blank.svg';
 

@@ -7,7 +7,7 @@ import { Message } from '../../../shared/models';
  */
 @Injectable()
 export class MainChatDateService {
-  // TODO Figma-Wert pruefen: Format des Trenners (vorlaeufig "Heute" / "Dienstag, 14. Januar").
+  // Format des Trenners: "Heute" bzw. "Dienstag, 14. Januar" (in Figma nicht vorgegeben).
   private readonly dayFormat = new Intl.DateTimeFormat('de-DE', {
     weekday: 'long',
     day: 'numeric',
