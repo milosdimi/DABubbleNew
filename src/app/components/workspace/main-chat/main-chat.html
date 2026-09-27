@@ -341,6 +341,9 @@
         </button>
       </div>
     }
+    @if (uploads.error(); as uploadError) {
+      <p class="upload-error" role="alert">{{ uploadError }}</p>
+    }
 
     <textarea
       #draftField
@@ -353,7 +356,7 @@
       (keydown)="onDraftKeydown($event)"
     ></textarea>
 
-    <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
+    <input #fileInput type="file" hidden [accept]="uploads.accept" (change)="onFileSelected($event)" />
 
     <div class="main-chat__input-row">
       <div class="main-chat__input-tools">
@@ -361,7 +364,8 @@
           type="button"
           class="main-chat__icon-btn"
           aria-label="Datei anhängen"
-          [disabled]="!active()"
+          [attr.title]="uploads.unavailableReason()"
+          [disabled]="!active() || uploads.unavailableReason() !== null"
           (click)="fileInput.click()"
         >
           <app-icon name="attachment" />

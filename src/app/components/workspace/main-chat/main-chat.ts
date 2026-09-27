@@ -64,7 +64,7 @@ export class MainChat {
   protected readonly profiles = inject(MainChatProfileService);
   protected readonly reactions = inject(MainChatReactionService);
   protected readonly session = inject(MainChatSessionService);
-  private readonly uploads = inject(MainChatUploadService);
+  protected readonly uploads = inject(MainChatUploadService);
 
   /** In der Sidebar gewaehlter Channel. */
   readonly channel = input<Channel | null>(null);
@@ -255,6 +255,7 @@ export class MainChat {
   private resetForNewChat(): void {
     this.draft.set('');
     this.selectedFile.set(null);
+    this.uploads.error.set(null);
     this.reactions.closePicker();
     this.edit.cancel();
     this.edit.closeMenu();
@@ -309,7 +310,8 @@ export class MainChat {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     input.value = ''; // dieselbe Datei spaeter erneut waehlbar
-    if (file) this.selectedFile.set(this.uploads.prepareSelectedFile(file));
+    const prepared = file ? this.uploads.prepareSelectedFile(file) : null;
+    if (prepared) this.selectedFile.set(prepared);
   }
 
   protected removeFile(): void {
@@ -323,7 +325,7 @@ export class MainChat {
 
     this.sending.set(true);
     try {
-      const attachment = await this.uploads.getAttachmentData(this.selectedFile());
+      const attachment = await this.uploads.getAttachmentData(this.selectedFile(), target);
       if (!attachment) return; // Upload fehlgeschlagen - Entwurf bleibt erhalten
 
       await this.messageService.sendMessage(target, senderId, this.draft().trim(), {

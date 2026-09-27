@@ -20,10 +20,9 @@ export const environment = {
     databaseURL: '',
   },
 
-  /** Datei-Storage fuer Nachrichtenanhaenge (vorlaeufig Supabase, Wechsel geplant). */
-  storage: {
-    supabaseUrl: '',
-    supabaseAnonKey: '',
-    bucket: 'chat-attachments',
-  },
+  /**
+   * Storage-API fuer Nachrichtenanhaenge (storage-api/, MinIO auf dem QNAP),
+   * z. B. 'https://storage-api.join-dimit.cc'. Leer = Anhaenge deaktiviert.
+   */
+  storageApiUrl: '',
 };

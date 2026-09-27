@@ -96,6 +96,14 @@
   font-size: 0.9em;
 }
 
+// Upload-/Anhang-Fehler ueber dem Eingabefeld (Main-Chat und Thread).
+.upload-error {
+  margin: 0 0 8px;
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(error);
+}
+
 // "+X weitere" / "Weniger anzeigen" (Figma-Hinweis zum Ueberlauf der Reaktionen).
 .reaction-more {
   padding: 5px 12px;

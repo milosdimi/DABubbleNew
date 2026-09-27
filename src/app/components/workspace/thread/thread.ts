@@ -27,6 +27,7 @@ import { TypingIndicator } from '../../../shared/typing/typing-indicator';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
+import { ChatTarget } from '../../../shared/message/message';
 import { Channel, Message, Reaction } from '../../../shared/models';
 import { MentionService } from '../../../shared/mention/mention.service';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
@@ -70,7 +71,7 @@ export class Thread implements OnDestroy {
   private readonly dateService = inject(MainChatDateService);
   protected readonly edit = inject(MainChatEditService);
   private readonly profileService = inject(MainChatProfileService);
-  private readonly uploadService = inject(MainChatUploadService);
+  protected readonly uploadService = inject(MainChatUploadService);
 
   /** Panel wurde geschlossen (X, Escape). */
   readonly closed = output<void>();
@@ -273,9 +274,9 @@ export class Thread implements OnDestroy {
   protected onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (!file) return;
-
-    this.selectedFile.set(this.uploadService.prepareSelectedFile(file));
+    input.value = ''; // dieselbe Datei spaeter erneut waehlbar
+    const prepared = file ? this.uploadService.prepareSelectedFile(file) : null;
+    if (prepared) this.selectedFile.set(prepared);
   }
 
   /** Entfernt die aktuell ausgewaehlte Datei vor dem Senden. */
@@ -290,14 +291,22 @@ export class Thread implements OnDestroy {
     const parent = this.parentMessage();
     const senderId = this.auth.currentUser?.uid;
 
-    if ((!text && !file) || !parent || !senderId) return;
+    const target = parent ? this.chatTargetOf(parent) : null;
+    if ((!text && !file) || !parent || !senderId || !target) return;
 
-    const attachment = await this.uploadService.getAttachmentData(file);
+    const attachment = await this.uploadService.getAttachmentData(file, target);
     if (!attachment) return;
 
     await this.saveReply(parent, senderId, text, attachment);
     this.replyText.set('');
     this.selectedFile.set(null);
+  }
+
+  /** Chat der Elternnachricht (dort liegen auch die Anhaenge des Threads). */
+  private chatTargetOf(parent: Message): ChatTarget | null {
+    if (parent.channelId) return { kind: 'channel', id: parent.channelId };
+    if (parent.dmId) return { kind: 'dm', id: parent.dmId };
+    return null;
   }
 
   /** Speichert die Antwort in Firestore. */

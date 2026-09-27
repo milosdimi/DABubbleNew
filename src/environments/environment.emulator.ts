@@ -16,9 +16,6 @@ export const environment = {
     appId: 'demo-app',
     databaseURL: 'http://127.0.0.1:9000/?ns=demo-dabubble',
   },
-  storage: {
-    supabaseUrl: '',
-    supabaseAnonKey: '',
-    bucket: 'chat-attachments',
-  },
+  /** Die Storage-API prueft echte Firebase-Tokens, keine Emulator-Tokens: Anhaenge aus. */
+  storageApiUrl: '',
 };

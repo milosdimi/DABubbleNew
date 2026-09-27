@@ -460,8 +460,13 @@
   cursor: pointer;
   @include mx.flex(row, center, center);
 
-  &:hover {
+  &:hover:not(:disabled) {
     color: fct.color(purple-1);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
   }
 
   app-icon {

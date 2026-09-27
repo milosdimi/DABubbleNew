@@ -329,6 +329,9 @@
           </button>
         </div>
       }
+      @if (uploadService.error(); as uploadError) {
+        <p class="upload-error" role="alert">{{ uploadError }}</p>
+      }
 
       <textarea
         #replyField
@@ -340,7 +343,7 @@
         (keydown.enter)="onEnterKey($event)"
       ></textarea>
 
-      <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
+      <input #fileInput type="file" hidden [accept]="uploadService.accept" (change)="onFileSelected($event)" />
 
       <div class="thread__input-row">
         <div class="thread__input-tools">
@@ -348,6 +351,8 @@
             type="button"
             class="thread__input-icon"
             aria-label="Datei anhängen"
+            [attr.title]="uploadService.unavailableReason()"
+            [disabled]="uploadService.unavailableReason() !== null"
             (click)="fileInput.click()"
           >
             <app-icon name="attachment" />
