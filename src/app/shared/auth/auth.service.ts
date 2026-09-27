@@ -79,13 +79,13 @@ export class AuthService {
    * geschluckt (Schutz gegen E-Mail-Enumeration) – der Aufrufer zeigt immer
    * dieselbe neutrale Erfolgsmeldung.
    *
-   * Die Vorlage und Action-URL lassen sich in der Firebase Console fuer dieses
-   * Projekt nicht aendern. Deshalb gibt die App das Ziel selbst mit: Mit
-   * `handleCodeInApp` leitet Firebase den Code an unsere Seite /reset-password
-   * weiter (Domain muss unter Auth -> Authorized domains stehen).
+   * Vorlage und Action-URL sind in der Firebase Console fuer dieses Projekt
+   * gesperrt, der Link fuehrt daher zur Firebase-Seite. Nach dem Aendern
+   * bringt deren "Weiter"-Button zurueck zu unserem Login. Sobald eine eigene
+   * Action-URL moeglich ist, uebernimmt /reset-password (liest den oobCode).
    */
   async sendResetEmail(email: string): Promise<void> {
-    const settings = { url: `${window.location.origin}/reset-password`, handleCodeInApp: true };
+    const settings = { url: `${window.location.origin}/login` };
     this.auth.languageCode = 'de'; // Firebase-Standardvorlage auf Deutsch
     try {
       await sendPasswordResetEmail(this.auth, email, settings);
