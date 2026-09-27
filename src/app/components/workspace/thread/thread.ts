@@ -332,7 +332,7 @@ export class Thread implements OnDestroy {
 
   // --- Reactions (eigene, generalisierte Kopie - s. Klassenkommentar oben) ---
 
-  /** Alle Reactions einer Antwort, haeufigste zuerst. Laut Figma kein "+N"-Overflow. */
+  /** Alle Reactions einer Antwort, haeufigste zuerst (Ueberlauf "+X weitere": ReactionOverflowService). */
   protected getReactionGroups(reply: Message): ReactionGroup[] {
     const counts = new Map<string, number>();
 

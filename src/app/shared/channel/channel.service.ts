@@ -97,12 +97,6 @@ export class ChannelService {
     return channel.id;
   }
 
-  /** Liefert alle Channels (z. B. fuer die Sidebar-Liste). */
-  async listChannels(): Promise<Channel[]> {
-    const snapshot = await getDocs(collection(this.firestore, 'channels'));
-    return snapshot.docs.map(toChannel);
-  }
-
   /**
    * Sichtbarkeitsregeln (identisch in firestore.rules abgebildet):
    * - `guestVisible` -> fuer alle (auch Gaeste)

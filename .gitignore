@@ -47,6 +47,7 @@ Thumbs.db
 
 # Lokale Konfiguration mit Projekt-Keys
 /src/environments/environment.ts
+.env
 
 # Firebase-Emulator-Logs
 firebase-debug.log
