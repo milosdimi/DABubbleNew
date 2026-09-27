@@ -50,7 +50,11 @@
     />
 
     @if (threadMessage(); as message) {
-      <app-thread [message]="message" (closed)="threadMessage.set(null)" />
+      <app-thread
+        [message]="message"
+        (closed)="threadMessage.set(null)"
+        (channelSelected)="showChannel($event)"
+      />
     }
   </div>
 </div>

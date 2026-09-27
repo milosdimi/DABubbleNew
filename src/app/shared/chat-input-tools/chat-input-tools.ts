@@ -1,20 +1,28 @@
-import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
 import { MAIN_CHAT_EMOJIS } from '../../components/workspace/main-chat/main-chat-emojis';
 import { ClickOutsideDirective } from '../click-outside/click-outside.directive';
 import { Icon } from '../icon/icon';
 import { MentionService } from '../mention/mention.service';
-import { User } from '../models';
 import { TypingService } from '../typing/typing.service';
 
-/** "@..." direkt vor dem Cursor (am Anfang oder nach einem Leerzeichen). */
-const MENTION_BEFORE_CARET = /(^|\s)@([^\s@]*)$/;
+/** "@..." oder "#..." direkt vor dem Cursor (am Anfang oder nach einem Leerzeichen). */
+const MENTION_BEFORE_CARET = /(^|\s)([@#])([^\s@#]*)$/;
+
+type MentionTrigger = '@' | '#';
+
+/** Eintrag der Vorschlagsliste: Person (mit Avatar) oder Channel. */
+interface Suggestion {
+  id: string;
+  label: string;
+  avatarUrl?: string;
+}
 
 /**
  * Smiley- und @-Button unter einem Nachrichten-Eingabefeld (Main-Chat, Thread,
  * "Neue Nachricht"). Fuegt an der Cursor-Position ein und meldet den neuen Text
  * ueber `textChange`, damit die Komponente ihren Entwurf aktualisiert.
  *
- * @-Liste: per Button oder durch Tippen von "@"; Enter/Tab uebernimmt den
+ * @-Liste: per Button oder durch Tippen von "@" (Personen) bzw. "#" (Channels); Enter/Tab uebernimmt den
  * ersten Treffer, Escape schliesst. Diese Tasten werden vor dem Senden-per-Enter
  * der Komponente abgefangen (Capture-Listener am Feld).
  */
@@ -36,9 +44,18 @@ export class ChatInputTools {
 
   protected readonly emojis = MAIN_CHAT_EMOJIS;
   protected readonly emojiOpen = signal(false);
-  /** Suchtext nach dem "@", oder null wenn die Liste zu ist. */
+  /** Suchtext nach dem "@"/"#", oder null wenn die Liste zu ist. */
   protected readonly mentionQuery = signal<string | null>(null);
-  protected readonly suggestions = signal<User[]>([]);
+  /** Personen ("@") oder Channels ("#")? */
+  protected readonly mentionTrigger = signal<MentionTrigger>('@');
+  protected readonly suggestions = computed<Suggestion[]>(() => {
+    const query = this.mentionQuery();
+    if (query === null) return [];
+    if (this.mentionTrigger() === '#') {
+      return this.mentions.channelSuggestions(query).map(({ id, name }) => ({ id, label: name }));
+    }
+    return this.mentions.suggestions(query).map(({ id, name, avatarUrl }) => ({ id, label: name, avatarUrl }));
+  });
   /** Mit Pfeiltasten gewaehlter Vorschlag (Enter/Tab uebernimmt ihn). */
   protected readonly activeIndex = signal(0);
 
@@ -92,7 +109,7 @@ export class ChatInputTools {
   protected startMention(): void {
     this.emojiOpen.set(false);
     const query = this.mentionQuery();
-    if (query !== null) {
+    if (query !== null && this.mentionTrigger() === '@') {
       if (query === '') this.replaceBeforeCaret(1, '');
       this.mentionQuery.set(null);
       return;
@@ -104,10 +121,10 @@ export class ChatInputTools {
     this.detectMention();
   }
 
-  protected pickMention(user: User): void {
+  protected pickMention(suggestion: Suggestion): void {
     const query = this.mentionQuery() ?? '';
-    // "@" + bisher getippter Suchtext durch "@Name " ersetzen.
-    this.replaceBeforeCaret(query.length + 1, `@${user.name} `);
+    // "@"/"#" + bisher getippter Suchtext durch "@Name " bzw. "#Channel " ersetzen.
+    this.replaceBeforeCaret(query.length + 1, `${this.mentionTrigger()}${suggestion.label} `);
     this.mentionQuery.set(null);
   }
 
@@ -124,8 +141,12 @@ export class ChatInputTools {
       this.mentionQuery.set(null);
       return;
     }
-    this.mentionQuery.set(match[2]);
-    this.suggestions.set(this.mentions.suggestions(match[2]));
+    const trigger = match[2] as MentionTrigger;
+    if (trigger === '#' && (this.mentionQuery() === null || this.mentionTrigger() !== '#')) {
+      void this.mentions.refreshChannels();
+    }
+    this.mentionTrigger.set(trigger);
+    this.mentionQuery.set(match[3]);
     this.activeIndex.set(0);
   }
 

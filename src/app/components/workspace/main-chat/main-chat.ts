@@ -80,10 +80,11 @@ export class MainChat {
   readonly addMembersClicked = output<string>();
   /** Aus einem Profil heraus einen Direktchat gestartet -> Sidebar-Markierung angleichen. */
   readonly directChatOpened = output<User>();
-  /** Ein Channel wurde ohne Sidebar-Auswahl geoeffnet (Start-Channel). */
+  /** Ein Channel wurde ohne Sidebar-Auswahl geoeffnet (Start-Channel, Klick auf "#Channel"). */
   readonly channelOpened = output<Channel>();
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
+  private readonly draftField = viewChild<ElementRef<HTMLTextAreaElement>>('draftField');
   /** Gelesen-Stand beim Oeffnen des Chats (fuer die Trennlinie "Neue Nachrichten"). */
   private readonly readMark = signal<number | null>(null);
   /** Erste Nachricht von jemand anderem nach dem Gelesen-Stand. */
@@ -218,6 +219,8 @@ export class MainChat {
       untracked(() => void this.profiles.loadProfiles(uids));
     });
 
+    this.focusDraftOnChatSwitch();
+
     // Ohne Auswahl von aussen: ersten sichtbaren Channel zeigen.
     void this.session.openFirstVisibleChannel();
 
@@ -233,6 +236,19 @@ export class MainChat {
           this.channelOpened.emit(chat.channel);
         }
       });
+    });
+  }
+
+  /** Checkliste: nach jedem Chatwechsel sofort losschreiben koennen (Fokus ins Eingabefeld). */
+  private focusDraftOnChatSwitch(): void {
+    const activeKey = computed(() => {
+      const chat = this.active();
+      if (!chat) return null;
+      return chat.kind === 'channel' ? `channel:${chat.channel.id}` : `dm:${chat.partner.id}`;
+    });
+    effect(() => {
+      if (!activeKey()) return;
+      afterNextRender(() => this.draftField()?.nativeElement.focus({ preventScroll: true }), { injector: this.injector });
     });
   }
 

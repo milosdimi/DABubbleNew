@@ -13,7 +13,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Unsubscribe } from 'firebase/firestore';
-import { MAIN_CHAT_EMOJIS, pickerOpensBelow, QUICK_REACTIONS } from '../main-chat/main-chat-emojis';
+import { MAIN_CHAT_EMOJIS, pickerOpensBelow } from '../main-chat/main-chat-emojis';
 import { MainChatDateService } from '../main-chat/main-chat-date.service';
 import { MainChatEditService } from '../main-chat/main-chat-edit.service';
 import { MainChatProfileService } from '../main-chat/main-chat-profile.service';
@@ -27,10 +27,11 @@ import { TypingIndicator } from '../../../shared/typing/typing-indicator';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
-import { Message, Reaction } from '../../../shared/models';
+import { Channel, Message, Reaction } from '../../../shared/models';
 import { MentionService } from '../../../shared/mention/mention.service';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
 import { ReactionOverflowService } from '../../../shared/reactions/reaction-overflow.service';
+import { RecentReactionsService } from '../../../shared/reactions/recent-reactions.service';
 import { UnreadService } from '../../../shared/unread/unread.service';
 
 /** Zusammenfassung einer Reaction fuer die Anzeige. */
@@ -73,6 +74,8 @@ export class Thread implements OnDestroy {
 
   /** Panel wurde geschlossen (X, Escape). */
   readonly closed = output<void>();
+  /** Klick auf "#Channel" in einer Nachricht. */
+  readonly channelSelected = output<Channel>();
 
   protected readonly parentMessage = signal<Message | null>(null);
   protected readonly replies = signal<Message[]>([]);
@@ -83,7 +86,8 @@ export class Thread implements OnDestroy {
   protected readonly selectedFile = signal<File | null>(null);
 
   protected readonly reactionOptions = MAIN_CHAT_EMOJIS;
-  protected readonly quickReactions = QUICK_REACTIONS;
+  /** Hover-Leiste: die zwei zuletzt genutzten Reaktionen (anfangs die Figma-Standards). */
+  protected readonly recentReactions = inject(RecentReactionsService);
   protected readonly activeReactionReplyId = signal<string | null>(null);
   /** Oeffnet der offene Picker nach unten (statt nach oben)? */
   protected readonly reactionPickerBelow = signal(true);
@@ -350,6 +354,7 @@ export class Thread implements OnDestroy {
     if (wasReacted) {
       await this.messageService.removeReplyReaction(parent, reply.id, reaction);
     } else {
+      this.recentReactions.remember(emoji);
       await this.messageService.addReplyReaction(parent, reply.id, reaction);
     }
 

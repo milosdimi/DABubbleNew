@@ -1,14 +1,18 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { ChannelService } from '../channel/channel.service';
 import { FIREBASE_AUTH } from '../firebase/firebase.tokens';
-import { User } from '../models';
+import { Channel, User } from '../models';
 import { UserService } from '../user/user.service';
 
-/** Abschnitt eines Nachrichtentexts: normaler Text, @-Erwaehnung oder Link. */
+/** Abschnitt eines Nachrichtentexts: normaler Text, @-Erwaehnung, #-Channel oder Link. */
 export interface TextSegment {
   text: string;
   user?: User;
+  channel?: Channel;
   href?: string;
 }
+
+type MentionTarget = Pick<TextSegment, 'user' | 'channel'>;
 
 /** http(s)-Links; Satzzeichen am Ende gehoeren nicht dazu. */
 const URL_PATTERN = /https?:\/\/[^\s<>"]+[^\s<>".,;:!?)\]]/g;
@@ -31,17 +35,19 @@ function escapeRegExp(value: string): string {
 }
 
 /**
- * @-Erwaehnungen: Personen fuer die Vorschlagsliste im Eingabefeld und das
- * Hervorheben von "@Name" in Nachrichten. Kennt nur die fuer den Login
- * sichtbaren User (Gaeste: Demo-User), wie die Sidebar.
+ * @-Erwaehnungen und #-Channels: Vorschlagslisten im Eingabefeld und das
+ * Hervorheben von "@Name" / "#Channel" in Nachrichten. Kennt nur die fuer den
+ * Login sichtbaren User und Channels (Gaeste: Demo-Inhalte), wie die Sidebar.
  */
 @Injectable({ providedIn: 'root' })
 export class MentionService {
   private readonly auth = inject(FIREBASE_AUTH);
   private readonly userService = inject(UserService);
+  private readonly channelService = inject(ChannelService);
   private loading: Promise<void> | null = null;
 
   readonly users = signal<User[]>([]);
+  readonly channels = signal<Channel[]>([]);
 
   /** Einmalig laden; weitere Aufrufe warten auf denselben Ladevorgang. */
   ensureLoaded(): Promise<void> {
@@ -50,8 +56,17 @@ export class MentionService {
       const user = this.auth.currentUser;
       if (!user) return;
       this.users.set(await this.userService.listVisibleUsers(user.isAnonymous));
+      await this.refreshChannels();
     })();
     return this.loading;
+  }
+
+  /** Channels neu laden (beim Oeffnen der #-Liste, damit neue Channels dabei sind). */
+  async refreshChannels(): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) return;
+    const viewer = { uid: user.uid, isGuest: user.isAnonymous };
+    this.channels.set(await this.channelService.listVisibleChannels(viewer));
   }
 
   /** Vorschlaege zum getippten Text nach dem "@". */
@@ -62,28 +77,46 @@ export class MentionService {
       .slice(0, max);
   }
 
-  /** Zerlegt einen Text in normale Abschnitte, "@Name"-Erwaehnungen bekannter User und Links. */
+  /** Vorschlaege zum getippten Text nach dem "#". */
+  channelSuggestions(query: string, max = 6): Channel[] {
+    const term = query.toLowerCase();
+    return this.channels()
+      .filter((channel) => channel.name.toLowerCase().includes(term))
+      .slice(0, max);
+  }
+
+  /** Zerlegt einen Text in normale Abschnitte, "@Name", "#Channel" (nur bekannte) und Links. */
   segments(text: string): TextSegment[] {
-    return this.mentionSegments(text).flatMap((part) => (part.user ? [part] : withLinks(part.text)));
+    return this.mentionSegments(text).flatMap((part) =>
+      part.user || part.channel ? [part] : withLinks(part.text),
+    );
   }
 
   private mentionSegments(text: string): TextSegment[] {
-    const users = this.users().filter((user) => user.name.trim());
-    if (!text.includes('@') || users.length === 0) return [{ text }];
-
-    // Laengere Namen zuerst, damit "@Anna Demo" vor "@Anna" greift.
-    const byName = new Map(users.map((user) => [user.name, user]));
-    const names = [...byName.keys()].sort((a, b) => b.length - a.length).map(escapeRegExp);
-    const pattern = new RegExp(`@(${names.join('|')})`, 'g');
-
+    const targets = this.mentionTargets(text);
+    if (targets.size === 0) return [{ text }];
+    // Laengere zuerst, damit "@Anna Demo" vor "@Anna" greift.
+    const tokens = [...targets.keys()].sort((a, b) => b.length - a.length).map(escapeRegExp);
     const segments: TextSegment[] = [];
     let last = 0;
-    for (const match of text.matchAll(pattern)) {
+    for (const match of text.matchAll(new RegExp(tokens.join('|'), 'g'))) {
       if (match.index > last) segments.push({ text: text.slice(last, match.index) });
-      segments.push({ text: match[0], user: byName.get(match[1]) });
+      segments.push({ text: match[0], ...targets.get(match[0]) });
       last = match.index + match[0].length;
     }
     if (last < text.length) segments.push({ text: text.slice(last) });
     return segments;
+  }
+
+  /** "@Name" -> User und "#Channel" -> Channel (nur, wenn das Zeichen im Text vorkommt). */
+  private mentionTargets(text: string): Map<string, MentionTarget> {
+    const targets = new Map<string, MentionTarget>();
+    if (text.includes('@')) {
+      for (const user of this.users()) if (user.name.trim()) targets.set(`@${user.name}`, { user });
+    }
+    if (text.includes('#')) {
+      for (const channel of this.channels()) if (channel.name.trim()) targets.set(`#${channel.name}`, { channel });
+    }
+    return targets;
   }
 }

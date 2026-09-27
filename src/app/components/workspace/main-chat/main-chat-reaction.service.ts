@@ -2,7 +2,8 @@ import { inject, Injectable, signal } from '@angular/core';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { MessageService } from '../../../shared/message/message';
 import { Message, Reaction } from '../../../shared/models';
-import { MAIN_CHAT_EMOJIS, pickerOpensBelow, QUICK_REACTIONS } from './main-chat-emojis';
+import { RecentReactionsService } from '../../../shared/reactions/recent-reactions.service';
+import { MAIN_CHAT_EMOJIS, pickerOpensBelow } from './main-chat-emojis';
 import { MainChatProfileService } from './main-chat-profile.service';
 
 /** Ein Emoji mit der Anzahl, wie oft es an einer Nachricht haengt. */
@@ -22,9 +23,13 @@ export class MainChatReactionService {
   private readonly auth = inject(FIREBASE_AUTH);
   private readonly messageService = inject(MessageService);
   private readonly profiles = inject(MainChatProfileService);
+  private readonly recent = inject(RecentReactionsService);
 
   readonly emojis = MAIN_CHAT_EMOJIS;
-  readonly quickReactions = QUICK_REACTIONS;
+  /** Die zwei zuletzt genutzten Reaktionen (anfangs die Figma-Standards). */
+  quickReactions(): readonly string[] {
+    return this.recent.quickReactions();
+  }
 
   /** Nachricht, deren Emoji-Picker offen ist - hoechstens einer gleichzeitig. */
   readonly pickerMessageId = signal<string | null>(null);
@@ -79,6 +84,9 @@ export class MainChatReactionService {
       (existing) => existing.emoji === emoji && existing.userId === userId,
     );
     if (alreadyReacted) await this.messageService.removeReaction(message, reaction);
-    else await this.messageService.addReaction(message, reaction);
+    else {
+      this.recent.remember(emoji);
+      await this.messageService.addReaction(message, reaction);
+    }
   }
 }

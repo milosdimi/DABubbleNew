@@ -175,6 +175,7 @@
                     <app-message-text
                       [text]="message.text"
                       (mentionClicked)="profiles.openProfile($event)"
+                      (channelClicked)="channelOpened.emit($event)"
                     />
                   </p>
                 }
@@ -196,7 +197,7 @@
                   reactions.pickerMessageId() === message.id || edit.menuMessageId() === message.id
                 "
               >
-                @for (emoji of reactions.quickReactions; track emoji) {
+                @for (emoji of reactions.quickReactions(); track emoji) {
                   <button
                     type="button"
                     class="main-chat__toolbar-btn"

@@ -27,20 +27,30 @@
   }
 
   @if (mentionQuery() !== null) {
-    <div class="tools__panel tools__panel--mention" role="listbox" aria-label="Personen erwähnen">
-      @for (user of suggestions(); track user.id; let index = $index) {
+    <div
+      class="tools__panel tools__panel--mention"
+      role="listbox"
+      [attr.aria-label]="mentionTrigger() === '#' ? 'Channels taggen' : 'Personen erwähnen'"
+    >
+      @for (suggestion of suggestions(); track suggestion.id; let index = $index) {
         <button
           type="button"
           class="tools__person"
           [class.tools__person--active]="index === activeIndex()"
-          (click)="pickMention(user)"
+          (click)="pickMention(suggestion)"
           (mouseenter)="activeIndex.set(index)"
         >
-          <img class="tools__avatar" [src]="user.avatarUrl" alt="" />
-          {{ user.name }}
+          @if (suggestion.avatarUrl) {
+            <img class="tools__avatar" [src]="suggestion.avatarUrl" alt="" />
+          } @else {
+            <app-icon class="tools__hash" name="hash" />
+          }
+          {{ suggestion.label }}
         </button>
       } @empty {
-        <p class="tools__empty">Keine passende Person.</p>
+        <p class="tools__empty">
+          {{ mentionTrigger() === '#' ? 'Kein passender Channel.' : 'Keine passende Person.' }}
+        </p>
       }
     </div>
   }

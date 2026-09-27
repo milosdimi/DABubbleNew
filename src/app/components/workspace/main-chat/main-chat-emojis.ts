@@ -9,9 +9,6 @@ export const MAIN_CHAT_EMOJIS: readonly string[] = [
   '💪', '👀', '🔥', '🎉', '❤️', '💯',
 ];
 
-/** Schnellreaktionen direkt in der Hover-Leiste einer Nachricht. */
-export const QUICK_REACTIONS: readonly string[] = ['✅', '👍'];
-
 /**
  * Picker nach unten oeffnen, wenn der Button in der oberen Haelfte seines
  * Scrollbereichs sitzt - sonst nach oben. So wird er nie am Rand abgeschnitten.

@@ -115,6 +115,13 @@
   object-fit: cover;
 }
 
+// "#"-Vorschlaege: Hash-Icon an Stelle des Avatars.
+.tools__hash {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 20px;
+}
+
 .tools__empty {
   margin: 0;
   padding: 6px 12px;

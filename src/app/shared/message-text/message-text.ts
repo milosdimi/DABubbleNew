@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { MentionService, TextSegment } from '../mention/mention.service';
+import { Channel } from '../models';
 
 /** Abschnitt mit Formatierung (nur fuer normalen Text, nicht in Links/Erwaehnungen). */
 interface Part extends TextSegment {
@@ -28,12 +29,12 @@ function withFormatting(text: string): Part[] {
 }
 
 /**
- * Nachrichtentext in Main-Chat und Thread: @-Erwaehnungen (Klick -> Profil),
+ * Nachrichtentext in Main-Chat und Thread: @-Erwaehnungen (Klick -> Profil), #-Channels (Klick -> Channel),
  * Links (neuer Tab) und einfache Formatierung. Styles global in _mention.scss.
  */
 @Component({
   selector: 'app-message-text',
-  template: `@for (part of parts(); track $index) {@if (part.user; as mentioned) {<button type="button" class="mention" (click)="mentionClicked.emit(mentioned.id)">{{ part.text }}</button>} @else if (part.href) {<a class="message-link" [href]="part.href" target="_blank" rel="noopener noreferrer">{{ part.text }}</a>} @else if (part.format === 'bold') {<strong>{{ part.text }}</strong>} @else if (part.format === 'italic') {<em>{{ part.text }}</em>} @else if (part.format === 'code') {<code class="message-code">{{ part.text }}</code>} @else {{{ part.text }}}}`,
+  template: `@for (part of parts(); track $index) {@if (part.user; as mentioned) {<button type="button" class="mention" (click)="mentionClicked.emit(mentioned.id)">{{ part.text }}</button>} @else if (part.channel; as tagged) {<button type="button" class="mention" (click)="channelClicked.emit(tagged)">{{ part.text }}</button>} @else if (part.href) {<a class="message-link" [href]="part.href" target="_blank" rel="noopener noreferrer">{{ part.text }}</a>} @else if (part.format === 'bold') {<strong>{{ part.text }}</strong>} @else if (part.format === 'italic') {<em>{{ part.text }}</em>} @else if (part.format === 'code') {<code class="message-code">{{ part.text }}</code>} @else {{{ part.text }}}}`,
 })
 export class MessageText {
   private readonly mentions = inject(MentionService);
@@ -41,10 +42,12 @@ export class MessageText {
   readonly text = input.required<string>();
   /** Klick auf eine @-Erwaehnung -> uid des Users. */
   readonly mentionClicked = output<string>();
+  /** Klick auf einen #-Channel. */
+  readonly channelClicked = output<Channel>();
 
   protected readonly parts = computed<Part[]>(() =>
     this.mentions
       .segments(this.text())
-      .flatMap((segment) => (segment.user || segment.href ? [segment] : withFormatting(segment.text))),
+      .flatMap((segment) => (segment.user || segment.channel || segment.href ? [segment] : withFormatting(segment.text))),
   );
 }
