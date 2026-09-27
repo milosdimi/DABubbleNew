@@ -60,7 +60,25 @@ existiert.
    `http://dabubble-storage-api:3000`.
 6. Test: `https://storage-api.join-dimit.cc/health` liefert `{"ok":true}`.
 
-Nach einer Code-Änderung: Dateien im NAS-Ordner ersetzen und den Container neu starten.
+### Prüfliste nach dem Deploy
+
+- [ ] `/health` liefert `{"ok":true}`
+- [ ] Datei im Channel und im Direktchat hochladen, die Nachricht zeigt den Anhang
+- [ ] Anhang öffnen klappt, der Link ist nach 60 Sekunden abgelaufen
+- [ ] Als Gast ist der Anhang-Button ausgegraut; ohne gültiges Token antwortet das Gateway mit 401
+- [ ] Datei über 10 MB oder mit falscher Endung wird mit Meldung abgelehnt, der Entwurf bleibt erhalten
+- [ ] Keine Zugangsschlüssel im gebauten Frontend (`dist/` nach „secret“, „S3_“ durchsuchen)
+
+## Update deployen
+
+1. Geänderte Dateien in den Container-Ordner auf dem NAS kopieren: meist nur den Ordner `src/`,
+   bei neuen Abhängigkeiten zusätzlich `package.json` und `package-lock.json`.
+2. In Container Station die Anwendung `dabubble-storage-api` **neu starten**. Beim Start kopiert
+   der Container den Code neu und installiert die Abhängigkeiten (`npm ci`).
+3. Im Log auf `laeuft auf Port 3000` warten und `/health` prüfen.
+
+Geänderte Umgebungsvariablen (z. B. neue Zugangsdaten) trägst du in der YAML der Anwendung ein
+und startest sie danach ebenfalls neu.
 
 Alternative mit eigenem Image (z. B. per SSH): `docker build -t dabubble-storage-api .`
 und in der YAML `image: dabubble-storage-api` ohne `volumes` und `command` verwenden.
@@ -70,6 +88,19 @@ und in der YAML `image: dabubble-storage-api` ohne `volumes` und `command` verwe
 Siehe `.env.example`. Pflicht: `S3_PUBLIC_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`,
 `S3_SECRET_KEY`. `S3_INTERNAL_ENDPOINT` ist optional (z. B. `http://<minio-container>:9000`
 im selben Docker-Netz) und wird nur für die Existenzprüfung beim Öffnen genutzt.
+
+## Mögliche Erweiterungen
+
+- **Anhang beim Löschen der Nachricht mitlöschen:** Endpunkt `POST /delete { key }`, nur für
+  eigene Dateien. Dafür die Uploader-uid in den Schlüssel aufnehmen
+  (z. B. `<chatId>/<uid>/<uuid>-<name>`) und beim Löschen mit dem Token vergleichen.
+- **Eigene Passwort-Reset-Mail:** In der Firebase Console sind Mail-Vorlage und Action-URL für
+  dieses Projekt gesperrt. Alternative: `POST /password-reset { email }` erzeugt mit dem Admin SDK
+  (`generatePasswordResetLink`, braucht einen Service-Account) den Link, baut daraus
+  `https://dabubble.dimit.cc/reset-password?mode=resetPassword&oobCode=<code>` und verschickt
+  die Figma-Vorlage per SMTP (Logo: `/logo/email-logo.png` der App). Wichtig: immer dieselbe
+  Antwort (auch bei unbekannter Adresse) und ein Rate-Limit pro IP und E-Mail.
+  Firebase-Links sind 1 Stunde gültig.
 
 ## Lokal / Tests
 
