@@ -27,6 +27,7 @@
             class="dialog-field__input"
             type="text"
             formControlName="name"
+            (input)="formError.set(null)"
             placeholder="z.B. Kooperationsprojekte"
           />
         </label>

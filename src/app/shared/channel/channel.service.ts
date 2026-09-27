@@ -61,6 +61,14 @@ function toChannel(snapshot: DocumentSnapshot): Channel {
   };
 }
 
+/** Fehlermeldung, wenn ein Channel-Name schon vergeben ist (Erstellen und Umbenennen). */
+export const CHANNEL_NAME_TAKEN = 'Es gibt bereits einen Channel mit diesem Namen.';
+
+/** Vergleichsform eines Channel-Namens: ohne Rand-Leerzeichen, Gross/Klein egal. */
+function comparableName(name: string): string {
+  return name.trim().toLocaleLowerCase('de');
+}
+
 /** Wer gerade zuschaut - Grundlage der Sichtbarkeitsregeln. */
 export interface Viewer {
   uid: string | null;
@@ -121,6 +129,16 @@ export class ChannelService {
   async listVisibleChannels(viewer: Viewer): Promise<Channel[]> {
     const snapshots = await Promise.all(this.visibilityQueries(viewer).map((q) => getDocs(q)));
     return this.mergeSorted(snapshots.map((snapshot) => this.toChannels(snapshot)));
+  }
+
+  /**
+   * Traegt schon ein sichtbarer Channel diesen Namen? (`exceptId`: der Channel selbst beim Umbenennen.)
+   * Private Channels anderer kann niemand lesen - dort entsteht aber auch keine Verwechslung.
+   */
+  async isNameTaken(name: string, viewer: Viewer, exceptId?: string): Promise<boolean> {
+    const wanted = comparableName(name);
+    const channels = await this.listVisibleChannels(viewer);
+    return channels.some((channel) => channel.id !== exceptId && comparableName(channel.name) === wanted);
   }
 
   /** Live: die fuer `viewer` sichtbaren Channels, feste Channels zuerst. */

@@ -32,6 +32,7 @@
             class="info-box__input"
             type="text"
             [formControl]="nameControl"
+            (input)="nameSaveError.set(null)"
             (keydown.enter)="saveName()"
             (keydown.escape)="cancelEditName($event)"
           />

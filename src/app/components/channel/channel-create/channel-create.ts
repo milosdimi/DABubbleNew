@@ -10,7 +10,7 @@ import {
 } from '@angular/forms';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
-import { ChannelService } from '../../../shared/channel/channel.service';
+import { CHANNEL_NAME_TAKEN, ChannelService } from '../../../shared/channel/channel.service';
 import { Spinner } from '../../../shared/spinner/spinner';
 
 function notBlank(control: AbstractControl<string>): ValidationErrors | null {
@@ -79,14 +79,22 @@ export class ChannelCreate {
     this.formError.set(null);
 
     try {
-      const { name, description } = this.form.getRawValue();
-      const uid = this.auth.currentUser?.uid ?? '';
-      const id = await this.channelService.createChannel(name.trim(), description.trim(), uid);
-      this.created.emit(id);
+      await this.createUnlessNameTaken();
     } catch {
       this.formError.set('Channel konnte nicht erstellt werden. Bitte versuche es erneut.');
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private async createUnlessNameTaken(): Promise<void> {
+    const { name, description } = this.form.getRawValue();
+    const uid = this.auth.currentUser?.uid ?? '';
+    if (await this.channelService.isNameTaken(name, { uid, isGuest: false })) {
+      this.formError.set(CHANNEL_NAME_TAKEN);
+      return;
+    }
+    const id = await this.channelService.createChannel(name.trim(), description.trim(), uid);
+    this.created.emit(id);
   }
 }

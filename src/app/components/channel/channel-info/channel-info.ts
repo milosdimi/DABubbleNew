@@ -18,7 +18,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { onAuthStateChanged } from 'firebase/auth';
-import { ChannelService } from '../../../shared/channel/channel.service';
+import { CHANNEL_NAME_TAKEN, ChannelService } from '../../../shared/channel/channel.service';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { Channel, User } from '../../../shared/models';
@@ -166,17 +166,29 @@ export class ChannelInfo {
 
   private async runSaveName(): Promise<void> {
     this.savingName.set(true);
-    const name = this.nameControl.getRawValue().trim();
     try {
-      await this.channelService.updateChannel(this.channelId(), { name });
-      this.channel.update((ch) => (ch ? { ...ch, name } : ch));
-      this.editingName.set(false);
-      this.showSuccess();
+      await this.saveNameUnlessTaken(this.nameControl.getRawValue().trim());
     } catch {
       this.nameSaveError.set('Name konnte nicht gespeichert werden.');
     } finally {
       this.savingName.set(false);
     }
+  }
+
+  private async saveNameUnlessTaken(name: string): Promise<void> {
+    if (await this.isNameTaken(name)) {
+      this.nameSaveError.set(CHANNEL_NAME_TAKEN);
+      return;
+    }
+    await this.channelService.updateChannel(this.channelId(), { name });
+    this.channel.update((ch) => (ch ? { ...ch, name } : ch));
+    this.editingName.set(false);
+    this.showSuccess();
+  }
+
+  private isNameTaken(name: string): Promise<boolean> {
+    const viewer = { uid: this.currentUid(), isGuest: false };
+    return this.channelService.isNameTaken(name, viewer, this.channelId());
   }
 
   protected startEditDescription(): void {
