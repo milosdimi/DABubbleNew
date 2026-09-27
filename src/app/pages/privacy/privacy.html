@@ -9,10 +9,7 @@
       <h1>Datenschutz</h1>
     </div>
 
-    <!--
-      Vor der Abgabe rechtlich pruefen lassen. Sobald Dateianhaenge ueber den eigenen
-      Server (QNAP + Cloudflare-Tunnel) laufen: Abschnitt 4 um Cloudflare ergaenzen.
-    -->
+    <!-- Vor der Abgabe rechtlich pruefen lassen. -->
 
     <h2>1. Verantwortlicher</h2>
     <p>
@@ -50,7 +47,9 @@
       </li>
       <li>
         <strong>Dateianhänge:</strong> Hochgeladene Dateien werden in einem nicht öffentlichen
-        Speicher abgelegt und nur über zeitlich begrenzte Links geöffnet.
+        Speicher auf einem eigenen Server des Verantwortlichen in Österreich abgelegt und nur über
+        Links geöffnet, die 60 Sekunden gültig sind. Hochladen können nur registrierte Nutzerinnen
+        und Nutzer.
       </li>
     </ul>
 
@@ -62,9 +61,15 @@
         Verbindungsstatus (Firebase Realtime Database, Serverstandort Belgien) und Auslieferung
         der Website (Firebase Hosting).
       </li>
+      <li>
+        <strong>Cloudflare</strong> (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107,
+        USA): Cloudflare Tunnel leitet Verbindungen zum Dateispeicher weiter. Dabei werden die
+        IP-Adresse und technische Verbindungsdaten verarbeitet, die Dateien selbst werden nur
+        durchgeleitet.
+      </li>
     </ul>
     <p>
-      Bei diesem Dienst kann eine Übermittlung in die USA nicht ausgeschlossen werden. Sie
+      Bei diesen Diensten kann eine Übermittlung in die USA nicht ausgeschlossen werden. Sie
       stützt sich auf das EU-US Data Privacy Framework bzw. die Standardvertragsklauseln der
       EU-Kommission.
     </p>
@@ -72,8 +77,9 @@
     <h2>5. Speicherung im Browser</h2>
     <p>
       DABubble setzt keine Tracking- oder Werbe-Cookies und verwendet keine Analyse-Dienste. Im
-      Browser werden nur gespeichert: die Anmelde-Sitzung (Firebase, in IndexedDB) und ein Vermerk,
-      dass die Start-Animation bereits gezeigt wurde (localStorage).
+      Browser werden nur gespeichert: die Anmelde-Sitzung (Firebase, in IndexedDB), ein Vermerk,
+      dass die Start-Animation bereits gezeigt wurde, und deine zwei zuletzt genutzten Reaktionen
+      (beides localStorage).
     </p>
     <p>
       Schriften und Icons werden direkt von DABubble ausgeliefert. Es werden keine externen
