@@ -20,9 +20,11 @@
   font-size: 18px;
   line-height: 1.5;
 
+  // Mobil: 16px Abstand zum Rand wie bei den Auth-Karten (sonst liegt die Karte am Rand an).
   @media (max-width: 600px) {
-    margin: 16px auto;
-    padding: 24px;
+    width: auto;
+    margin: 16px;
+    padding: 24px 20px;
     border-radius: 20px;
   }
 
@@ -31,6 +33,11 @@
     @include mx.typo(nunito, 700);
     font-size: 40px;
     color: fct.color(purple-1);
+
+    // Wie die mobilen Auth-Titel in Figma ("Bold Mobile Display").
+    @media (max-width: 600px) {
+      font-size: 32px;
+    }
   }
 
   h2 {
@@ -53,6 +60,10 @@
   @include mx.flex(row, flex-start, center);
   gap: 16px;
   margin-bottom: 16px;
+
+  @media (max-width: 600px) {
+    gap: 8px;
+  }
 }
 
 .legal__back {
