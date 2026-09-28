@@ -287,12 +287,48 @@
 }
 
 // Mitgliederliste nur mobil (Desktop: eigenes Popup ueber den Chat-Kopf).
-.dialog-members {
+// Figma mobil ("75. edit"): runder Stift / Haken 30px statt "Bearbeiten" und statt
+// des Hakens im Eingabefeld.
+.dialog-members,
+.info-box__icon-btn {
   display: none;
 }
 
 @include mx.workspace-mobile {
   .dialog-members {
     display: block;
+  }
+
+  .info-box__edit-link,
+  .info-box__save {
+    display: none;
+  }
+
+  .info-box__icon-btn {
+    @include mx.flex(row, center, center);
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: fct.color(background);
+    color: fct.color(black);
+    cursor: pointer;
+    @include mx.transition();
+
+    &:hover:not(:disabled) {
+      color: fct.color(purple-1);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    app-icon {
+      width: 20px;
+      height: 20px;
+    }
   }
 }

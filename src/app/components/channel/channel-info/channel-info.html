@@ -22,6 +22,26 @@
           <button type="button" class="info-box__edit-link" (click)="startEditName()">
             Bearbeiten
           </button>
+          <!-- Figma mobil: Stift statt "Bearbeiten", beim Bearbeiten Haken zum Speichern. -->
+          <button
+            type="button"
+            class="info-box__icon-btn"
+            aria-label="Channel-Name bearbeiten"
+            (click)="startEditName()"
+          >
+            <app-icon name="edit" />
+          </button>
+        }
+        @if (editingName()) {
+          <button
+            type="button"
+            class="info-box__icon-btn"
+            aria-label="Channel-Name speichern"
+            [disabled]="savingName()"
+            (click)="saveName()"
+          >
+            <app-icon name="check" />
+          </button>
         }
       </div>
 
@@ -67,6 +87,25 @@
         @if (isCreator() && !editingDescription()) {
           <button type="button" class="info-box__edit-link" (click)="startEditDescription()">
             Bearbeiten
+          </button>
+          <button
+            type="button"
+            class="info-box__icon-btn"
+            aria-label="Beschreibung bearbeiten"
+            (click)="startEditDescription()"
+          >
+            <app-icon name="edit" />
+          </button>
+        }
+        @if (editingDescription()) {
+          <button
+            type="button"
+            class="info-box__icon-btn"
+            aria-label="Beschreibung speichern (mobil)"
+            [disabled]="savingDescription()"
+            (click)="saveDescription()"
+          >
+            <app-icon name="check" />
           </button>
         }
       </div>
