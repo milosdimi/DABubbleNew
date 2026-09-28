@@ -201,3 +201,14 @@
     height: 24px;
   }
 }
+
+// Eingebettet (mobile Channel-Info): Karte wie "Channel-Name" / "Beschreibung".
+.members-card--embedded {
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  padding: 20px 16px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 30px;
+  box-shadow: none;
+}

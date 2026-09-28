@@ -110,6 +110,20 @@
       </div>
     </div>
 
+    <!-- Mobil: Mitglieder hier, weil der Chat-Kopf dort nur "Mitglieder hinzufuegen" zeigt. -->
+    <app-channel-members
+      class="dialog-members"
+      [embedded]="true"
+      [channelId]="channelId()"
+      [channelName]="channel()?.name ?? ''"
+      [creatorId]="channel()?.createdBy ?? null"
+      [memberIds]="memberIds()"
+      [currentUid]="currentUid()"
+      [canAdd]="canAddMembers()"
+      (addClicked)="addMembersClicked.emit()"
+      (profileClicked)="memberProfileClicked.emit($event)"
+    />
+
     <div class="dialog-actions">
       <button type="button" class="leave-btn" [disabled]="leaving()" (click)="onLeaveClick()">
         @if (leaving()) {

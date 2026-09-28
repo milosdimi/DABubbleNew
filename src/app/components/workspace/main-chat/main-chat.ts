@@ -279,6 +279,18 @@ export class MainChat {
     this.addMembersClicked.emit(channel.id);
   }
 
+  /** Aus der mobilen Channel-Info: Info schliessen, dann "Mitglieder hinzufuegen". */
+  protected addMembersFromInfo(): void {
+    const channel = this.activeChannel();
+    this.profiles.closeChannelInfo();
+    if (channel) this.requestAddMembers(channel);
+  }
+
+  protected openProfileFromInfo(uid: string): void {
+    this.profiles.closeChannelInfo();
+    this.openMemberProfile(uid);
+  }
+
   protected openMemberProfile(uid: string): void {
     this.membersOpen.set(false);
     this.profiles.openProfile(uid);

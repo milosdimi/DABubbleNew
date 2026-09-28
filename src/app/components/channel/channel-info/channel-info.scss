@@ -285,3 +285,14 @@
     width: 100%;
   }
 }
+
+// Mitgliederliste nur mobil (Desktop: eigenes Popup ueber den Chat-Kopf).
+.dialog-members {
+  display: none;
+}
+
+@include mx.workspace-mobile {
+  .dialog-members {
+    display: block;
+  }
+}

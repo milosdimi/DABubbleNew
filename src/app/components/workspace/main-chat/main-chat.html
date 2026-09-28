@@ -412,6 +412,13 @@
   }
 
   @if (profiles.selectedChannelInfoId(); as channelId) {
-    <app-channel-info [channelId]="channelId" (closed)="profiles.closeChannelInfo()" />
+    <app-channel-info
+      [channelId]="channelId"
+      [memberIds]="activeChannel()?.memberIds ?? []"
+      [canAddMembers]="canAddMembers()"
+      (closed)="profiles.closeChannelInfo()"
+      (addMembersClicked)="addMembersFromInfo()"
+      (memberProfileClicked)="openProfileFromInfo($event)"
+    />
   }
 </section>

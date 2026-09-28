@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, HostListener, inject, input, output, signal, untracked } from '@angular/core';
 import { ChannelService } from '../../../shared/channel/channel.service';
 import { Icon } from '../../../shared/icon/icon';
@@ -14,7 +15,7 @@ import { MainChatProfileService } from '../../workspace/main-chat/main-chat-prof
  */
 @Component({
   selector: 'app-channel-members',
-  imports: [Icon, Toast],
+  imports: [Icon, Toast, NgTemplateOutlet],
   templateUrl: './channel-members.html',
   styleUrl: './channel-members.scss',
 })
@@ -29,6 +30,8 @@ export class ChannelMembers {
   readonly currentUid = input<string | null>(null);
   /** "Mitglieder hinzufuegen" nur fuer registrierte Mitglieder (wie firestore.rules). */
   readonly canAdd = input(false);
+  /** Als Karte in einer anderen Ansicht (mobile Channel-Info) statt als Popup. */
+  readonly embedded = input(false);
 
   readonly closed = output<void>();
   readonly addClicked = output<void>();
@@ -87,6 +90,6 @@ export class ChannelMembers {
   @HostListener('document:keydown.escape')
   protected onEscape(): void {
     if (this.confirmUid()) this.cancelRemove();
-    else this.closed.emit();
+    else if (!this.embedded()) this.closed.emit();
   }
 }

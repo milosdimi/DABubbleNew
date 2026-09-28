@@ -25,6 +25,7 @@ import { Channel, User } from '../../../shared/models';
 import { Spinner } from '../../../shared/spinner/spinner';
 import { UserService } from '../../../shared/user/user.service';
 import { Toast } from '../../overlay/toast/toast';
+import { ChannelMembers } from '../channel-members/channel-members';
 
 function notBlank(control: AbstractControl<string>): ValidationErrors | null {
   return control.value.trim().length === 0 ? { blank: true } : null;
@@ -41,7 +42,7 @@ const LEAVE_BUTTON_LABEL = 'Channel verlassen';
  */
 @Component({
   selector: 'app-channel-info',
-  imports: [ReactiveFormsModule, Icon, Spinner, Toast],
+  imports: [ReactiveFormsModule, Icon, Spinner, Toast, ChannelMembers],
   templateUrl: './channel-info.html',
   styleUrl: './channel-info.scss',
 })
@@ -54,6 +55,11 @@ export class ChannelInfo {
 
   /** Dialog wurde geschlossen (X, Escape, Backdrop, Channel verlassen). */
   readonly closed = output<void>();
+  /** Mobil zeigt die Info die Mitglieder (Figma "Channel edition"); live vom Main-Chat. */
+  readonly memberIds = input<readonly string[]>([]);
+  readonly canAddMembers = input(false);
+  readonly addMembersClicked = output<void>();
+  readonly memberProfileClicked = output<string>();
 
   /** Nach "Channel verlassen" kann der Parent den Dialog schon selbst geschlossen haben. */
   private destroyed = false;
@@ -63,7 +69,7 @@ export class ChannelInfo {
 
   protected readonly channel = signal<Channel | null>(null);
   protected readonly creator = signal<User | null>(null);
-  private readonly currentUid = signal<string | null>(null);
+  protected readonly currentUid = signal<string | null>(null);
 
   protected readonly isCreator = computed(() => {
     const uid = this.currentUid();
