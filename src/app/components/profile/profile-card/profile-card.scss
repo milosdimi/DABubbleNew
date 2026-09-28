@@ -208,3 +208,71 @@
     height: 24px;
   }
 }
+
+// Name und Status: auf dem Desktop wie bisher eigenstaendige Abschnitte.
+.profile-card__identity {
+  display: contents;
+}
+
+.profile-card__edit-icon {
+  display: none;
+}
+
+// Figma mobil ("Profile view main" / "65. Profile view other users", 398px breit):
+// Padding 45px/20px, 38px zwischen den Abschnitten, Name -> Status 15px,
+// E-Mail unter dem Label eingerueckt, runder Stift statt "Bearbeiten".
+@include mx.workspace-mobile {
+  .profile-backdrop--own {
+    justify-content: center;
+    padding: 96px 16px 16px;
+  }
+
+  .profile-card,
+  .profile-card--own {
+    gap: 38px;
+    max-width: 398px;
+    padding: 45px 20px;
+    border-radius: 30px; // mobil zentriert, nicht am Header-Avatar angedockt
+  }
+
+  .profile-card__identity {
+    @include mx.flex(column, flex-start, stretch);
+    gap: 15px;
+    align-self: stretch;
+  }
+
+  .profile-card__edit {
+    display: none;
+  }
+
+  .profile-card__edit-icon {
+    @include mx.flex(row, center, center);
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: fct.color(background);
+    color: fct.color(black);
+    cursor: pointer;
+    @include mx.transition();
+
+    &:hover {
+      color: fct.color(purple-1);
+    }
+
+    app-icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .profile-card__email-label {
+    gap: 20px;
+  }
+
+  .profile-card__email a {
+    padding-left: 50px;
+  }
+}

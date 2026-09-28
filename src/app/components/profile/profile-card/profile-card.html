@@ -25,19 +25,31 @@
       } @else if (user(); as profile) {
         <img class="profile-card__avatar" [src]="profile.avatarUrl" alt="" />
 
-        <div class="profile-card__name-row">
-          <h2 class="profile-card__name">{{ profile.name }}</h2>
-          @if (isOwn() && !isGuestSelf()) {
-            <button type="button" class="profile-card__edit" (click)="startEditing()">
-              Bearbeiten
-            </button>
-          }
-        </div>
+        <!-- Name + Status: mobil enger beieinander (Figma 15px statt 38px). -->
+        <div class="profile-card__identity">
+          <div class="profile-card__name-row">
+            <h2 class="profile-card__name">{{ profile.name }}</h2>
+            @if (isOwn() && !isGuestSelf()) {
+              <button type="button" class="profile-card__edit" (click)="startEditing()">
+                Bearbeiten
+              </button>
+              <!-- Figma mobil: runder Stift statt "Bearbeiten". -->
+              <button
+                type="button"
+                class="profile-card__edit-icon"
+                aria-label="Profil bearbeiten"
+                (click)="startEditing()"
+              >
+                <app-icon name="edit" />
+              </button>
+            }
+          </div>
 
-        <p class="profile-card__status" [attr.data-status]="status()">
-          <span class="profile-card__status-dot"></span>
-          {{ statusLabel() }}
-        </p>
+          <p class="profile-card__status" [attr.data-status]="status()">
+            <span class="profile-card__status-dot"></span>
+            {{ statusLabel() }}
+          </p>
+        </div>
 
         @if (profile.email) {
           <div class="profile-card__email">
