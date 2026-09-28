@@ -46,7 +46,11 @@
 
     <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
       <div class="dialog-field">
-        <label class="dialog-field__label" for="profile-name">Vollständiger Name</label>
+        <label class="dialog-field__label" for="profile-name">
+          <!-- Figma mobil: Icon vor dem Label statt im Feld. -->
+          <app-icon class="dialog-field__label-icon" name="account-circle" />
+          Vollständiger Name
+        </label>
         <label class="dialog-field__pill">
           <app-icon class="dialog-field__icon" name="person" />
           <input

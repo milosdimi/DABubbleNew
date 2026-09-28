@@ -255,30 +255,48 @@
   }
 }
 
-@media (max-width: 480px) {
+.dialog-field__label-icon {
+  display: none;
+}
+
+// Figma mobil ("Dein Profil bearbeiten", 398px): Padding 45px/20px, 45px Abstand,
+// Icon vor dem Label statt im Feld, Buttons mittig nebeneinander (32px Abstand),
+// bei 320px duerfen sie umbrechen.
+@include mx.workspace-mobile {
   .dialog-card {
-    padding: 24px 16px;
-    gap: 32px;
+    max-width: 398px;
+    gap: 45px;
+    padding: 45px 20px;
   }
 
   .dialog-header__title {
+    font-size: clamp(20px, 5.6vw, 24px);
+  }
+
+  .dialog-field__label {
+    @include mx.flex(row, flex-start, center);
+    gap: 20px;
     font-size: 20px;
   }
 
-  .avatar-section__circle {
-    width: 160px;
-    height: 160px;
+  .dialog-field__label-icon {
+    display: block;
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
   }
 
   .dialog-field__pill {
-    padding: 14px 16px;
+    padding: 13px 20px;
+
+    .dialog-field__icon {
+      display: none;
+    }
   }
 
   .dialog-actions {
     flex-wrap: wrap;
-  }
-
-  .dialog-btn--secondary {
-    width: 100%;
+    justify-content: center;
+    gap: 12px 32px;
   }
 }
