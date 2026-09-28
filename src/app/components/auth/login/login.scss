@@ -48,3 +48,22 @@
     background: fct.color(light-purple);
   }
 }
+
+// Nur mobil (Figma "01-Log In", 430px): Text und Button untereinander unter der Karte,
+// 32px Abstand zur Karte, 20px dazwischen; der Button ist dort 165x39.
+.login__signup {
+  display: none;
+
+  @media (max-width: 480px) {
+    @include mx.flex(column, center, center);
+    gap: 20px;
+    margin-top: 32px;
+    @include mx.typo(nunito, 400);
+    font-size: 18px;
+    color: fct.color(black);
+  }
+}
+
+.login__signup-btn {
+  padding: 6px 18px;
+}

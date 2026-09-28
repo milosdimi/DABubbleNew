@@ -290,3 +290,15 @@
   right: 0;
   z-index: 50;
 }
+
+// Figma Mobile (Auth-Seiten, 430px): nur das Logo, mittig. "Neu bei DABubble?"
+// steht auf dem Login dann unter der Karte (login.html).
+@media (max-width: 480px) {
+  .header:not(.header--app) {
+    justify-content: center;
+  }
+
+  .header__signup {
+    display: none;
+  }
+}
