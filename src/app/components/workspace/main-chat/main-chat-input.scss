@@ -5,6 +5,7 @@
 // --- Eingabe -----------------------------------------------------------------
 
 .main-chat__input {
+  position: relative; // Bezug fuer Emoji-/@-Liste (mobil, chat-input-tools)
   @include mx.flex(column, flex-start, stretch);
   gap: 8px;
   margin: 0 40px 32px;

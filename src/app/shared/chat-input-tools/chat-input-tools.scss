@@ -129,3 +129,19 @@
   font-size: 16px;
   color: fct.color(text-gray);
 }
+
+// Mobil: Liste an der ganzen Eingabebox ausrichten (die Box ist position: relative),
+// sonst ragt sie bei 320px rechts aus dem Bild.
+@include mx.workspace-mobile {
+  .tools {
+    position: static;
+  }
+
+  .tools__panel {
+    right: 0;
+  }
+
+  .tools__panel--mention {
+    min-width: 0;
+  }
+}

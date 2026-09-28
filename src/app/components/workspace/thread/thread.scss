@@ -401,6 +401,7 @@
 
 // --- Eingabefeld (1:1 main-chat-Pattern, schmalere Spalte) ---
 .thread__input {
+  position: relative;
   flex: 0 0 auto;
   @include mx.flex(column, flex-start, stretch);
   gap: 8px;

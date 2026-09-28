@@ -95,6 +95,7 @@
   .workspace__side {
     flex: 1 1 auto;
     gap: 0;
+    min-width: 0;
     background: fct.color(white);
   }
 

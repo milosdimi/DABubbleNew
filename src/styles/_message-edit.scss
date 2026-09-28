@@ -151,3 +151,33 @@
     }
   }
 }
+
+// Mobil: Menue "Mehr Optionen" und Loesch-Rueckfrage nach links unten oeffnen,
+// rechts ist neben der Hover-Leiste kein Platz. Bearbeiten: kompaktere Buttons,
+// die bei 320px umbrechen duerfen.
+@include mx.workspace-mobile {
+  .message-edit {
+    padding: 16px;
+  }
+
+  .message-edit__actions {
+    align-items: flex-end;
+  }
+
+  .message-edit__buttons {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .message-edit__btn {
+    padding: 8px 16px;
+    font-size: 16px;
+  }
+
+  .message-menu {
+    top: 100%;
+    right: 0;
+    left: auto;
+    border-radius: 30px 0 30px 30px;
+  }
+}
