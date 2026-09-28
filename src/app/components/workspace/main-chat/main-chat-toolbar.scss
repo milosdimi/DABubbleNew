@@ -143,3 +143,10 @@
     text-decoration: underline;
   }
 }
+
+// Mobil: Hover-Leiste buendig mit dem 16px-Rand.
+@include mx.workspace-mobile {
+  .main-chat__toolbar {
+    right: 16px;
+  }
+}

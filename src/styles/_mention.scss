@@ -172,3 +172,14 @@
     text-decoration: underline;
   }
 }
+
+// Mobil: gleicher 16px-Rand wie Nachrichten und Eingabefeld im Main-Chat.
+@include mx.workspace-mobile {
+  .main-chat__typing {
+    margin-inline: 16px;
+  }
+
+  .new-messages-divider {
+    margin-inline: 16px;
+  }
+}

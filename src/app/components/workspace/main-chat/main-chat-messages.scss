@@ -199,3 +199,22 @@
     height: 18px;
   }
 }
+
+// Mobil (Figma 07 "48B. Messages main chat - mobile"): 16px Rand, Avatar 50px,
+// 20px bis zum Inhalt, 10px Abstand oben/unten.
+@include mx.workspace-mobile {
+  .main-chat__empty,
+  .main-chat__date-separator {
+    margin-inline: 16px;
+  }
+
+  .main-chat__message {
+    gap: 20px;
+    padding: 10px 16px;
+  }
+
+  .main-chat__avatar {
+    width: 50px;
+    height: 50px;
+  }
+}

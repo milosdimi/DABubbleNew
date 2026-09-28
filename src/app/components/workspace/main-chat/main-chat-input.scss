@@ -90,3 +90,11 @@
     height: 26px;
   }
 }
+
+// Mobil (Figma 07 "63. Write text box aux"): 16px vom Rand, 20px Innenabstand.
+@include mx.workspace-mobile {
+  .main-chat__input {
+    margin: 0 16px 16px;
+    padding: 20px;
+  }
+}
