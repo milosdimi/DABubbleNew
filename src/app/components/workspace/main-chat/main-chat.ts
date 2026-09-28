@@ -141,6 +141,9 @@ export class MainChat {
     return chat?.kind === 'dm' ? chat.partner : null;
   });
 
+  /** Direktchat mit sich selbst ("Notizen"): eigener Leerzustand und "(Du)". */
+  protected readonly isSelfChat = computed(() => this.activePartner()?.id === this.currentUid());
+
   protected readonly canSend = computed(
     () =>
       !this.sending() &&
@@ -154,7 +157,7 @@ export class MainChat {
     if (!chat) return 'Nachricht schreiben...';
     return chat.kind === 'channel'
       ? `Nachricht an #${chat.channel.name}`
-      : `Nachricht an ${chat.partner.name}`;
+      : `Nachricht an ${chat.partner.name}${this.isSelfChat() ? ' (Du)' : ''}`;
   });
 
   constructor() {

@@ -38,27 +38,46 @@
           <img class="main-chat__title-avatar" [src]="partner.avatarUrl" alt="" />
           <span class="main-chat__online-dot" [attr.data-status]="presence.effectiveStatus(partner)"></span>
         </span>
-        <span>{{ partner.name }}</span>
+        <span>{{ partner.name }}@if (isSelfChat()) { (Du)}</span>
       </button>
     } @else {
       <p class="main-chat__title main-chat__title--muted">Kein Chat ausgewählt</p>
     }
   </header>
 
-  <div class="main-chat__scroll" #scroller>
+  <div
+    class="main-chat__scroll"
+    [class.main-chat__scroll--empty]="active() && messages().length === 0"
+    #scroller
+  >
     @if (active() && messages().length === 0) {
       @if (activePartner(); as partner) {
-        <p class="main-chat__empty">
-          Diese Unterhaltung findet nur zwischen
-          <button
-            type="button"
-            class="main-chat__empty-link"
-            (click)="profiles.openProfile(partner.id)"
-          >
-            &#64;{{ partner.name }}
+        <!-- Figma "Direct message" (leer): Avatar + Name, darunter der Hinweis. -->
+        <div class="main-chat__intro">
+          <button type="button" class="main-chat__intro-person" (click)="profiles.openProfile(partner.id)">
+            <img class="main-chat__intro-avatar" [src]="partner.avatarUrl" alt="" />
+            <span class="main-chat__intro-name">{{ partner.name }}@if (isSelfChat()) { (Du)}</span>
           </button>
-          und dir statt.
-        </p>
+          @if (isSelfChat()) {
+            <p class="main-chat__empty">
+              <strong>Dieser Raum ist nur für dich da.</strong> Mache dir Notizen, liste deine
+              To-dos auf oder bewahre Links und Dateien griffbereit auf. Du kannst hier auch gerne
+              Dinge mit dir selbst besprechen.
+            </p>
+          } @else {
+            <p class="main-chat__empty">
+              Diese Unterhaltung findet nur zwischen
+              <button
+                type="button"
+                class="main-chat__empty-link"
+                (click)="profiles.openProfile(partner.id)"
+              >
+                &#64;{{ partner.name }}
+              </button>
+              und dir statt.
+            </p>
+          }
+        </div>
       } @else {
         <!-- Channel-Leerzustand ist in Figma nicht spezifiziert. -->
         <p class="main-chat__empty">Hier gibt es noch keine Nachrichten. Schreib die erste!</p>

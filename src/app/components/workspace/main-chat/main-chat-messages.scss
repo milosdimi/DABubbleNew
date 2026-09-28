@@ -18,6 +18,53 @@
   color: fct.color(text-gray);
 }
 
+// Leerer Chat: Einleitung unten ueber dem Eingabefeld (Figma "Direct message").
+.main-chat__scroll--empty {
+  @include mx.flex(column, flex-end, stretch);
+}
+
+.main-chat__intro {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 24px;
+  margin: 0 40px 8px;
+
+  .main-chat__empty {
+    margin: 0;
+  }
+
+  strong {
+    @include mx.typo(nunito, 700);
+  }
+}
+
+.main-chat__intro-person {
+  @include mx.flex(row, flex-start, flex-end);
+  gap: 20px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: fct.color(black);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover .main-chat__intro-name {
+    color: fct.color(purple-3);
+  }
+}
+
+.main-chat__intro-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.main-chat__intro-name {
+  @include mx.typo(nunito, 700);
+  font-size: 24px;
+  @include mx.transition();
+}
+
 .main-chat__empty-link {
   padding: 0;
   border: none;
@@ -206,6 +253,20 @@
   .main-chat__empty,
   .main-chat__date-separator {
     margin-inline: 16px;
+  }
+
+  // Figma 11E mobil: Avatar 88px, 10px bis zum Namen.
+  .main-chat__intro {
+    margin-inline: 16px;
+  }
+
+  .main-chat__intro-person {
+    gap: 10px;
+  }
+
+  .main-chat__intro-avatar {
+    width: 88px;
+    height: 88px;
   }
 
   .main-chat__message {
