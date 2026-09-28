@@ -1,16 +1,4 @@
-import {
-  Component,
-  computed,
-  DestroyRef,
-  ElementRef,
-  HostListener,
-  inject,
-  input,
-  OnInit,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { signOut } from 'firebase/auth';
 import { Unsubscribe } from 'firebase/firestore';
@@ -19,15 +7,11 @@ import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { Channel, OnlineStatus, User } from '../../../shared/models';
 import { PresenceService } from '../../../shared/presence/presence.service';
-import {
-  EMPTY_RESULTS,
-  MessageHit,
-  SearchPlace,
-  SearchService,
-} from '../../../shared/search/search.service';
+import { MessageHit } from '../../../shared/search/search.service';
 import { UserService } from '../../../shared/user/user.service';
 import { ProfileCard } from '../../profile/profile-card/profile-card';
 import { ProfileMenu } from '../../profile/profile-menu/profile-menu';
+import { SearchBar } from '../search-bar/search-bar';
 
 /**
  * - 'auth-login':    Login-Seite, rechts der Hinweis "Konto erstellen"
@@ -41,7 +25,7 @@ const GUEST_DISPLAY = { name: 'Gast', avatarUrl: 'img/avatar/profile_blank.svg' 
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, Icon, ProfileMenu, ProfileCard, ClickOutsideDirective],
+  imports: [RouterLink, Icon, ProfileMenu, ProfileCard, ClickOutsideDirective, SearchBar],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
@@ -49,7 +33,6 @@ export class Header implements OnInit {
   private readonly auth = inject(FIREBASE_AUTH);
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
-  private readonly searchService = inject(SearchService);
   private readonly presence = inject(PresenceService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -75,37 +58,6 @@ export class Header implements OnInit {
   protected readonly isGuest = signal(false);
   protected readonly menuOpen = signal(false);
   protected readonly profileOpen = signal(false);
-
-  // --- Suche -------------------------------------------------------------------
-  private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
-
-  /** Strg+K (Mac: Cmd+K) springt in die Suche. */
-  @HostListener('document:keydown', ['$event'])
-  protected onShortcut(event: KeyboardEvent): void {
-    if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'k') return;
-    const input = this.searchInput()?.nativeElement;
-    if (!input) return;
-    event.preventDefault();
-    input.focus();
-    input.select();
-  }
-
-  protected readonly searchTerm = signal('');
-  protected readonly searchOpen = signal(false);
-  protected readonly searchLoading = signal(false);
-  private readonly searchIndex = signal<Awaited<ReturnType<SearchService['loadIndex']>> | null>(null);
-
-  protected readonly results = computed(() => {
-    const index = this.searchIndex();
-    return index ? this.searchService.search(index, this.searchTerm()) : EMPTY_RESULTS;
-  });
-
-  protected readonly searchable = computed(() => this.searchService.isSearchable(this.searchTerm()));
-
-  protected readonly hasResults = computed(() => {
-    const { channels, users, messages } = this.results();
-    return channels.length + users.length + messages.length > 0;
-  });
 
   ngOnInit(): void {
     if (this.variant() === 'app') void this.watchCurrentUser();
@@ -141,55 +93,6 @@ export class Header implements OnInit {
   protected async chooseStatus(status: OnlineStatus): Promise<void> {
     this.menuOpen.set(false);
     await this.presence.choose(status);
-  }
-
-  /** Beim Oeffnen der Suche den Index frisch laden (neue Nachrichten, Channels). */
-  protected async openSearch(): Promise<void> {
-    if (this.searchOpen()) return;
-    this.searchOpen.set(true);
-    this.searchLoading.set(true);
-    try {
-      this.searchIndex.set(await this.searchService.loadIndex());
-    } catch (error) {
-      console.warn('[search] Index konnte nicht geladen werden:', error);
-      this.searchIndex.set(null);
-    } finally {
-      this.searchLoading.set(false);
-    }
-  }
-
-  protected closeSearch(): void {
-    this.searchOpen.set(false);
-  }
-
-  protected onSearchInput(event: Event): void {
-    this.searchTerm.set((event.target as HTMLInputElement).value);
-    void this.openSearch();
-  }
-
-  protected pickChannel(channel: Channel): void {
-    this.finishSearch();
-    this.channelSelected.emit(channel);
-  }
-
-  protected pickUser(user: User): void {
-    this.finishSearch();
-    this.userSelected.emit(user);
-  }
-
-  protected pickMessage(hit: MessageHit): void {
-    this.finishSearch();
-    this.messageSelected.emit(hit);
-  }
-
-  protected placeLabel(place: SearchPlace): string {
-    return place.kind === 'channel' ? `# ${place.channel.name}` : `Direktnachricht mit ${place.partner.name}`;
-  }
-
-  private finishSearch(): void {
-    this.searchTerm.set('');
-    this.searchOpen.set(false);
-    this.searchIndex.set(null);
   }
 
   protected toggleMenu(): void {

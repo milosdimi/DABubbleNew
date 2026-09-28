@@ -1,0 +1,68 @@
+<!-- Figma "Search bar"; Trefferliste darunter (eigener Entwurf, nicht in Figma). -->
+<div appClickOutside (appClickOutside)="closeSearch()">
+  <label class="search__field">
+    <input
+      class="search__input"
+      type="search"
+      [placeholder]="placeholder()"
+      [attr.aria-label]="placeholder()"
+      #searchInput
+      [attr.title]="shortcut() ? 'Suchen (Strg+K)' : null"
+      [value]="searchTerm()"
+      (focus)="openSearch()"
+      (input)="onSearchInput($event)"
+      (keydown.escape)="closeSearch()"
+    />
+    <app-icon name="search" />
+  </label>
+
+  @if (searchOpen() && searchTerm().trim()) {
+    <div class="search__results" role="listbox" aria-label="Suchergebnisse">
+      @if (!searchable()) {
+        <p class="search__results-note">
+          Mindestens 2 Zeichen eingeben – oder # für Channels, @ für Personen
+        </p>
+      } @else if (searchLoading()) {
+        <p class="search__results-note">Suche läuft …</p>
+      } @else if (!hasResults()) {
+        <p class="search__results-note">Keine Treffer für „{{ searchTerm().trim() }}"</p>
+      } @else {
+        @if (results().channels.length > 0) {
+          <h2 class="search__results-title">Channels</h2>
+          @for (channel of results().channels; track channel.id) {
+            <button type="button" class="search__result" (click)="pickChannel(channel)">
+              <app-icon name="hash" />
+              <span class="search__result-main">{{ channel.name }}</span>
+            </button>
+          }
+        }
+        @if (results().users.length > 0) {
+          <h2 class="search__results-title">Personen</h2>
+          @for (user of results().users; track user.id) {
+            <button type="button" class="search__result" (click)="pickUser(user)">
+              <img class="search__result-avatar" [src]="user.avatarUrl" alt="" />
+              <span class="search__result-main">
+                {{ user.name }}@if (user.id === uid()) { (Du)}
+              </span>
+            </button>
+          }
+        }
+        @if (results().messages.length > 0) {
+          <h2 class="search__results-title">Nachrichten</h2>
+          @for (hit of results().messages; track hit.message.id) {
+            <button
+              type="button"
+              class="search__result search__result--message"
+              (click)="pickMessage(hit)"
+            >
+              <span class="search__result-meta">
+                <strong>{{ hit.senderName }}</strong> · {{ placeLabel(hit.place) }}
+              </span>
+              <span class="search__result-text">{{ hit.message.text }}</span>
+            </button>
+          }
+        }
+      }
+    </div>
+  }
+</div>
