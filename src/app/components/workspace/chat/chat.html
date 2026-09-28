@@ -10,6 +10,16 @@
 
   <div class="workspace__columns">
     <div class="workspace__side" [class.workspace__side--closed]="!sidebarOpen() && !isMobile()">
+      @if (isMobile()) {
+        <!-- Figma mobil (06): Suche "Gehe zu..." oben im Menue (Desktop: im Header). -->
+        <app-search-bar
+          class="workspace__mobile-search search--menu"
+          placeholder="Gehe zu..."
+          (channelSelected)="openChannel($event)"
+          (userSelected)="openDirectChat($event)"
+          (messageSelected)="showMessage($event)"
+        />
+      }
       @if (sidebarOpen() || isMobile()) {
         <app-sidebar
           [activeChannelId]="composing() ? null : (selectedChannel()?.id ?? null)"

@@ -14,6 +14,16 @@
     </button>
   </div>
 
+  <!-- Figma mobil "16B. edit_square": runder Button unten rechts statt der Kopfzeile. -->
+  <button
+    type="button"
+    class="sidebar__fab"
+    aria-label="Neue Nachricht"
+    (click)="newMessageClicked.emit()"
+  >
+    <app-icon name="edit-square" />
+  </button>
+
   <section class="sidebar__section">
     <div class="sidebar__section-row">
       <button

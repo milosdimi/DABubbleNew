@@ -9,6 +9,7 @@ import { ChannelAddMembers } from '../../channel/channel-add-members/channel-add
 import { Header } from '../header/header';
 import { MainChat } from '../main-chat/main-chat';
 import { NewMessage } from '../new-message/new-message';
+import { SearchBar } from '../search-bar/search-bar';
 import { Sidebar } from '../sidebar/sidebar';
 import { Thread } from '../thread/thread';
 
@@ -25,7 +26,7 @@ export type MobileView = 'menu' | 'chat' | 'thread';
  */
 @Component({
   selector: 'app-chat',
-  imports: [Header, Sidebar, MainChat, NewMessage, Thread, ChannelAddMembers, Icon],
+  imports: [Header, Sidebar, MainChat, NewMessage, Thread, ChannelAddMembers, Icon, SearchBar],
   templateUrl: './chat.html',
   styleUrl: './chat.scss',
 })

@@ -246,11 +246,47 @@
   }
 }
 
-// Mobil (Figma 06): vollflaechig, ohne Karte.
+// Mobil (Figma 06): vollflaechig, ohne Karte; statt der Kopfzeile "Devspace"
+// (steht dort im Header) ein runder Button "Neue Nachricht" unten rechts, 60px.
+.sidebar__fab {
+  display: none;
+}
+
 @include mx.workspace-mobile {
   .sidebar {
-    padding: 20px 16px;
+    padding: 25px 16px 100px;
     border-radius: 0;
     box-shadow: none;
+  }
+
+  .sidebar__workspace {
+    display: none;
+  }
+
+  .sidebar__fab {
+    position: fixed;
+    right: 16px;
+    bottom: 56px;
+    z-index: 20;
+    @include mx.flex(row, center, center);
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: fct.color(purple-1);
+    color: fct.color(white);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    @include mx.transition();
+
+    &:hover {
+      background: fct.color(purple-2);
+    }
+
+    app-icon {
+      width: 28px;
+      height: 28px;
+    }
   }
 }
