@@ -28,7 +28,8 @@
 }
 
 .header__logo-icon {
-  height: clamp(40px, 8vw, 70px);
+  // Figma: 56px im Mobile-Frame (430px), 70px auf dem Desktop (1920px), linear dazwischen.
+  height: clamp(56px, 0.94vw + 51.96px, 70px);
   width: auto;
 
   .header--app & {
