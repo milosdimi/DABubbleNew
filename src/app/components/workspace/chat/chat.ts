@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Icon } from '../../../shared/icon/icon';
 import { Channel, Message, User } from '../../../shared/models';
@@ -12,9 +12,16 @@ import { NewMessage } from '../new-message/new-message';
 import { Sidebar } from '../sidebar/sidebar';
 import { Thread } from '../thread/thread';
 
+/** Gleicher Wert wie `$workspace-mobile` in _mixins.scss. */
+const MOBILE_QUERY = '(max-width: 900px)';
+
+/** Mobil ist immer nur eine Ansicht sichtbar (Figma 06 Menue, 07 Chat, 08 Thread). */
+export type MobileView = 'menu' | 'chat' | 'thread';
+
 /**
  * Workspace-Shell unter /workspace: Header, darunter Sidebar | Main-Chat | Thread.
- * Haelt nur die Auswahl; Daten laden die Spalten selbst.
+ * Haelt nur die Auswahl; Daten laden die Spalten selbst. Mobil zeigt sie nur
+ * eine der drei Ansichten (`mobileView`), mit Zurueck-Pfeil im Header.
  */
 @Component({
   selector: 'app-chat',
@@ -39,6 +46,49 @@ export class Chat {
       title.setTitle(count > 0 ? `(${count}) DABubble` : 'DABubble');
     });
     inject(DestroyRef).onDestroy(() => title.setTitle('DABubble'));
+    this.watchMobile();
+  }
+
+  /** Schmale Ansicht? Dann ist die Sidebar immer da (ohne Reiter zum Einklappen). */
+  protected readonly isMobile = signal(false);
+  /**
+   * Hat der Nutzer selbst einen Chat geoeffnet? Der Start-Channel zaehlt nicht,
+   * damit mobil zuerst das Menue erscheint.
+   */
+  private readonly chatOpened = signal(false);
+
+  protected readonly mobileView = computed<MobileView>(() => {
+    if (!this.chatOpened()) return 'menu';
+    return this.threadMessage() ? 'thread' : 'chat';
+  });
+
+  private watchMobile(): void {
+    const query = window.matchMedia(MOBILE_QUERY);
+    const update = () => this.isMobile.set(query.matches);
+    update();
+    query.addEventListener('change', update);
+    inject(DestroyRef).onDestroy(() => query.removeEventListener('change', update));
+  }
+
+  /** Mobil "Zurueck": Thread -> Chat -> Menue (die Auswahl bleibt fuer den Desktop erhalten). */
+  protected goBack(): void {
+    if (this.threadMessage()) {
+      this.threadMessage.set(null);
+      return;
+    }
+    this.chatOpened.set(false);
+    this.composing.set(false);
+  }
+
+  /** Vom Nutzer gewaehlt (Sidebar, Suche, Profil): mobil in die Chat-Ansicht wechseln. */
+  protected openChannel(channel: Channel): void {
+    this.showChannel(channel);
+    this.chatOpened.set(true);
+  }
+
+  protected openDirectChat(user: User): void {
+    this.showDirectChat(user);
+    this.chatOpened.set(true);
   }
 
   protected readonly sidebarOpen = signal(true);
@@ -68,11 +118,13 @@ export class Chat {
     if (hit.place.kind === 'channel') this.showChannel(hit.place.channel);
     else this.showDirectChat(hit.place.partner);
     this.focusMessageId.set(hit.message.id);
+    this.chatOpened.set(true);
   }
 
   protected startNewMessage(): void {
     this.threadMessage.set(null);
     this.composing.set(true);
+    this.chatOpened.set(true);
   }
 
   protected toggleSidebar(): void {

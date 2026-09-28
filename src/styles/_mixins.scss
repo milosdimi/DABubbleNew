@@ -52,3 +52,13 @@
 }
 
 /* @include mx.display-title; */
+
+/// Workspace mobil: nur eine Ansicht gleichzeitig (Menue, Chat oder Thread, Figma 06/07/08).
+/// Gleicher Wert wie MOBILE_QUERY in chat.ts.
+$workspace-mobile: 900px;
+
+@mixin workspace-mobile {
+  @media (max-width: $workspace-mobile) {
+    @content;
+  }
+}

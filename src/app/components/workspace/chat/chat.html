@@ -1,19 +1,21 @@
-<div class="workspace">
+<div class="workspace" [attr.data-mobile-view]="mobileView()">
   <app-header
     variant="app"
-    (channelSelected)="showChannel($event)"
-    (userSelected)="showDirectChat($event)"
+    [showBack]="mobileView() !== 'menu'"
+    (backClicked)="goBack()"
+    (channelSelected)="openChannel($event)"
+    (userSelected)="openDirectChat($event)"
     (messageSelected)="showMessage($event)"
   />
 
   <div class="workspace__columns">
-    <div class="workspace__side" [class.workspace__side--closed]="!sidebarOpen()">
-      @if (sidebarOpen()) {
+    <div class="workspace__side" [class.workspace__side--closed]="!sidebarOpen() && !isMobile()">
+      @if (sidebarOpen() || isMobile()) {
         <app-sidebar
           [activeChannelId]="composing() ? null : (selectedChannel()?.id ?? null)"
           [activeUserId]="composing() ? null : (selectedUser()?.id ?? null)"
-          (channelSelected)="showChannel($event)"
-          (userSelected)="showDirectChat($event)"
+          (channelSelected)="openChannel($event)"
+          (userSelected)="openDirectChat($event)"
           (newMessageClicked)="startNewMessage()"
         />
       }
@@ -44,7 +46,7 @@
       [channel]="selectedChannel()"
       [user]="selectedUser()"
       (channelOpened)="showChannel($event)"
-      (directChatOpened)="showDirectChat($event)"
+      (directChatOpened)="openDirectChat($event)"
       (replyClicked)="threadMessage.set($event)"
       (addMembersClicked)="addMembersChannelId.set($event)"
     />

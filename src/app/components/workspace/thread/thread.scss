@@ -497,3 +497,12 @@
     height: 18px;
   }
 }
+
+// Mobil (Figma 08): vollflaechig.
+@include mx.workspace-mobile {
+  .thread {
+    padding: 16px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

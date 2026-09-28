@@ -302,3 +302,64 @@
     display: none;
   }
 }
+
+// Figma mobil ("69. head mobile" / "Component 2"): 80px hoch, Logo 45px, Avatar 50px;
+// in Chat und Thread Zurueck-Pfeil + Workspace-Logo 50px + "Devspace".
+.header__back {
+  display: none;
+}
+
+@include mx.workspace-mobile {
+  .header--app {
+    height: 80px;
+    padding: 15px 16px;
+  }
+
+  .header--app .header__logo-icon {
+    height: 45px;
+  }
+
+  .header--app .header__user-btn {
+    gap: 0;
+    padding: 0;
+
+    app-icon {
+      display: none;
+    }
+  }
+
+  .header--app .header__user-avatar-wrap {
+    width: 50px;
+    height: 50px;
+  }
+
+  .header--back .header__logo {
+    display: none;
+  }
+
+  .header--back .header__back {
+    @include mx.flex(row, flex-start, center);
+    gap: 10px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: fct.color(black);
+    cursor: pointer;
+  }
+}
+
+.header__back-arrow {
+  width: 25px;
+  height: 25px;
+  transform: rotate(90deg);
+}
+
+.header__back-logo {
+  width: 50px;
+  height: 50px;
+}
+
+.header__back-name {
+  @include mx.typo(nunito, 700);
+  font-size: 22px;
+}

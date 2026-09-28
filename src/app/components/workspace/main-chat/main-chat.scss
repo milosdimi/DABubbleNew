@@ -175,3 +175,19 @@
     height: 22px;
   }
 }
+
+// Mobil (Figma 07): vollflaechig; im Kopf nur Channel-Name und "Mitglieder hinzufuegen".
+@include mx.workspace-mobile {
+  .main-chat {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .main-chat__head {
+    padding: 12px 16px;
+  }
+
+  .main-chat__members {
+    display: none;
+  }
+}

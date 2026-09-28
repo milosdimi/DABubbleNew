@@ -245,3 +245,12 @@
     height: 24px;
   }
 }
+
+// Mobil (Figma 06): vollflaechig, ohne Karte.
+@include mx.workspace-mobile {
+  .sidebar {
+    padding: 20px 16px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

@@ -54,6 +54,9 @@ export class Header implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly variant = input<HeaderVariant>('app');
+  /** Mobil in Chat/Thread: Zurueck-Pfeil statt Logo (nur in der "app"-Variante). */
+  readonly showBack = input(false);
+  readonly backClicked = output<void>();
 
   /** Treffer der Suche angeklickt -> Workspace oeffnet Channel bzw. Direktchat. */
   readonly channelSelected = output<Channel>();

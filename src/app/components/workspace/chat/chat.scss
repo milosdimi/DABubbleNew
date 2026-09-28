@@ -79,3 +79,30 @@
     height: 24px;
   }
 }
+
+// Mobil (Figma 06/07/08): Menue, Chat oder Thread vollflaechig, nie nebeneinander.
+@include mx.workspace-mobile {
+  .workspace__columns {
+    gap: 0;
+    padding: 0;
+  }
+
+  .workspace__toggle {
+    display: none;
+  }
+
+  .workspace__side {
+    flex: 1 1 auto;
+  }
+
+  app-thread {
+    flex: 1 1 auto;
+  }
+
+  .workspace:not([data-mobile-view='menu']) .workspace__side,
+  .workspace:not([data-mobile-view='chat']) app-main-chat,
+  .workspace:not([data-mobile-view='chat']) app-new-message,
+  .workspace:not([data-mobile-view='thread']) app-thread {
+    display: none;
+  }
+}

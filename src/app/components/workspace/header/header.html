@@ -1,4 +1,12 @@
-<header class="header" [class.header--app]="variant() === 'app'">
+<header class="header" [class.header--app]="variant() === 'app'" [class.header--back]="showBack()">
+  @if (variant() === 'app') {
+    <!-- Figma mobil (Component 2): Zurueck-Pfeil + Workspace statt DABubble-Logo. -->
+    <button type="button" class="header__back" aria-label="Zurück" (click)="backClicked.emit()">
+      <app-icon class="header__back-arrow" name="chevron-down" />
+      <img class="header__back-logo" src="app-img/devspace-logo.svg" alt="" />
+      <span class="header__back-name">Devspace</span>
+    </button>
+  }
   <a
     class="header__logo"
     [routerLink]="variant() === 'app' ? '/workspace' : '/login'"
