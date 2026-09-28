@@ -164,21 +164,57 @@
   }
 }
 
-@media (max-width: 480px) {
+// Figma mobil ("37. Add channel"): ganze weisse Seite statt Popup, 20px Rand,
+// 25px Abstand, X ohne Kreis, "(optional)" grau, Beschreibung als Pille (65px).
+@include mx.workspace-mobile {
+  .dialog-backdrop {
+    align-items: stretch;
+    padding: 0;
+    background: fct.color(white);
+  }
+
   .dialog-card {
-    padding: 24px 16px;
-    gap: 16px;
+    max-width: none;
+    max-height: none;
+    height: 100%;
+    gap: 25px;
+    padding: 40px 20px;
+    border-radius: 0;
+    box-shadow: none;
   }
 
-  .dialog-header__title {
-    font-size: 20px;
+  .dialog-header__close {
+    background: none;
+
+    &:hover {
+      background: fct.color(background);
+    }
+
+    app-icon {
+      width: 24px;
+      height: 24px;
+    }
   }
 
-  .dialog-text {
-    font-size: 16px;
+  .dialog-form {
+    gap: 25px;
   }
 
-  .dialog-field__pill {
-    padding: 14px 16px;
+  .dialog-field {
+    gap: 20px;
+  }
+
+  .dialog-field__optional {
+    @include mx.typo(nunito, 400);
+    color: fct.color(text-gray);
+  }
+
+  .dialog-field__pill--textarea {
+    border-radius: 40px;
+
+    .dialog-field__input {
+      height: 25px;
+      resize: none;
+    }
   }
 }
