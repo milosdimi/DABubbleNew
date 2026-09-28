@@ -8,6 +8,8 @@
     [class.dialog-card--anchored]="purpose() === 'existing-channel'"
     (click)="$event.stopPropagation()"
   >
+    <!-- Figma mobil (38b): Griff des Bottom Sheets nach "Channel erstellen". -->
+    <span class="dialog-card__handle" aria-hidden="true"></span>
     <header class="dialog-header">
       <div class="dialog-header__heading">
         <h1 class="dialog-header__title">Leute hinzufügen</h1>

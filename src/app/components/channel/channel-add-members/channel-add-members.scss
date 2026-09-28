@@ -308,18 +308,63 @@
   }
 }
 
-@media (max-width: 480px) {
+.dialog-card__handle {
+  display: none;
+}
+
+// Figma mobil: nach "Channel erstellen" ein Bottom Sheet mit Griff (38b), beim
+// bestehenden Channel eine Karte unter der Kopfzeile (41b); X jeweils ohne Kreis.
+@include mx.workspace-mobile {
+  .dialog-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
   .dialog-card {
-    padding: 24px 16px;
-    gap: 16px;
+    max-width: none;
+    gap: 25px;
+    padding: 34px 20px 40px;
+    border-radius: 30px 30px 0 0;
   }
 
-  .dialog-header__title {
-    font-size: 20px;
+  .dialog-card__handle {
+    display: block;
+    flex: 0 0 auto;
+    align-self: center;
+    width: 62px;
+    height: 6px;
+    border-radius: 3px;
+    background: fct.color(light-purple);
   }
 
-  .dialog-radio {
-    font-size: 16px;
+  .dialog-backdrop--anchored {
+    align-items: flex-start;
+    justify-content: center;
+    padding: 96px 16px 16px;
+  }
+
+  .dialog-card--anchored {
+    max-width: 398px;
+    gap: 20px;
+    padding: 30px 16px;
+    border-radius: 30px;
+
+    .dialog-card__handle {
+      display: none;
+    }
+  }
+
+  .dialog-header__close {
+    background: none;
+
+    &:hover {
+      background: fct.color(background);
+    }
+
+    app-icon {
+      width: 24px;
+      height: 24px;
+    }
   }
 }
 
