@@ -1,5 +1,7 @@
-// Vollflächiges Overlay für Bestätigungs-Toasts (Register, Passwort vergessen, Reset).
-// Global via styles.scss. Dissolve rein (Animation) und raus (--leaving + Transition).
+// Vollflächiges Overlay für Bestätigungs-Toasts (Register, Passwort vergessen, Reset,
+// Channel, Profil ...). Global via styles.scss. Hintergrund: Dissolve rein (Animation)
+// und raus (--leaving + Transition). Die blaue Meldung gleitet von rechts herein und
+// beim Verschwinden wieder nach rechts hinaus.
 @use 'mixins' as mx;
 
 .toast-overlay {
@@ -7,14 +9,40 @@
   inset: 0;
   z-index: 100;
   @include mx.flex(row, center, center);
+  overflow: hidden; // die Meldung startet ausserhalb, ohne Scrollbalken
   padding: 24px;
   background: rgba(0, 0, 0, 0.15);
   animation: toast-overlay-in 200ms ease-out;
+
+  app-toast {
+    // "backwards": nach dem Hereingleiten gilt wieder der normale Stil,
+    // damit die Transition beim Verschwinden greifen kann.
+    animation: toast-slide-in 450ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+  }
 }
 
 .toast-overlay--leaving {
   opacity: 0;
   transition: opacity 200ms ease-out;
+
+  app-toast {
+    transform: translateX(100vw);
+    transition: transform 200ms ease-in;
+  }
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100vw);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-overlay app-toast {
+    animation: none;
+    transition: none;
+    transform: none;
+  }
 }
 
 @keyframes toast-overlay-in {
