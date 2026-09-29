@@ -99,16 +99,10 @@ export class Thread implements OnDestroy {
   /** "@Name" in Antworten hervorheben. */
   protected readonly mentions = inject(MentionService);
 
-  constructor() {
-    // Offener Thread gilt als gelesen - aber nur bei sichtbarem Tab.
-    const unread = inject(UnreadService);
-    effect(() => {
-      const parent = this.parentMessage();
-      const last = this.replies().at(-1);
-      if (!parent || !last || !unread.pageVisible()) return;
-      untracked(() => unread.markRead(`thread:${parent.id}`, last.timestamp));
-    });
+  private readonly unread = inject(UnreadService);
 
+  constructor() {
+    this.markThreadAsRead();
     // Immer die neueste Antwort zeigen (Details: autoScrollToLatest).
     autoScrollToLatest({
       scroller: this.scroller,
@@ -118,11 +112,31 @@ export class Thread implements OnDestroy {
     });
   }
 
+  /** Offener Thread gilt als gelesen - aber nur bei sichtbarem Tab. */
+  private markThreadAsRead(): void {
+    effect(() => {
+      const parent = this.parentMessage();
+      const last = this.replies().at(-1);
+      if (!parent || !last || !this.unread.pageVisible()) return;
+      untracked(() => this.unread.markRead(`thread:${parent.id}`, last.timestamp));
+    });
+  }
+
   private unsubscribeReplies: Unsubscribe | null = null;
 
   /** Setzt die aktuell im Thread geoeffnete Ausgangsnachricht. */
   @Input()
   set message(message: Message | null) {
+    this.resetFor(message);
+    if (!message) return;
+
+    void this.profileService.loadSenderProfiles([message]);
+    void this.loadChannelTag(message);
+    this.subscribeReplies(message);
+  }
+
+  /** Vorherigen Thread schliessen: Listener, Eingabe, Bearbeiten und Picker zuruecksetzen. */
+  private resetFor(message: Message | null): void {
     this.stopListening();
     this.parentMessage.set(message);
     this.replies.set([]);
@@ -133,12 +147,6 @@ export class Thread implements OnDestroy {
     this.edit.closeMenu();
     this.reactions.threadParent.set(message);
     this.reactions.closePicker();
-
-    if (!message) return;
-
-    void this.profileService.loadSenderProfiles([message]);
-    void this.loadChannelTag(message);
-    this.subscribeReplies(message);
   }
 
   ngOnDestroy(): void {

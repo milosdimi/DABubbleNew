@@ -60,30 +60,35 @@ export class SearchService {
       this.userService.listVisibleUsers(isGuest),
     ]);
     const usersById = new Map(users.map((user) => [user.id, user]));
-    const senderName = (uid: string) => usersById.get(uid)?.name ?? 'Gast';
+    const channelHits = channels.map((channel) => this.channelHits(channel, usersById));
+    const hits = await Promise.all([...channelHits, ...(await this.directChatHits(current.uid, usersById))]);
+    const messages = hits.flat().sort((a, b) => b.message.timestamp - a.message.timestamp); // neueste zuerst
+    return { channels, users, messages };
+  }
 
-    const channelHits = channels.map(async (channel) => {
-      const messages = await this.messageService.listMessages({ kind: 'channel', id: channel.id });
-      const place: SearchPlace = { kind: 'channel', channel };
-      return messages.map((message) => ({ message, place, senderName: senderName(message.senderId) }));
-    });
+  private async channelHits(channel: Channel, usersById: Map<string, User>): Promise<MessageHit[]> {
+    const messages = await this.messageService.listMessages({ kind: 'channel', id: channel.id });
+    return this.toHits(messages, { kind: 'channel', channel }, usersById);
+  }
 
-    const directChats = await this.messageService.listOwnDirectChats(current.uid);
-    const dmHits = directChats.map(async (chat) => {
+  /** Je eigenem Direktchat ein Promise mit dessen Treffern. */
+  private async directChatHits(uid: string, usersById: Map<string, User>): Promise<Promise<MessageHit[]>[]> {
+    const directChats = await this.messageService.listOwnDirectChats(uid);
+    return directChats.map(async (chat) => {
       // Chat mit sich selbst hat zweimal die eigene uid.
-      const partnerId = chat.memberIds.find((id) => id !== current.uid) ?? current.uid;
-      const partner = usersById.get(partnerId);
+      const partner = usersById.get(chat.memberIds.find((id) => id !== uid) ?? uid);
       if (!partner) return [];
       const messages = await this.messageService.listMessages({ kind: 'dm', id: chat.id });
-      const place: SearchPlace = { kind: 'dm', partner };
-      return messages.map((message) => ({ message, place, senderName: senderName(message.senderId) }));
+      return this.toHits(messages, { kind: 'dm', partner }, usersById);
     });
+  }
 
-    const messages = (await Promise.all([...channelHits, ...dmHits]))
-      .flat()
-      .sort((a, b) => b.message.timestamp - a.message.timestamp); // neueste zuerst
-
-    return { channels, users, messages };
+  private toHits(messages: Message[], place: SearchPlace, usersById: Map<string, User>): MessageHit[] {
+    return messages.map((message) => ({
+      message,
+      place,
+      senderName: usersById.get(message.senderId)?.name ?? 'Gast',
+    }));
   }
 
   /** Lang genug zum Suchen? (Freitext ab 2 Zeichen, mit "#" / "@" ab 1.) */

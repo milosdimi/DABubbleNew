@@ -139,17 +139,21 @@ export class ChannelAddMembers {
     this.formError.set(null);
 
     try {
-      if (this.purpose() === 'new-channel') {
-        await this.channelService.setMembers(this.channelId(), this.buildMemberIds());
-      } else {
-        await this.channelService.addMembers(this.channelId(), this.buildMemberIds());
-      }
+      await this.saveMembers();
       this.showSuccess();
     } catch {
       this.formError.set('Mitglieder konnten nicht gespeichert werden. Bitte versuche es erneut.');
     } finally {
       this.loading.set(false);
     }
+  }
+
+  /** Neuer Channel: Mitglieder festlegen; bestehender Channel: hinzufuegen. */
+  private saveMembers(): Promise<void> {
+    const memberIds = this.buildMemberIds();
+    return this.purpose() === 'new-channel'
+      ? this.channelService.setMembers(this.channelId(), memberIds)
+      : this.channelService.addMembers(this.channelId(), memberIds);
   }
 
   /** Kurze Erfolgs-Blase (wie Reset-Password), dann Dialog schliessen. */

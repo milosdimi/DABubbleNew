@@ -47,24 +47,21 @@ export class NewMessage {
   protected readonly currentUid = this.auth.currentUser?.uid ?? null;
 
   /** "#..." nur Channels, "@..." nur Personen, sonst beides (Name oder E-Mail). */
-  protected readonly suggestions = computed(() => {
-    const raw = this.recipientQuery().trim();
+  protected readonly suggestions = computed(() => this.findRecipients(this.recipientQuery().trim()));
+
+  private findRecipients(raw: string): { channels: Channel[]; users: User[] } {
+    if (!raw) return { channels: [], users: [] };
     const prefix = raw[0] === '#' || raw[0] === '@' ? raw[0] : '';
     const term = (prefix ? raw.slice(1) : raw).trim().toLowerCase();
-    if (!raw) return { channels: [], users: [] };
-
-    const channels =
-      prefix === '@'
-        ? []
-        : this.channels().filter((c) => c.name.toLowerCase().includes(term)).slice(0, MAX_SUGGESTIONS);
-    const users =
-      prefix === '#'
-        ? []
-        : this.users()
-            .filter((u) => u.name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term))
-            .slice(0, MAX_SUGGESTIONS);
-    return { channels, users };
-  });
+    const matches = (text: string) => text.toLowerCase().includes(term);
+    return {
+      channels: prefix === '@' ? [] : this.channels().filter((c) => matches(c.name)).slice(0, MAX_SUGGESTIONS),
+      users:
+        prefix === '#'
+          ? []
+          : this.users().filter((u) => matches(u.name) || matches(u.email)).slice(0, MAX_SUGGESTIONS),
+    };
+  }
 
   protected readonly canSend = computed(
     () => !this.sending() && this.recipient() !== null && this.draft().trim().length > 0,
@@ -128,16 +125,21 @@ export class NewMessage {
     this.sending.set(true);
     this.error.set(null);
     try {
-      await this.messageService.sendMessage(await this.toChatTarget(target, senderId), senderId, this.draft().trim());
-      this.draft.set('');
-      if (target.kind === 'channel') this.sentToChannel.emit(target.channel);
-      else this.sentToUser.emit(target.user);
+      await this.deliver(target, senderId);
     } catch (error) {
       console.warn('[new-message] Nachricht konnte nicht gesendet werden:', error);
       this.error.set('Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.');
     } finally {
       this.sending.set(false);
     }
+  }
+
+  /** Senden und danach in den Chat des Empfaengers wechseln. */
+  private async deliver(target: Recipient, senderId: string): Promise<void> {
+    await this.messageService.sendMessage(await this.toChatTarget(target, senderId), senderId, this.draft().trim());
+    this.draft.set('');
+    if (target.kind === 'channel') this.sentToChannel.emit(target.channel);
+    else this.sentToUser.emit(target.user);
   }
 
   private async toChatTarget(target: Recipient, senderId: string): Promise<ChatTarget> {

@@ -120,13 +120,17 @@ export class MainChatSessionService {
         if (isStillActive()) this.active.set({ kind: 'channel', channel });
       },
       () => {
-        if (!isStillActive()) return;
-        this.detach();
-        this.active.set(null);
-        this.messages.set([]);
-        void this.openFirstVisibleChannel();
+        if (isStillActive()) this.leaveLostChannel();
       },
     );
+  }
+
+  /** Zugriff auf den offenen Channel verloren: auf den ersten sichtbaren wechseln. */
+  private leaveLostChannel(): void {
+    this.detach();
+    this.active.set(null);
+    this.messages.set([]);
+    void this.openFirstVisibleChannel();
   }
 
   private detach(): void {

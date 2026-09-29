@@ -61,28 +61,28 @@ export class ChatInputTools {
 
   constructor() {
     void this.mentions.ensureLoaded();
-    const destroyRef = inject(DestroyRef);
-
-    effect((onCleanup) => {
-      const field = this.field();
-      const onInput = () => {
-        this.detectMention();
-        this.reportTyping(field.value);
-      };
-      const onKeydown = (event: KeyboardEvent) => this.onKeydown(event);
-      field.addEventListener('input', onInput);
-      field.addEventListener('keydown', onKeydown, true); // vor dem Enter-Senden
-      onCleanup(() => {
-        field.removeEventListener('input', onInput);
-        field.removeEventListener('keydown', onKeydown, true);
-      });
-    });
+    effect((onCleanup) => onCleanup(this.listenToField(this.field())));
     // Chatwechsel oder Verlassen: Tippen im vorherigen Chat beenden.
     effect((onCleanup) => {
       const key = this.typingKey();
       if (key) onCleanup(() => this.typing.stop(key));
     });
-    destroyRef.onDestroy(() => this.closeAll());
+    inject(DestroyRef).onDestroy(() => this.closeAll());
+  }
+
+  /** Eingaben und Tasten des Felds beobachten; liefert die Aufraeum-Funktion. */
+  private listenToField(field: HTMLTextAreaElement): () => void {
+    const onInput = () => {
+      this.detectMention();
+      this.reportTyping(field.value);
+    };
+    const onKeydown = (event: KeyboardEvent) => this.onKeydown(event);
+    field.addEventListener('input', onInput);
+    field.addEventListener('keydown', onKeydown, true); // vor dem Enter-Senden
+    return () => {
+      field.removeEventListener('input', onInput);
+      field.removeEventListener('keydown', onKeydown, true);
+    };
   }
 
   private reportTyping(value: string): void {
@@ -151,36 +151,47 @@ export class ChatInputTools {
   }
 
   private onKeydown(event: KeyboardEvent): void {
-    // Enter ohne Shift sendet (ausser bei offener @-Liste): Tippen beenden.
+    this.stopTypingOnSend(event);
+    if (this.mentionQuery() === null) this.closeEmojiOnEscape(event);
+    else this.handleSuggestionKey(event);
+  }
+
+  /** Enter ohne Shift sendet (ausser bei offener Liste): Tippen beenden. */
+  private stopTypingOnSend(event: KeyboardEvent): void {
     const key = this.typingKey();
     if (key && event.key === 'Enter' && !event.shiftKey && this.mentionQuery() === null) {
       this.typing.stop(key);
     }
-    if (this.mentionQuery() === null) {
-      if (event.key === 'Escape' && this.emojiOpen()) {
-        event.stopPropagation();
-        this.emojiOpen.set(false);
-      }
-      return;
-    }
+  }
+
+  private closeEmojiOnEscape(event: KeyboardEvent): void {
+    if (event.key !== 'Escape' || !this.emojiOpen()) return;
+    event.stopPropagation();
+    this.emojiOpen.set(false);
+  }
+
+  /** Offene @-/#-Liste: Escape schliesst, Pfeile waehlen, Enter/Tab uebernimmt. */
+  private handleSuggestionKey(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
       event.stopPropagation();
       this.mentionQuery.set(null);
       return;
     }
-    const count = this.suggestions().length;
-    if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && count > 0) {
-      event.preventDefault();
-      const step = event.key === 'ArrowDown' ? 1 : -1;
-      this.activeIndex.update((index) => (index + step + count) % count);
-      return;
-    }
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') return this.moveActiveSuggestion(event);
     const active = this.suggestions()[this.activeIndex()];
     if ((event.key === 'Enter' || event.key === 'Tab') && active) {
       event.preventDefault();
       event.stopImmediatePropagation(); // nicht senden
       this.pickMention(active);
     }
+  }
+
+  private moveActiveSuggestion(event: KeyboardEvent): void {
+    const count = this.suggestions().length;
+    if (count === 0) return;
+    event.preventDefault();
+    const step = event.key === 'ArrowDown' ? 1 : -1;
+    this.activeIndex.update((index) => (index + step + count) % count);
   }
 
   /** Ersetzt `removeCount` Zeichen vor dem Cursor durch `insert` und setzt den Cursor dahinter. */

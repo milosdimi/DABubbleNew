@@ -1,6 +1,6 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { FIREBASE_AUTH } from '../firebase/firebase.tokens';
-import { RealtimeDbService } from '../firebase/realtime-db.service';
+import { RealtimeDb, RealtimeDbService } from '../firebase/realtime-db.service';
 import { OnlineStatus, User } from '../models';
 import { UserService } from '../user/user.service';
 
@@ -29,29 +29,43 @@ export class PresenceService {
     await this.auth.authStateReady();
     const user = this.auth.currentUser;
     if (!user || user.isAnonymous) return;
+    await this.restoreChosenStatus(user.uid);
 
-    // Beim Betreten wieder den selbst gewaehlten Status anzeigen.
-    const profile = await this.userService.getUser(user.uid);
+    const realtime = await this.realtimeDb.load();
+    const stopConnected = this.reportOwnConnection(realtime, user.uid);
+    const stopStatus = this.watchConnections(realtime);
+    destroyRef.onDestroy(() => {
+      stopConnected();
+      stopStatus();
+      this.connections.set(null);
+    });
+  }
+
+  /** Beim Betreten wieder den selbst gewaehlten Status anzeigen. */
+  private async restoreChosenStatus(uid: string): Promise<void> {
+    const profile = await this.userService.getUser(uid);
     const shown = profile?.chosenStatus ?? 'online';
     if (profile && profile.onlineStatus !== shown) {
-      await this.userService.updateStatus(user.uid, { onlineStatus: shown });
+      await this.userService.updateStatus(uid, { onlineStatus: shown });
     }
+  }
 
-    const { db, sdk } = await this.realtimeDb.load();
-    const { onDisconnect, onValue, ref, serverTimestamp, set } = sdk;
-
-    // Eigene Verbindung melden; bei jedem (Wieder-)Verbinden neu anmelden.
-    const ownStatus = ref(db, `status/${user.uid}`);
-    const stopConnected = onValue(ref(db, '.info/connected'), (snapshot) => {
+  /** Eigene Verbindung melden; bei jedem (Wieder-)Verbinden neu anmelden. */
+  private reportOwnConnection({ db, sdk }: RealtimeDb, uid: string): () => void {
+    const ownStatus = sdk.ref(db, `status/${uid}`);
+    return sdk.onValue(sdk.ref(db, '.info/connected'), (snapshot) => {
       if (snapshot.val() !== true) return;
-      void onDisconnect(ownStatus)
-        .set({ state: 'offline', lastChanged: serverTimestamp() })
-        .then(() => set(ownStatus, { state: 'online', lastChanged: serverTimestamp() }));
+      void sdk
+        .onDisconnect(ownStatus)
+        .set({ state: 'offline', lastChanged: sdk.serverTimestamp() })
+        .then(() => sdk.set(ownStatus, { state: 'online', lastChanged: sdk.serverTimestamp() }));
     });
+  }
 
-    // Verbindungen aller User (fuer die Punkte in Sidebar, Kopf, Listen, Profil).
-    const stopStatus = onValue(
-      ref(db, 'status'),
+  /** Verbindungen aller User (fuer die Punkte in Sidebar, Kopf, Listen, Profil). */
+  private watchConnections({ db, sdk }: RealtimeDb): () => void {
+    return sdk.onValue(
+      sdk.ref(db, 'status'),
       (snapshot) => {
         const map = new Map<string, boolean>();
         snapshot.forEach((entry) => {
@@ -61,12 +75,6 @@ export class PresenceService {
       },
       (error) => console.warn('[presence] Status-Listener beendet:', error.message),
     );
-
-    destroyRef.onDestroy(() => {
-      stopConnected();
-      stopStatus();
-      this.connections.set(null);
-    });
   }
 
   /** Angezeigter Status: gewaehlter Status, aber "offline", wenn nicht verbunden. */

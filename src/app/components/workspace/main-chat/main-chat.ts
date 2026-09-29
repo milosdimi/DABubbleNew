@@ -17,10 +17,10 @@ import { ClickOutsideDirective } from '../../../shared/click-outside/click-outsi
 import { TypingIndicator } from '../../../shared/typing/typing-indicator';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
-import { MessageService } from '../../../shared/message/message';
+import { ChatTarget, MessageService } from '../../../shared/message/message';
 import { Channel, Message, User } from '../../../shared/models';
 import { MentionService } from '../../../shared/mention/mention.service';
-import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
+import { AutoScroll, autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
 import { PresenceService } from '../../../shared/presence/presence.service';
 import { UnreadService } from '../../../shared/unread/unread.service';
 import { ChannelInfo } from '../../channel/channel-info/channel-info';
@@ -157,79 +157,97 @@ export class MainChat {
   });
 
   constructor() {
+    this.openSelectedChat();
+    const autoScroll = this.scrollToLatest();
+    this.jumpToFocusedMessage(autoScroll);
+    this.rememberReadMark();
+    this.markOpenChatAsRead();
+    this.loadHeadMemberProfiles();
+    this.focusDraftOnChatSwitch();
+    // Ohne Auswahl von aussen: ersten sichtbaren Channel zeigen.
+    void this.session.openFirstVisibleChannel();
+    this.resetOnChatSwitch();
+  }
+
+  /** In der Sidebar gewaehlten Channel bzw. Direktchat oeffnen. */
+  private openSelectedChat(): void {
     effect(() => {
       const channel = this.channel();
       if (channel) untracked(() => this.session.openChannel(channel));
     });
-
     effect(() => {
       const user = this.user();
       if (user) untracked(() => void this.session.openDirectChat(user));
     });
+  }
 
-    // Immer die neueste Nachricht zeigen (Details: autoScrollToLatest).
-    const autoScroll = autoScrollToLatest({
+  /** Immer die neueste Nachricht zeigen (Details: autoScrollToLatest). */
+  private scrollToLatest(): AutoScroll {
+    return autoScrollToLatest({
       scroller: this.scroller,
       messages: this.messages,
-      chatKey: computed(() => {
-        const target = this.session.target();
-        return target ? `${target.kind}:${target.id}` : null;
-      }),
+      chatKey: this.typingKey,
       currentUid: () => this.auth.currentUser?.uid,
     });
+  }
 
-    // Suchtreffer: sobald die Nachricht geladen ist, dorthin springen.
+  /** Suchtreffer: sobald die Nachricht geladen ist, dorthin springen. */
+  private jumpToFocusedMessage(autoScroll: AutoScroll): void {
     effect(() => {
       const id = this.focusMessageId();
       if (!id || !this.messages().some((message) => message.id === id)) return;
       untracked(() => {
         autoScroll.holdPosition();
-        afterNextRender(
-          () => {
-            const element = this.scroller()?.nativeElement.querySelector(`[data-message-id="${id}"]`);
-            element?.scrollIntoView({ block: 'center' });
-            autoScroll.holdPosition(); // falls der Sprung nach unten schon eingeplant war
-            this.highlightedId.set(id);
-            setTimeout(() => this.highlightedId.set(null), 2000);
-            this.focusHandled.emit();
-          },
-          { injector: this.injector },
-        );
+        afterNextRender(() => this.highlightMessage(id, autoScroll), { injector: this.injector });
       });
     });
+  }
 
-    // Gelesen-Stand beim Oeffnen merken, bevor der Chat als gelesen markiert wird.
+  private highlightMessage(id: string, autoScroll: AutoScroll): void {
+    const element = this.scroller()?.nativeElement.querySelector(`[data-message-id="${id}"]`);
+    element?.scrollIntoView({ block: 'center' });
+    autoScroll.holdPosition(); // falls der Sprung nach unten schon eingeplant war
+    this.highlightedId.set(id);
+    setTimeout(() => this.highlightedId.set(null), 2000);
+    this.focusHandled.emit();
+  }
+
+  /** Gelesen-Stand beim Oeffnen merken, bevor der Chat als gelesen markiert wird. */
+  private rememberReadMark(): void {
     effect(() => {
       const key = this.typingKey();
       untracked(() => this.readMark.set(key ? this.unread.lastReadAt(key) : null));
     });
+  }
 
-    // Offener Chat gilt als gelesen - aber nur, wenn der Tab sichtbar ist.
+  /** Offener Chat gilt als gelesen - aber nur, wenn der Tab sichtbar ist. */
+  private markOpenChatAsRead(): void {
     effect(() => {
-      const target = this.session.target();
+      const key = this.typingKey();
       const last = this.messages().at(-1);
-      if (!target || !last || !this.unread.pageVisible()) return;
-      untracked(() => this.unread.markRead(`${target.kind}:${target.id}`, last.timestamp));
+      if (!key || !last || !this.unread.pageVisible()) return;
+      untracked(() => this.unread.markRead(key, last.timestamp));
     });
+  }
 
-    // Profile der Mitglieder fuer die Avatare im Kopf laden.
+  /** Profile der Mitglieder fuer die Avatare im Kopf laden. */
+  private loadHeadMemberProfiles(): void {
     effect(() => {
       const uids = this.headMemberIds();
       untracked(() => void this.profiles.loadProfiles(uids));
     });
+  }
 
-    this.focusDraftOnChatSwitch();
-
-    // Ohne Auswahl von aussen: ersten sichtbaren Channel zeigen.
-    void this.session.openFirstVisibleChannel();
-
+  /**
+   * Beim Chatwechsel Entwurf und offene Overlays verwerfen. Einen Channel, den der
+   * Main-Chat selbst geoeffnet hat (Start-Channel oder Ruecksprung nach "Channel
+   * verlassen"), nach aussen melden.
+   */
+  private resetOnChatSwitch(): void {
     effect(() => {
       const target = this.session.target();
       untracked(() => {
-        // Beim Chatwechsel Entwurf und offene Overlays verwerfen.
         this.resetForNewChat();
-        // Channel, den der Main-Chat selbst geoeffnet hat (Start-Channel oder
-        // Ruecksprung nach "Channel verlassen"), nach aussen melden.
         const chat = this.active();
         if (target?.kind === 'channel' && chat?.kind === 'channel' && target.id !== this.channel()?.id) {
           this.channelOpened.emit(chat.channel);
@@ -332,21 +350,25 @@ export class MainChat {
 
     this.sending.set(true);
     try {
-      const attachment = await this.uploads.getAttachmentData(this.selectedFile(), target);
-      if (!attachment) return; // Upload fehlgeschlagen - Entwurf bleibt erhalten
-
-      await this.messageService.sendMessage(target, senderId, this.draft().trim(), {
-        path: attachment.path ?? undefined,
-        name: attachment.name ?? undefined,
-      });
-      this.draft.set('');
-      this.selectedFile.set(null);
+      await this.deliver(target, senderId);
     } catch (error) {
       // z. B. Zugriff inzwischen entzogen - Entwurf bleibt erhalten.
       console.warn('[main-chat] Nachricht konnte nicht gesendet werden:', error);
     } finally {
       this.sending.set(false);
     }
+  }
+
+  /** Anhang hochladen, dann senden. Schlaegt der Upload fehl, bleibt der Entwurf erhalten. */
+  private async deliver(target: ChatTarget, senderId: string): Promise<void> {
+    const attachment = await this.uploads.getAttachmentData(this.selectedFile(), target);
+    if (!attachment) return;
+    await this.messageService.sendMessage(target, senderId, this.draft().trim(), {
+      path: attachment.path ?? undefined,
+      name: attachment.name ?? undefined,
+    });
+    this.draft.set('');
+    this.selectedFile.set(null);
   }
 
   // --- Thread -----------------------------------------------------------------

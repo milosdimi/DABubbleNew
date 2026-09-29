@@ -53,7 +53,16 @@ export class UnreadService {
     if (!user) return;
     this.uid = user.uid;
 
-    const stopReadState = onSnapshot(collection(this.firestore, 'users', user.uid, 'readState'), (snapshot) => {
+    const stops = [this.watchReadState(user.uid), this.watchDirectChats(user.uid), this.watchVisibility()];
+    destroyRef.onDestroy(() => {
+      for (const stop of stops) stop();
+      this.stopLatestListeners();
+    });
+  }
+
+  /** Eigene Gelesen-Staende; beim allerersten Start "_since" = jetzt. */
+  private watchReadState(uid: string): Unsubscribe {
+    return onSnapshot(collection(this.firestore, 'users', uid, 'readState'), (snapshot) => {
       const map = new Map<ChatKey, number>();
       for (const entry of snapshot.docs) map.set(entry.id, entry.data()['lastReadAt'] as number);
       const since = map.get(SINCE_KEY);
@@ -62,30 +71,33 @@ export class UnreadService {
       map.delete(SINCE_KEY);
       this.readState.set(map);
     });
+  }
 
-    const chats = query(collection(this.firestore, 'directChats'), where('memberIds', 'array-contains', user.uid));
-    const stopDirectChats = onSnapshot(chats, (snapshot) => {
+  /** Eigene Direktchats: Partner -> Chat-ID, und je Chat die neueste Nachricht beobachten. */
+  private watchDirectChats(uid: string): Unsubscribe {
+    const chats = query(collection(this.firestore, 'directChats'), where('memberIds', 'array-contains', uid));
+    return onSnapshot(chats, (snapshot) => {
       const partners = new Map<string, string>();
       for (const entry of snapshot.docs) {
         const chat = entry.data() as DirectChat;
-        partners.set(chat.memberIds.find((id) => id !== user.uid) ?? user.uid, chat.id);
+        partners.set(chat.memberIds.find((id) => id !== uid) ?? uid, chat.id);
       }
       this.dmIdByPartner.set(partners);
       this.dmKeys = this.syncListeners(this.dmKeys, [...partners.values()].map((id) => `dm:${id}`));
     });
+  }
 
+  private watchVisibility(): () => void {
     const onVisibility = () => this.pageVisible.set(!document.hidden);
     document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }
 
-    destroyRef.onDestroy(() => {
-      stopReadState();
-      stopDirectChats();
-      document.removeEventListener('visibilitychange', onVisibility);
-      for (const stop of this.latestListeners.values()) stop();
-      this.latestListeners.clear();
-      this.channelKeys.clear();
-      this.dmKeys.clear();
-    });
+  private stopLatestListeners(): void {
+    for (const stop of this.latestListeners.values()) stop();
+    this.latestListeners.clear();
+    this.channelKeys.clear();
+    this.dmKeys.clear();
   }
 
   /** Sidebar meldet die sichtbaren Channels; fuer jeden wird die neueste Nachricht beobachtet. */
@@ -160,22 +172,20 @@ export class UnreadService {
     const messages = collection(this.firestore, kind === 'channel' ? 'channels' : 'directChats', id, 'messages');
     return onSnapshot(
       query(messages, orderBy('timestamp', 'desc'), limit(1)),
-      (snapshot) => {
-        const newest = snapshot.docs[0]?.data() as Message | undefined;
-        this.latest.update((map) => {
-          const next = new Map(map);
-          if (newest) next.set(key, { senderId: newest.senderId, timestamp: newest.timestamp });
-          else next.delete(key);
-          return next;
-        });
-      },
+      (snapshot) => this.setLatest(key, snapshot.docs[0]?.data() as Message | undefined),
       // z. B. nach "Channel verlassen": kein Lesezugriff mehr -> kein Punkt.
-      () => this.latest.update((map) => {
-        const next = new Map(map);
-        next.delete(key);
-        return next;
-      }),
+      () => this.setLatest(key, undefined),
     );
+  }
+
+  /** Neueste Nachricht eines Chats merken (ohne Nachricht: Eintrag entfernen). */
+  private setLatest(key: ChatKey, newest: Message | undefined): void {
+    this.latest.update((map) => {
+      const next = new Map(map);
+      if (newest) next.set(key, { senderId: newest.senderId, timestamp: newest.timestamp });
+      else next.delete(key);
+      return next;
+    });
   }
 
   private async writeReadState(key: ChatKey, lastReadAt: number): Promise<void> {

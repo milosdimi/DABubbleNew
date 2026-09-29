@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import type { Unsubscribe } from 'firebase/database';
 import { FIREBASE_AUTH } from '../firebase/firebase.tokens';
-import { RealtimeDbService } from '../firebase/realtime-db.service';
+import { RealtimeDb, RealtimeDbService } from '../firebase/realtime-db.service';
 import { UserService } from '../user/user.service';
 
 /** Nach so vielen ms ohne Tippen verschwindet "... schreibt gerade". */
@@ -53,25 +53,28 @@ export class TypingService {
   watch(chatKey: string, callback: (names: string[]) => void): Unsubscribe {
     let stop: Unsubscribe | null = null;
     let cancelled = false;
-    void this.realtimeDb.load().then(({ db, sdk }) => {
-      if (cancelled) return;
-      stop = sdk.onValue(
-        sdk.ref(db, `typing/${chatKey}`),
-        (snapshot) => {
-          const names: string[] = [];
-          const own = this.auth.currentUser?.uid;
-          snapshot.forEach((entry) => {
-            if (entry.key !== own) names.push(String(entry.child('name').val() ?? ''));
-          });
-          callback(names.filter(Boolean));
-        },
-        () => callback([]),
-      );
+    void this.realtimeDb.load().then((realtime) => {
+      if (!cancelled) stop = this.listenToTyping(realtime, chatKey, callback);
     });
     return () => {
       cancelled = true;
       stop?.();
     };
+  }
+
+  private listenToTyping({ db, sdk }: RealtimeDb, chatKey: string, callback: (names: string[]) => void): Unsubscribe {
+    return sdk.onValue(
+      sdk.ref(db, `typing/${chatKey}`),
+      (snapshot) => {
+        const names: string[] = [];
+        const own = this.auth.currentUser?.uid;
+        snapshot.forEach((entry) => {
+          if (entry.key !== own) names.push(String(entry.child('name').val() ?? ''));
+        });
+        callback(names.filter(Boolean));
+      },
+      () => callback([]),
+    );
   }
 
   private async write(chatKey: string, uid: string): Promise<void> {

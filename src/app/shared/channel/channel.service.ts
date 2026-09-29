@@ -40,15 +40,17 @@ function normalizeMemberIds(channelId: string, raw: unknown): string[] {
     console.warn(`[channels] Channel "${channelId}": memberIds ist keine Liste, sondern`, raw);
   }
   if (typeof raw === 'string') return [raw];
-  if (raw && typeof raw === 'object') {
-    const entries = Object.entries(raw as Record<string, unknown>);
-    // {"0": "uidA", "1": "uidB"} -> Werte; {"uidA": true} -> Schluessel
-    const indexed = entries.every(([key]) => /^\d+$/.test(key));
-    return indexed
-      ? entries.map(([, value]) => value).filter((id): id is string => typeof id === 'string')
-      : entries.filter(([, value]) => value).map(([key]) => key);
-  }
+  if (raw && typeof raw === 'object') return memberIdsFromObject(raw as Record<string, unknown>);
   return [];
+}
+
+/** {"0": "uidA", "1": "uidB"} -> Werte; {"uidA": true} -> Schluessel. */
+function memberIdsFromObject(raw: Record<string, unknown>): string[] {
+  const entries = Object.entries(raw);
+  const indexed = entries.every(([key]) => /^\d+$/.test(key));
+  return indexed
+    ? entries.map(([, value]) => value).filter((id): id is string => typeof id === 'string')
+    : entries.filter(([, value]) => value).map(([key]) => key);
 }
 
 /** Firestore-Dokument -> Channel, mit bereinigtem `memberIds` und `id` als Fallback. */

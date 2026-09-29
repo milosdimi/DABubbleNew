@@ -75,17 +75,12 @@ export class Sidebar {
     this.currentUid.set(user.uid);
     this.isGuest.set(user.isAnonymous);
 
-    const stopChannels = this.channelService.watchVisibleChannels(
-      { uid: user.uid, isGuest: user.isAnonymous },
-      (channels) => this.channels.set(channels),
-    );
-    const stopUsers = this.userService.watchVisibleUsers(user.isAnonymous, (users) =>
-      this.users.set(users),
-    );
-    this.destroyRef.onDestroy(() => {
-      stopChannels();
-      stopUsers();
-    });
+    const viewer = { uid: user.uid, isGuest: user.isAnonymous };
+    const stops = [
+      this.channelService.watchVisibleChannels(viewer, (channels) => this.channels.set(channels)),
+      this.userService.watchVisibleUsers(user.isAnonymous, (users) => this.users.set(users)),
+    ];
+    this.destroyRef.onDestroy(() => stops.forEach((stop) => stop()));
   }
 
   protected selectChannel(channel: Channel): void {

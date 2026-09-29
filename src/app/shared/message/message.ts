@@ -190,25 +190,10 @@ export class MessageService {
 
   /** Liefert die Antworten-Collection einer Channel- oder Direktnachricht. */
   private createThreadRepliesCollection(parentMessage: Message) {
-    if (parentMessage.channelId) {
-      return collection(
-        this.firestore,
-        'channels',
-        parentMessage.channelId,
-        'messages',
-        parentMessage.id,
-        'replies',
-      );
-    }
-
-    return collection(
-      this.firestore,
-      'directChats',
-      parentMessage.dmId ?? '',
-      'messages',
-      parentMessage.id,
-      'replies',
-    );
+    const [chats, chatId] = parentMessage.channelId
+      ? ['channels', parentMessage.channelId]
+      : ['directChats', parentMessage.dmId ?? ''];
+    return collection(this.firestore, chats, chatId, 'messages', parentMessage.id, 'replies');
   }
 
   /** Speichert eine Antwort innerhalb eines Threads. */
