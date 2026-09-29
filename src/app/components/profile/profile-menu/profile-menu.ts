@@ -1,10 +1,12 @@
 import { Component, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { OnlineStatus } from '../../../shared/models';
 import { STATUS_OPTIONS } from '../../../shared/status/status';
 
 /** Dropdown unter dem Header-Avatar. Die Aktionen selbst fuehrt der Header aus. */
 @Component({
   selector: 'app-profile-menu',
+  imports: [RouterLink],
   templateUrl: './profile-menu.html',
   styleUrl: './profile-menu.scss',
 })

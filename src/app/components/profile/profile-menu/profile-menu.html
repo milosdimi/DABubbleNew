@@ -21,4 +21,11 @@
   }
 
   <button type="button" class="profile-menu__item" (click)="logoutClicked.emit()">Log out</button>
+
+  <!-- Nicht in Figma: Impressum/Datenschutz muessen auch nach dem Login erreichbar sein (ECG). -->
+  <div class="profile-menu__legal">
+    <a routerLink="/imprint">Impressum</a>
+    <span aria-hidden="true">·</span>
+    <a routerLink="/privacy">Datenschutz</a>
+  </div>
 </nav>

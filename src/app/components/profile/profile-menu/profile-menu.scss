@@ -76,6 +76,27 @@
   }
 }
 
+// Rechtliche Links unter "Log out" (klein, damit das Figma-Menue im Vordergrund bleibt).
+.profile-menu__legal {
+  @include mx.flex(row, center, center);
+  gap: 8px;
+  width: 222px;
+  padding-top: 12px;
+  border-top: 1px solid fct.color(light-purple);
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(text-gray);
+
+  a {
+    color: fct.color(purple-2);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .profile-menu__handle {
   display: none;
 }
@@ -99,7 +120,8 @@
   }
 
   .profile-menu__item,
-  .profile-menu__status {
+  .profile-menu__status,
+  .profile-menu__legal {
     width: 100%;
   }
 }
