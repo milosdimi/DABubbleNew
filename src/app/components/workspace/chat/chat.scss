@@ -114,3 +114,12 @@
     display: none;
   }
 }
+
+// Tablet (901-1300px): Sidebar + Chat + Thread passen nicht nebeneinander (der Chat
+// wuerde bei 1024px auf ~85px schrumpfen). Mit offenem Thread weicht die Sidebar,
+// nach dem Schliessen kommt sie zurueck.
+@media (min-width: 901px) and (max-width: 1300px) {
+  .workspace--thread-open .workspace__side {
+    display: none;
+  }
+}

@@ -1,4 +1,8 @@
-<div class="workspace" [attr.data-mobile-view]="mobileView()">
+<div
+  class="workspace"
+  [class.workspace--thread-open]="threadMessage() !== null"
+  [attr.data-mobile-view]="mobileView()"
+>
   <app-header
     variant="app"
     [showBack]="mobileView() !== 'menu'"
