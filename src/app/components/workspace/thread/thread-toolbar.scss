@@ -101,3 +101,10 @@
     bottom: calc(100% + 6px);
   }
 }
+
+// Eigene Antworten: Leiste sitzt links, also nach rechts aufklappen - sonst ragt die
+// Auswahl links aus dem Thread-Panel und wird abgeschnitten.
+.thread__message--own .thread__reaction-picker {
+  right: auto;
+  left: 0;
+}
