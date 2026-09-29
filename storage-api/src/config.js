@@ -26,13 +26,17 @@ export function loadConfig() {
     allowedOrigins: list('ALLOWED_ORIGINS', 'https://dabubble.dimit.cc,http://localhost:4200'),
     maxUploadBytes: Number(optional('MAX_UPLOAD_BYTES', String(10 * MB))),
     uploadsPerHour: Number(optional('UPLOADS_PER_HOUR', '20')),
-    s3: {
-      publicEndpoint: required('S3_PUBLIC_ENDPOINT'),
-      internalEndpoint: optional('S3_INTERNAL_ENDPOINT', ''),
-      region: optional('S3_REGION', 'us-east-1'),
-      bucket: required('S3_BUCKET'),
-      accessKeyId: required('S3_ACCESS_KEY'),
-      secretAccessKey: required('S3_SECRET_KEY'),
-    },
+    s3: loadS3Config(),
+  };
+}
+
+function loadS3Config() {
+  return {
+    publicEndpoint: required('S3_PUBLIC_ENDPOINT'),
+    internalEndpoint: optional('S3_INTERNAL_ENDPOINT', ''),
+    region: optional('S3_REGION', 'us-east-1'),
+    bucket: required('S3_BUCKET'),
+    accessKeyId: required('S3_ACCESS_KEY'),
+    secretAccessKey: required('S3_SECRET_KEY'),
   };
 }

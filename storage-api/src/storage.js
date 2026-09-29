@@ -22,34 +22,39 @@ function createClient(endpoint, s3) {
  * weil der Host Teil der Signatur ist. Fuer die Existenzpruefung kann ein
  * interner Endpoint (Docker-Netz) genutzt werden.
  */
+class Storage {
+  constructor(s3) {
+    this.bucket = s3.bucket;
+    this.publicClient = createClient(s3.publicEndpoint, s3);
+    this.internalClient = s3.internalEndpoint ? createClient(s3.internalEndpoint, s3) : this.publicClient;
+  }
+
+  /** PUT-URL; Content-Type und -Length sind mitsigniert und muessen exakt passen. */
+  uploadUrl(key, contentType, size) {
+    const command = new PutObjectCommand({ Bucket: this.bucket, Key: key, ContentType: contentType, ContentLength: size });
+    const signableHeaders = new Set(['content-type', 'content-length']);
+    return getSignedUrl(this.publicClient, command, { expiresIn: URL_SECONDS, signableHeaders });
+  }
+
+  /** GET-URL; der Browser zeigt die Datei unter ihrem Anzeigenamen. */
+  downloadUrl(key, fileName) {
+    const disposition = `inline; filename="${fileName}"`;
+    const command = new GetObjectCommand({ Bucket: this.bucket, Key: key, ResponseContentDisposition: disposition });
+    return getSignedUrl(this.publicClient, command, { expiresIn: URL_SECONDS });
+  }
+
+  /** `false`, wenn es das Objekt nicht (mehr) gibt. */
+  async exists(key) {
+    try {
+      await this.internalClient.send(new HeadObjectCommand({ Bucket: this.bucket, Key: key }));
+      return true;
+    } catch (error) {
+      if (error?.$metadata?.httpStatusCode === 404) return false;
+      throw error;
+    }
+  }
+}
+
 export function createStorage(s3) {
-  const publicClient = createClient(s3.publicEndpoint, s3);
-  const internalClient = s3.internalEndpoint ? createClient(s3.internalEndpoint, s3) : publicClient;
-
-  return {
-    /** PUT-URL; Content-Type und -Length sind mitsigniert und muessen exakt passen. */
-    uploadUrl(key, contentType, size) {
-      const command = new PutObjectCommand({ Bucket: s3.bucket, Key: key, ContentType: contentType, ContentLength: size });
-      const signableHeaders = new Set(['content-type', 'content-length']);
-      return getSignedUrl(publicClient, command, { expiresIn: URL_SECONDS, signableHeaders });
-    },
-
-    /** GET-URL; der Browser zeigt die Datei unter ihrem Anzeigenamen. */
-    downloadUrl(key, fileName) {
-      const disposition = `inline; filename="${fileName}"`;
-      const command = new GetObjectCommand({ Bucket: s3.bucket, Key: key, ResponseContentDisposition: disposition });
-      return getSignedUrl(publicClient, command, { expiresIn: URL_SECONDS });
-    },
-
-    /** `false`, wenn es das Objekt nicht (mehr) gibt. */
-    async exists(key) {
-      try {
-        await internalClient.send(new HeadObjectCommand({ Bucket: s3.bucket, Key: key }));
-        return true;
-      } catch (error) {
-        if (error?.$metadata?.httpStatusCode === 404) return false;
-        throw error;
-      }
-    },
-  };
+  return new Storage(s3);
 }
