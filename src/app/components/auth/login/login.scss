@@ -67,3 +67,46 @@
 .login__signup-btn {
   padding: 6px 18px;
 }
+
+// Figma mobil ("01-Log In", 430px): 30px zwischen den Feldern (inkl. Platz fuer die
+// Fehlermeldung), "Passwort vergessen?" mittig, 20px Abstaende im unteren Teil und
+// "Anmelden mit Google" als volle, hellviolette Pille.
+@media (max-width: 480px) {
+  .auth-form {
+    gap: 5px;
+  }
+
+  // Ohne den Standard-Abstand unter dem Absatz (14px) sind es genau 30px.
+  .auth-field__error {
+    margin-bottom: 0;
+  }
+
+  .login__forgot {
+    align-self: center;
+    margin-bottom: 15px;
+    font-size: 16px;
+  }
+
+  // Allgemeiner Fehler (z. B. falsches Passwort) nimmt nur Platz ein, wenn er da ist.
+  .auth-form-error:not(.is-visible) {
+    display: none;
+  }
+
+  .login__actions {
+    gap: 20px;
+  }
+
+  .auth-btn--google {
+    align-self: stretch;
+    gap: 30px;
+    border: 1px solid transparent;
+    background: fct.color(background);
+    @include mx.typo(nunito, 400);
+    color: fct.color(purple-1);
+
+    &:hover:not(:disabled) {
+      border-color: fct.color(purple-2);
+      background: fct.color(background);
+    }
+  }
+}
