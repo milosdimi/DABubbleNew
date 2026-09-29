@@ -1,0 +1,239 @@
+@let msg = message();
+<article
+  class="main-chat__message"
+  [attr.data-message-id]="msg.id"
+  [class.main-chat__message--own]="isOwn()"
+  [class.main-chat__message--deleted]="msg.deleted"
+  [class.main-chat__message--highlight]="highlighted()"
+  [class.main-chat__message--editing]="edit.isEditing(msg.id)"
+>
+  <img
+    class="main-chat__avatar"
+    [src]="profiles.getSenderAvatar(msg.senderId)"
+    [alt]="profiles.getSenderName(msg.senderId)"
+    role="button"
+    tabindex="0"
+    (click)="profiles.openProfile(msg.senderId)"
+    (keydown.enter)="profiles.openProfile(msg.senderId)"
+  />
+
+  <div class="main-chat__content">
+    <div class="main-chat__meta">
+      <button
+        type="button"
+        class="main-chat__name"
+        (click)="profiles.openProfile(msg.senderId)"
+      >
+        {{ profiles.getSenderName(msg.senderId) }}
+      </button>
+      <span class="main-chat__time">{{ profiles.formatMessageTime(msg.timestamp) }}</span>
+      @if (msg.editedAt) {
+        <span class="edited-hint">(bearbeitet)</span>
+      }
+    </div>
+
+    @if (edit.isEditing(msg.id)) {
+      <div class="message-edit">
+        <textarea
+          #editField
+          class="message-edit__field"
+          aria-label="Nachricht bearbeiten"
+          [value]="edit.draft()"
+          (input)="edit.onInput($event)"
+          (keydown)="onEditKeydown($event, msg)"
+        ></textarea>
+        <div class="message-edit__actions">
+          <div class="message-edit__emoji-anchor">
+            <button
+              type="button"
+              class="message-edit__icon-btn"
+              aria-label="Emoji einfügen"
+              (click)="edit.toggleEmojiPicker()"
+            >
+              <app-icon name="emoji" />
+            </button>
+            @if (edit.emojiPickerOpen()) {
+              <div
+                class="message-edit__picker"
+                appClickOutside
+                (appClickOutside)="edit.closeEmojiPicker()"
+              >
+                @for (emoji of edit.emojis; track emoji) {
+                  <button type="button" (click)="edit.insertEmoji(emoji, editField)">
+                    {{ emoji }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+          <div class="message-edit__buttons">
+            <button type="button" class="message-edit__btn" (click)="edit.cancel()">
+              Abbrechen
+            </button>
+            <button
+              type="button"
+              class="message-edit__btn message-edit__btn--primary"
+              [disabled]="!edit.canSave()"
+              (click)="saveEdit(msg)"
+            >
+              Speichern
+            </button>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="main-chat__bubble-wrap">
+        <div class="main-chat__bubble">
+          @if (msg.deleted) {
+          <p class="main-chat__text message-deleted">Diese Nachricht wurde gelöscht</p>
+        } @else if (msg.text) {
+            <p class="main-chat__text">
+              <app-message-text
+                [text]="msg.text"
+                (mentionClicked)="profiles.openProfile($event)"
+                (channelClicked)="channelClicked.emit($event)"
+              />
+            </p>
+          }
+          @if (msg.attachmentPath && msg.attachmentName) {
+            <button
+              type="button"
+              class="main-chat__attachment"
+              (click)="openAttachment(msg.attachmentPath)"
+            >
+              <app-icon name="attachment" />
+              {{ msg.attachmentName }}
+            </button>
+          }
+        </div>
+
+        <div
+          class="main-chat__toolbar"
+          [class.main-chat__toolbar--active]="
+            reactions.pickerMessageId() === msg.id || edit.menuMessageId() === msg.id
+          "
+        >
+          @for (emoji of reactions.quickReactions(); track emoji) {
+            <button
+              type="button"
+              class="main-chat__toolbar-btn"
+              [attr.aria-label]="'Mit ' + emoji + ' reagieren'"
+              (click)="reactions.toggle(msg, emoji)"
+            >
+              {{ emoji }}
+            </button>
+          }
+          <div class="main-chat__picker-anchor">
+            <button
+              type="button"
+              class="main-chat__toolbar-btn"
+              aria-label="Reaction hinzufügen"
+              (click)="reactions.togglePicker(msg.id, $any($event.currentTarget))"
+            >
+              <app-icon name="add-reaction" />
+            </button>
+            @if (reactions.pickerMessageId() === msg.id) {
+              <div
+                class="main-chat__picker"
+                [class.main-chat__picker--below]="reactions.pickerBelow()"
+                appClickOutside
+                (appClickOutside)="reactions.closePicker()"
+              >
+                @for (emoji of reactions.emojis; track emoji) {
+                  <button type="button" (click)="reactions.toggle(msg, emoji)">
+                    {{ emoji }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+          <button
+            type="button"
+            class="main-chat__toolbar-btn"
+            aria-label="Im Thread antworten"
+            (click)="threadClicked.emit(msg)"
+          >
+            <app-icon name="comment" />
+          </button>
+          @if (isOwn()) {
+            <div class="main-chat__picker-anchor">
+              <button
+                type="button"
+                class="main-chat__toolbar-btn"
+                aria-label="Mehr Optionen"
+                (click)="edit.toggleMenu(msg.id)"
+              >
+                <app-icon name="more-vert" />
+              </button>
+              @if (edit.menuMessageId() === msg.id) {
+                <div
+                  class="message-menu"
+                  appClickOutside
+                  (appClickOutside)="edit.closeMenu()"
+                >
+                  @if (edit.confirmDeleteId() === msg.id) {
+                    <p class="message-menu__question">Nachricht wirklich löschen?</p>
+                    <div class="message-menu__actions">
+                      <button type="button" (click)="edit.cancelDelete()">Abbrechen</button>
+                      <button type="button" class="message-menu__danger" (click)="deleteOwn(msg)">
+                        Löschen
+                      </button>
+                    </div>
+                  } @else {
+                    <button type="button" (click)="edit.start(msg)">Nachricht bearbeiten</button>
+                    <button type="button" (click)="edit.askDelete(msg.id)">Nachricht löschen</button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (msg.reactions.length > 0) {
+      <div class="main-chat__reactions">
+        @let groups = reactions.groups(msg);
+        @for (group of overflow.visible(groups, msg.id); track group.emoji) {
+          <button
+            type="button"
+            class="main-chat__reaction"
+            [class.main-chat__reaction--mine]="group.mine"
+            (click)="reactions.toggle(msg, group.emoji)"
+          >
+            <span class="main-chat__reaction-emoji">{{ group.emoji }}</span>
+            <span>{{ group.count }}</span>
+            <span class="reaction-tooltip" role="tooltip">
+              {{ reactions.tooltip(msg, group.emoji) }}
+            </span>
+          </button>
+        }
+        @if (overflow.overflow(groups) > 0) {
+          <button type="button" class="reaction-more" (click)="overflow.toggle(msg.id)">
+            @if (overflow.isExpanded(msg.id)) {
+              Weniger anzeigen
+            } @else {
+              +{{ overflow.overflow(groups) }} weitere
+            }
+          </button>
+        }
+      </div>
+    }
+
+    @if (msg.replyCount) {
+      <div class="main-chat__thread-teaser">
+        <button type="button" class="main-chat__thread-link" (click)="threadClicked.emit(msg)">
+          {{ replyLabel(msg.replyCount) }}
+        </button>
+        @if (msg.lastReplyAt) {
+          <span class="main-chat__last-reply">
+            Letzte Antwort {{ profiles.formatMessageTime(msg.lastReplyAt) }}
+          </span>
+        }
+        @if (unread.isThreadUnread(msg)) {
+          <span class="unread-dot" aria-label="Neue Antworten"></span>
+        }
+      </div>
+    }
+  </div>
+</article>

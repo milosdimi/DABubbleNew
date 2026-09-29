@@ -13,7 +13,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { ChatInputTools } from '../../../shared/chat-input-tools/chat-input-tools';
-import { MessageText } from '../../../shared/message-text/message-text';
 import { ClickOutsideDirective } from '../../../shared/click-outside/click-outside.directive';
 import { TypingIndicator } from '../../../shared/typing/typing-indicator';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
@@ -23,7 +22,6 @@ import { Channel, Message, User } from '../../../shared/models';
 import { MentionService } from '../../../shared/mention/mention.service';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
 import { PresenceService } from '../../../shared/presence/presence.service';
-import { ReactionOverflowService } from '../../../shared/reactions/reaction-overflow.service';
 import { UnreadService } from '../../../shared/unread/unread.service';
 import { ChannelInfo } from '../../channel/channel-info/channel-info';
 import { ChannelMembers } from '../../channel/channel-members/channel-members';
@@ -34,11 +32,12 @@ import { MainChatProfileService } from './main-chat-profile.service';
 import { MainChatReactionService } from './main-chat-reaction.service';
 import { MainChatSessionService } from './main-chat-session.service';
 import { MainChatUploadService } from './main-chat-upload.service';
+import { MainChatMessage } from './main-chat-message/main-chat-message';
 
 /** Mittlere Spalte des Workspace: Nachrichten eines Channels oder Direktchats. */
 @Component({
   selector: 'app-main-chat',
-  imports: [Icon, ProfileCard, ChannelInfo, ChannelMembers, ClickOutsideDirective, ChatInputTools, TypingIndicator, MessageText],
+  imports: [Icon, ProfileCard, ChannelInfo, ChannelMembers, ChatInputTools, TypingIndicator, MainChatMessage],
   providers: [
     MainChatDateService,
     MainChatEditService,
@@ -52,7 +51,6 @@ import { MainChatUploadService } from './main-chat-upload.service';
   styleUrls: [
     './main-chat.scss',
     './main-chat-messages.scss',
-    './main-chat-toolbar.scss',
     './main-chat-input.scss',
   ],
 })
@@ -105,8 +103,6 @@ export class MainChat {
   private readonly injector = inject(Injector);
   protected readonly unread = inject(UnreadService);
   protected readonly presence = inject(PresenceService);
-  /** Figma: 7 Reaktionen sichtbar, danach "+X weitere". */
-  protected readonly overflow = inject(ReactionOverflowService);
   /** "@Name" in Nachrichten hervorheben (Liste der sichtbaren User). */
   protected readonly mentions = inject(MentionService);
 
@@ -267,10 +263,6 @@ export class MainChat {
     this.profiles.closeChannelInfo();
   }
 
-  protected isOwn(message: Message): boolean {
-    return message.senderId === this.auth.currentUser?.uid;
-  }
-
   // --- Kopfbereich ------------------------------------------------------------
 
   protected openChannelInfo(channel: Channel): void {
@@ -357,35 +349,9 @@ export class MainChat {
     }
   }
 
-  protected openAttachment(path: string): void {
-    void this.uploads.openAttachment(path);
-  }
-
-  // --- Nachricht bearbeiten -----------------------------------------------------
-
-  private persistEdit(message: Message): (text: string) => Promise<void> {
-    return (text) => this.messageService.editMessage(message, text);
-  }
-
-  protected deleteOwn(message: Message): void {
-    void this.edit.confirmDelete(() => this.messageService.deleteMessage(message));
-  }
-
-  protected saveEdit(message: Message): void {
-    void this.edit.save(this.persistEdit(message));
-  }
-
-  protected onEditKeydown(event: KeyboardEvent, message: Message): void {
-    this.edit.onKeydown(event, this.persistEdit(message));
-  }
-
   // --- Thread -----------------------------------------------------------------
 
   protected openThread(message: Message): void {
     this.replyClicked.emit(message);
-  }
-
-  protected replyLabel(count: number): string {
-    return count === 1 ? '1 Antwort' : `${count} Antworten`;
   }
 }

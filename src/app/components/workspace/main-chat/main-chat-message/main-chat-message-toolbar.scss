@@ -1,6 +1,7 @@
-// Main-Chat: Hover-Leiste, Emoji-Picker, Reaktionen, Thread-Teaser (aus main-chat.scss ausgelagert).
-@use '../../../../styles/functions' as fct;
-@use '../../../../styles/mixins' as mx;
+// Nachricht im Main-Chat: Hover-Leiste, Emoji-Picker, Reaktionen, Thread-Teaser
+// (Teil der styleUrls von main-chat-message).
+@use '../../../../../styles/functions' as fct;
+@use '../../../../../styles/mixins' as mx;
 
 // --- Toolbar & Reactions -----------------------------------------------------
 
