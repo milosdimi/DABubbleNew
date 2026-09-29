@@ -1,0 +1,127 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+// Eingabefeld des Threads (Teil von thread.ts styleUrls). Die mobilen Regeln stehen
+// hier am Ende, weil diese Datei zuletzt geladen wird und sie so die Grundwerte der
+// anderen Thread-Dateien ueberschreiben.
+
+// --- Eingabefeld (1:1 main-chat-Pattern, schmalere Spalte) ---
+.thread__input {
+  position: relative;
+  flex: 0 0 auto;
+  @include mx.flex(column, flex-start, stretch);
+  gap: 8px;
+  padding: 16px 20px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 20px;
+}
+
+.thread__input-field {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  color: fct.color(black);
+
+  &::placeholder {
+    color: fct.color(text-gray);
+  }
+}
+
+.thread__attachment-preview {
+  @include mx.flex(row, flex-start, center);
+  gap: 8px;
+}
+
+.thread__attachment-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(text-gray);
+}
+
+.thread__input-tools {
+  @include mx.flex(row, flex-start, center);
+  gap: 4px;
+}
+
+.thread__input-row {
+  @include mx.flex(row, space-between, center);
+}
+
+.thread__input-icon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: none;
+  outline: none;
+  background: none;
+  color: fct.color(text-gray);
+  cursor: pointer;
+  @include mx.flex(row, center, center);
+
+  &:hover:not(:disabled) {
+    color: fct.color(purple-1);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  app-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.thread__send {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border: none;
+  outline: none;
+  border-radius: 50%;
+  background: fct.color(purple-1);
+  color: fct.color(white);
+  cursor: pointer;
+  @include mx.flex(row, center, center);
+  @include mx.transition();
+
+  &:hover {
+    background: fct.color(purple-2);
+  }
+
+  app-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Mobil (Figma 08): vollflaechig, Avatar 50px, 16px bis zum Inhalt, Eingabe 20px innen.
+@include mx.workspace-mobile {
+  .thread {
+    padding: 16px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .thread__message {
+    gap: 16px;
+  }
+
+  .thread__message-avatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  .thread__input {
+    padding: 20px;
+  }
+}

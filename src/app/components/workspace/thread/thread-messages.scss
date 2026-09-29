@@ -1,0 +1,189 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+// Nachrichten, Datumstrenner und Reactions im Thread (Teil von thread.ts styleUrls).
+
+// --- Nachrichten-Liste (Ausgangsnachricht + Antworten, gleiche Struktur) ---
+.thread__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  @include mx.flex(column, flex-start, stretch);
+  gap: 16px;
+  padding-right: 4px;
+}
+
+.thread__divider {
+  height: 1px;
+  background: fct.color(light-purple);
+}
+
+.thread__empty {
+  margin: 0;
+  @include mx.typo(nunito, 400);
+  font-size: 15px;
+  color: fct.color(text-gray);
+  text-align: center;
+}
+
+.thread__message {
+  width: 100%;
+  @include mx.flex(row, flex-start, flex-start);
+  gap: 12px;
+}
+
+.thread__message--own {
+  flex-direction: row-reverse;
+}
+
+.thread__message-avatar {
+  flex: 0 0 auto;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.thread__message-content {
+  position: relative; // Anker der Hover-Leiste
+  flex: 1 1 auto;
+  min-width: 0;
+  @include mx.flex(column, flex-start, flex-start);
+  gap: 6px;
+}
+
+.thread__message--own .thread__message-content {
+  align-items: flex-end;
+}
+
+.thread__message-meta {
+  @include mx.flex(row, flex-start, center);
+  gap: 12px;
+}
+
+.thread__message-time {
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(text-gray);
+}
+
+.thread__message-name {
+  margin: -2px -6px;
+  padding: 2px 6px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  @include mx.typo(nunito, 700);
+  font-size: 18px;
+  color: fct.color(black);
+  @include mx.transition(100ms);
+
+  &:hover {
+    background: fct.color(background);
+  }
+}
+
+.thread__message-bubble-wrap {
+  max-width: 100%;
+}
+
+.thread__message-bubble {
+  @include mx.flex(row, flex-start, center);
+  gap: 8px;
+  max-width: 100%;
+  padding: 10px 14px;
+  border-radius: 0 20px 20px 20px;
+  background: fct.color(background);
+}
+
+.thread__message--own .thread__message-bubble {
+  border-radius: 20px 0 20px 20px;
+  background: fct.color(purple-2);
+  color: fct.color(white);
+}
+
+.thread__message-text {
+  margin: 0;
+  overflow-wrap: anywhere;
+  @include mx.typo(nunito, 400);
+  font-size: 18px;
+  line-height: 1.4;
+  color: fct.color(black);
+}
+
+.thread__message--own .thread__message-text {
+  color: fct.color(white);
+}
+
+.thread__message-attachment {
+  @include mx.flex(row, flex-start, center);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+
+  &:hover {
+    color: fct.color(purple-1);
+  }
+}
+
+// --- Datum-Trenner (gleiche Werte wie main-chat) ---
+.thread__date-separator {
+  width: 100%;
+  @include mx.flex(row, center, center);
+}
+
+.thread__date-line {
+  flex: 1 1 auto;
+  height: 1px;
+  background: fct.color(light-purple);
+}
+
+.thread__date-label {
+  flex: 0 0 auto;
+  padding: 6px 14px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 16px;
+  background: fct.color(white);
+  @include mx.typo(nunito, 400);
+  font-size: 14px;
+  color: fct.color(black);
+}
+
+// --- Reactions (Pillen-Werte wie main-chat, Figma-verifiziert) ---
+.thread__reactions {
+  position: relative;
+  @include mx.flex(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.thread__reaction {
+  position: relative; // Bezug fuer den Tooltip (_mention.scss)
+  @include mx.flex(row, center, center);
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid fct.color(light-purple);
+  border-radius: 20px;
+  background: fct.color(white);
+  cursor: pointer;
+  @include mx.typo(nunito, 400);
+  font-size: 16px;
+  color: fct.color(black);
+}
+
+.thread__reaction-emoji {
+  font-size: 24px;
+  line-height: 1;
+}

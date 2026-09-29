@@ -196,15 +196,15 @@
                 <div
                   class="thread__message-toolbar"
                   [class.thread__message-toolbar--active]="
-                    activeReactionReplyId() === reply.id || edit.menuMessageId() === reply.id
+                    reactions.pickerMessageId() === reply.id || edit.menuMessageId() === reply.id
                   "
                 >
-                  @for (emoji of recentReactions.quickReactions(); track emoji) {
+                  @for (emoji of reactions.quickReactions(); track emoji) {
                     <button
                       type="button"
                       class="thread__toolbar-btn"
                       [attr.aria-label]="'Mit ' + emoji + ' reagieren'"
-                      (click)="toggleReaction(reply, emoji)"
+                      (click)="reactions.toggle(reply, emoji)"
                     >
                       {{ emoji }}
                     </button>
@@ -214,20 +214,20 @@
                       type="button"
                       class="thread__toolbar-btn"
                       aria-label="Reaction hinzufügen"
-                      (click)="toggleReactionPicker(reply.id, $any($event.currentTarget))"
+                      (click)="reactions.togglePicker(reply.id, $any($event.currentTarget))"
                     >
                       <app-icon name="add-reaction" />
                     </button>
 
-                    @if (activeReactionReplyId() === reply.id) {
+                    @if (reactions.pickerMessageId() === reply.id) {
                       <div
                         class="thread__reaction-picker"
-                        [class.thread__reaction-picker--above]="!reactionPickerBelow()"
+                        [class.thread__reaction-picker--above]="!reactions.pickerBelow()"
                         appClickOutside
-                        (appClickOutside)="closeReactionPicker()"
+                        (appClickOutside)="reactions.closePicker()"
                       >
-                        @for (emoji of reactionOptions; track emoji) {
-                          <button type="button" (click)="toggleReaction(reply, emoji)">
+                        @for (emoji of reactions.emojis; track emoji) {
+                          <button type="button" (click)="reactions.toggle(reply, emoji)">
                             {{ emoji }}
                           </button>
                         }
@@ -273,29 +273,19 @@
             }
 
             <div class="thread__reactions">
-              @let groups = getReactionGroups(reply);
+              @let groups = reactions.groups(reply);
               @for (reaction of overflow.visible(groups, reply.id); track reaction.emoji) {
-                <div class="thread__reaction-wrap">
-                  <button
-                    type="button"
-                    class="thread__reaction"
-                    (click)="toggleReaction(reply, reaction.emoji)"
-                    (mouseleave)="hideReactionTooltip(reply.id)"
-                  >
-                    <span class="thread__reaction-emoji">{{ reaction.emoji }}</span>
-                    <span>{{ reaction.count }}</span>
-                  </button>
-
-                  @if (
-                    reactionTooltip()?.replyId === reply.id &&
-                    reactionTooltip()?.emoji === reaction.emoji
-                  ) {
-                    <div class="thread__reaction-tooltip">
-                      {{ reactionTooltip()!.text }}
-                      <span class="thread__reaction-tooltip-arrow"></span>
-                    </div>
-                  }
-                </div>
+                <button
+                  type="button"
+                  class="thread__reaction"
+                  (click)="reactions.toggle(reply, reaction.emoji)"
+                >
+                  <span class="thread__reaction-emoji">{{ reaction.emoji }}</span>
+                  <span>{{ reaction.count }}</span>
+                  <span class="reaction-tooltip" role="tooltip">
+                    {{ reactions.tooltip(reply, reaction.emoji) }}
+                  </span>
+                </button>
               }
               @if (overflow.overflow(groups) > 0) {
                 <button type="button" class="reaction-more" (click)="overflow.toggle(reply.id)">

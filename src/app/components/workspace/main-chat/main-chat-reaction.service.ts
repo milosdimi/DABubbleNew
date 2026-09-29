@@ -15,8 +15,9 @@ export interface ReactionGroup {
 }
 
 /**
- * Reactions im Main-Chat (Channel- und Direktnachrichten).
- * Wird per `providers` in der Main-Chat-Komponente bereitgestellt.
+ * Reactions im Main-Chat (Channel- und Direktnachrichten) und im Thread.
+ * Wird per `providers` in Main-Chat bzw. Thread bereitgestellt; der Thread setzt
+ * `threadParent`, dann gehen Reactions an die Antworten dieser Nachricht.
  */
 @Injectable()
 export class MainChatReactionService {
@@ -36,6 +37,9 @@ export class MainChatReactionService {
 
   /** Oeffnet der offene Picker nach unten (statt nach oben)? */
   readonly pickerBelow = signal(false);
+
+  /** Im Thread: die Elternnachricht der Antworten; im Main-Chat null. */
+  readonly threadParent = signal<Message | null>(null);
 
   togglePicker(messageId: string, button?: HTMLElement): void {
     if (button) this.pickerBelow.set(pickerOpensBelow(button));
@@ -83,10 +87,24 @@ export class MainChatReactionService {
     const alreadyReacted = (message.reactions ?? []).some(
       (existing) => existing.emoji === emoji && existing.userId === userId,
     );
-    if (alreadyReacted) await this.messageService.removeReaction(message, reaction);
+    if (alreadyReacted) await this.remove(message, reaction);
     else {
       this.recent.remember(emoji);
-      await this.messageService.addReaction(message, reaction);
+      await this.add(message, reaction);
     }
+  }
+
+  private add(message: Message, reaction: Reaction): Promise<void> {
+    const parent = this.threadParent();
+    return parent
+      ? this.messageService.addReplyReaction(parent, message.id, reaction)
+      : this.messageService.addReaction(message, reaction);
+  }
+
+  private remove(message: Message, reaction: Reaction): Promise<void> {
+    const parent = this.threadParent();
+    return parent
+      ? this.messageService.removeReplyReaction(parent, message.id, reaction)
+      : this.messageService.removeReaction(message, reaction);
   }
 }

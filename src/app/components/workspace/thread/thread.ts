@@ -13,10 +13,10 @@ import {
   viewChild,
 } from '@angular/core';
 import { Unsubscribe } from 'firebase/firestore';
-import { MAIN_CHAT_EMOJIS, pickerOpensBelow } from '../main-chat/main-chat-emojis';
 import { MainChatDateService } from '../main-chat/main-chat-date.service';
 import { MainChatEditService } from '../main-chat/main-chat-edit.service';
 import { MainChatProfileService } from '../main-chat/main-chat-profile.service';
+import { MainChatReactionService } from '../main-chat/main-chat-reaction.service';
 import { AttachmentData, MainChatUploadService } from '../main-chat/main-chat-upload.service';
 import { ProfileCard } from '../../profile/profile-card/profile-card';
 import { ChannelService } from '../../../shared/channel/channel.service';
@@ -28,29 +28,18 @@ import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
 import { ChatTarget } from '../../../shared/message/message';
-import { Channel, Message, Reaction } from '../../../shared/models';
+import { Channel, Message } from '../../../shared/models';
 import { MentionService } from '../../../shared/mention/mention.service';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
 import { ReactionOverflowService } from '../../../shared/reactions/reaction-overflow.service';
-import { RecentReactionsService } from '../../../shared/reactions/recent-reactions.service';
 import { UnreadService } from '../../../shared/unread/unread.service';
-
-/** Zusammenfassung einer Reaction fuer die Anzeige. */
-type ReactionGroup = { emoji: string; count: number };
-
-/** Aktuell eingeblendeter Reaction-Tooltip. */
-type ReactionTooltip = { replyId: string; emoji: string; text: string };
 
 /**
  * Thread-Panel (Spalte 3): zeigt die Ausgangsnachricht + Antworten eines
  * Threads in Echtzeit, 1:1 im main-chat-Stil (Figma-verifiziert). Absender-
- * profile/Datum/Upload nutzen dieselben Services wie main-chat direkt.
- *
- * Reaction-Logik ist eine eigene Implementierung (nicht MainChatReactionService),
- * weil Thread-Antworten in einer anderen Collection liegen (`.../replies`):
- * addReplyReaction/removeReplyReaction im MessageService finden ueber die
- * Elternnachricht selbst heraus, wohin geschrieben wird (Channel oder Direktchat).
- * Die Emoji-Liste ist dieselbe wie im main-chat (MAIN_CHAT_EMOJIS).
+ * profile/Datum/Upload/Reactions nutzen dieselben Services wie main-chat; fuer
+ * Reactions kennt der Service die Elternnachricht (`threadParent`) und schreibt
+ * dann in deren Antworten.
  */
 @Component({
   selector: 'app-thread',
@@ -59,10 +48,16 @@ type ReactionTooltip = { replyId: string; emoji: string; text: string };
     MainChatDateService,
     MainChatEditService,
     MainChatProfileService,
+    MainChatReactionService,
     MainChatUploadService,
   ],
   templateUrl: './thread.html',
-  styleUrl: './thread.scss',
+  styleUrls: [
+    './thread.scss',
+    './thread-messages.scss',
+    './thread-toolbar.scss',
+    './thread-input.scss',
+  ],
 })
 export class Thread implements OnDestroy {
   private readonly auth = inject(FIREBASE_AUTH);
@@ -86,13 +81,8 @@ export class Thread implements OnDestroy {
   protected readonly replyText = signal('');
   protected readonly selectedFile = signal<File | null>(null);
 
-  protected readonly reactionOptions = MAIN_CHAT_EMOJIS;
-  /** Hover-Leiste: die zwei zuletzt genutzten Reaktionen (anfangs die Figma-Standards). */
-  protected readonly recentReactions = inject(RecentReactionsService);
-  protected readonly activeReactionReplyId = signal<string | null>(null);
-  /** Oeffnet der offene Picker nach unten (statt nach oben)? */
-  protected readonly reactionPickerBelow = signal(true);
-  protected readonly reactionTooltip = signal<ReactionTooltip | null>(null);
+  /** Reactions an Antworten (Picker, Hover-Leiste, Tooltip wie im Main-Chat). */
+  protected readonly reactions = inject(MainChatReactionService);
 
   protected readonly selectedProfileUserId = this.profileService.selectedProfileUserId;
 
@@ -129,7 +119,6 @@ export class Thread implements OnDestroy {
   }
 
   private unsubscribeReplies: Unsubscribe | null = null;
-  private tooltipTimeout: ReturnType<typeof setTimeout> | null = null;
 
   /** Setzt die aktuell im Thread geoeffnete Ausgangsnachricht. */
   @Input()
@@ -142,6 +131,8 @@ export class Thread implements OnDestroy {
     this.selectedFile.set(null);
     this.edit.cancel();
     this.edit.closeMenu();
+    this.reactions.threadParent.set(message);
+    this.reactions.closePicker();
 
     if (!message) return;
 
@@ -205,11 +196,6 @@ export class Thread implements OnDestroy {
   /** Schliesst das aktuell geoeffnete Profil. */
   protected closeProfile(): void {
     this.profileService.closeProfile();
-  }
-
-  /** Schliesst die Emoji-Auswahl (z. B. Klick ausserhalb). */
-  protected closeReactionPicker(): void {
-    this.activeReactionReplyId.set(null);
   }
 
   // --- Nachricht bearbeiten (gemeinsame Logik: MainChatEditService) ---
@@ -328,125 +314,5 @@ export class Thread implements OnDestroy {
   /** Oeffnet einen Anhang einer Thread-Antwort. */
   protected async openAttachment(attachmentPath: string): Promise<void> {
     await this.uploadService.openAttachment(attachmentPath);
-  }
-
-  // --- Reactions (eigene, generalisierte Kopie - s. Klassenkommentar oben) ---
-
-  /** Alle Reactions einer Antwort, haeufigste zuerst (Ueberlauf "+X weitere": ReactionOverflowService). */
-  protected getReactionGroups(reply: Message): ReactionGroup[] {
-    const counts = new Map<string, number>();
-
-    for (const reaction of reply.reactions ?? []) {
-      counts.set(reaction.emoji, (counts.get(reaction.emoji) ?? 0) + 1);
-    }
-
-    return [...counts]
-      .map(([emoji, count]) => ({ emoji, count }))
-      .sort((a, b) => b.count - a.count);
-  }
-
-  /** Oeffnet oder schliesst die Emoji-Auswahl fuer eine Antwort. */
-  protected toggleReactionPicker(replyId: string, button: HTMLElement): void {
-    this.reactionPickerBelow.set(pickerOpensBelow(button));
-    this.activeReactionReplyId.update((current) => (current === replyId ? null : replyId));
-  }
-
-  /** Fuegt eine Reaction hinzu oder entfernt sie wieder, zeigt danach den Tooltip. */
-  protected async toggleReaction(reply: Message, emoji: string): Promise<void> {
-    const parent = this.parentMessage();
-    const userId = this.auth.currentUser?.uid;
-    if (!parent || !userId) return;
-
-    const reaction: Reaction = { emoji, userId, messageId: reply.id };
-    const wasReacted = this.hasReaction(reply, reaction);
-
-    if (wasReacted) {
-      await this.messageService.removeReplyReaction(parent, reply.id, reaction);
-    } else {
-      this.recentReactions.remember(emoji);
-      await this.messageService.addReplyReaction(parent, reply.id, reaction);
-    }
-
-    this.activeReactionReplyId.set(null);
-
-    const reactorIds = this.predictReactorIds(reply, emoji, userId, wasReacted);
-    if (reactorIds.length === 0) {
-      this.reactionTooltip.set(null);
-      return;
-    }
-    void this.showReactionTooltip(reply.id, emoji, reactorIds);
-  }
-
-  /** Prueft, ob der aktuelle User dieselbe Reaction bereits gesetzt hat. */
-  private hasReaction(reply: Message, reaction: Reaction): boolean {
-    return reply.reactions.some(
-      (entry) => entry.userId === reaction.userId && entry.emoji === reaction.emoji,
-    );
-  }
-
-  /**
-   * Berechnet die Reactor-Liste nach dem Toggle, ohne auf den naechsten
-   * Firestore-Snapshot zu warten (der kommt erst asynchron etwas spaeter).
-   */
-  private predictReactorIds(
-    reply: Message,
-    emoji: string,
-    userId: string,
-    wasReacted: boolean,
-  ): string[] {
-    const existing = reply.reactions.filter((r) => r.emoji === emoji).map((r) => r.userId);
-
-    if (wasReacted) return existing.filter((id) => id !== userId);
-    return existing.includes(userId) ? existing : [...existing, userId];
-  }
-
-  /** Zeigt den Reactor-Tooltip an und blendet ihn nach kurzer Zeit wieder aus. */
-  private async showReactionTooltip(
-    replyId: string,
-    emoji: string,
-    reactorIds: string[],
-  ): Promise<void> {
-    const text = await this.buildReactionTooltipText(reactorIds);
-    this.reactionTooltip.set({ replyId, emoji, text });
-
-    if (this.tooltipTimeout) clearTimeout(this.tooltipTimeout);
-    this.tooltipTimeout = setTimeout(() => this.reactionTooltip.set(null), 2500);
-  }
-
-  /** Blendet den Tooltip vorzeitig aus (z. B. bei Mouse-Leave). */
-  protected hideReactionTooltip(replyId: string): void {
-    if (this.reactionTooltip()?.replyId !== replyId) return;
-
-    if (this.tooltipTimeout) clearTimeout(this.tooltipTimeout);
-    this.reactionTooltip.set(null);
-  }
-
-  /** Baut den Tooltip-Text ("X hat reagiert" / "X und Du haben reagiert"). */
-  private async buildReactionTooltipText(reactorIds: string[]): Promise<string> {
-    const currentUid = this.auth.currentUser?.uid;
-    const names = await Promise.all(
-      reactorIds.map((id) =>
-        id === currentUid ? Promise.resolve('Du') : this.resolveUserName(id),
-      ),
-    );
-    const ordered = this.moveSelfLast(names);
-
-    if (ordered.length === 1) return `${ordered[0]} hat reagiert`;
-
-    const last = ordered[ordered.length - 1];
-    const rest = ordered.slice(0, -1).join(', ');
-    return `${rest} und ${last} haben reagiert`;
-  }
-
-  /** Stellt sicher, dass "Du" zuletzt genannt wird, falls vorhanden. */
-  private moveSelfLast(names: string[]): string[] {
-    if (!names.includes('Du')) return names;
-    return [...names.filter((name) => name !== 'Du'), 'Du'];
-  }
-
-  /** Loest einen Anzeigenamen fuer eine beliebige userId auf (auch ohne eigene Nachricht im Thread). */
-  private async resolveUserName(userId: string): Promise<string> {
-    const user = await this.profileService.getUser(userId);
-    return user?.name ?? 'Jemand';
   }
 }

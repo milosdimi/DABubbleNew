@@ -122,7 +122,8 @@
 }
 
 // Tooltip an einer Reaktion: "Anna und Du haben mit 🚀 reagiert".
-.main-chat__reaction {
+.main-chat__reaction,
+.thread__reaction {
   position: relative;
 
   &:hover .reaction-tooltip {
@@ -147,7 +148,8 @@
 }
 
 // Eigene Nachrichten stehen rechts: Tooltip nach links oeffnen.
-.main-chat__message--own .reaction-tooltip {
+.main-chat__message--own .reaction-tooltip,
+.thread__message--own .reaction-tooltip {
   left: auto;
   right: 50%;
   border-radius: 20px 20px 0 20px;
