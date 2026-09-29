@@ -217,3 +217,40 @@
   @include mx.typo(nunito, 700);
   font-size: 22px;
 }
+
+// Mobil: Profilmenue als Bottom Sheet am unteren Rand (profile-menu.scss).
+.header__menu-backdrop {
+  display: none;
+}
+
+@include mx.workspace-mobile {
+  .header__menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    display: block;
+    background: rgba(0, 0, 0, 0.2);
+    animation: menu-backdrop-in 300ms ease-out both;
+  }
+
+  .header__menu {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+  }
+}
+
+@keyframes menu-backdrop-in {
+  from {
+    background: rgba(0, 0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header__menu-backdrop {
+    animation: none;
+  }
+}

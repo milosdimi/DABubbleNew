@@ -50,6 +50,8 @@
         </button>
 
         @if (menuOpen()) {
+          <!-- Mobil: abgedunkelter Hintergrund unter dem Bottom Sheet, Tipp schliesst. -->
+          <div class="header__menu-backdrop" (click)="menuOpen.set(false)"></div>
           <app-profile-menu
             class="header__menu"
             [status]="chosenStatus()"

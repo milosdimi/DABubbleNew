@@ -1,4 +1,6 @@
 <nav class="profile-menu" aria-label="Profilmenü">
+  <!-- Mobil: Griff des Bottom Sheets. -->
+  <span class="profile-menu__handle" aria-hidden="true"></span>
   <button type="button" class="profile-menu__item" (click)="profileClicked.emit()">Profil</button>
 
   @if (canChangeStatus()) {
