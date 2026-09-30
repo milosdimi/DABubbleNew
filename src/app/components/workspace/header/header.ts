@@ -104,10 +104,14 @@ export class Header implements OnInit {
     this.profileOpen.set(true);
   }
 
+  /**
+   * Erst den Workspace verlassen (beendet alle Listener), dann abmelden. Umgekehrt
+   * wuerden laufende Listener kurz ohne Berechtigung lesen und Fehler in die Konsole schreiben.
+   */
   protected async logout(): Promise<void> {
     this.menuOpen.set(false);
     await this.presence.goOffline();
-    await signOut(this.auth);
     await this.router.navigate(['/login']);
+    await signOut(this.auth);
   }
 }
