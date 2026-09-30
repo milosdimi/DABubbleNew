@@ -59,13 +59,15 @@
 
 .thread__message-meta {
   @include mx.flex(row, flex-start, center);
-  gap: 12px;
+  flex-wrap: wrap;
+  column-gap: 12px;
 }
 
 .thread__message-time {
   @include mx.typo(nunito, 400);
   font-size: 14px;
   color: fct.color(text-gray);
+  white-space: nowrap;
 }
 
 .thread__message-name {

@@ -119,15 +119,19 @@
   line-height: 1;
 }
 
+// Wird es eng, rutscht "Letzte Antwort ..." als Ganzes in die naechste Zeile,
+// statt mitten im Text umzubrechen.
 .main-chat__thread-teaser {
   @include mx.flex(row, flex-start, center);
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 4px 20px;
 }
 
 .main-chat__last-reply {
   @include mx.typo(nunito, 400);
   font-size: 14px;
   color: fct.color(text-gray);
+  white-space: nowrap;
 }
 
 // Figma: "2 Antworten" Nunito Regular 18px Purple 3.
@@ -138,6 +142,7 @@
   @include mx.typo(nunito, 400);
   font-size: 18px;
   color: fct.color(purple-3);
+  white-space: nowrap;
   cursor: pointer;
 
   &:hover {

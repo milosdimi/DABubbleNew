@@ -77,7 +77,8 @@
 
 .main-chat__meta {
   @include mx.flex(row, flex-start, center);
-  gap: 16px;
+  flex-wrap: wrap;
+  column-gap: 16px;
 }
 
 .main-chat__name {
@@ -98,6 +99,7 @@
   @include mx.typo(nunito, 400);
   font-size: 14px;
   color: fct.color(text-gray);
+  white-space: nowrap;
 }
 
 .main-chat__bubble-wrap {
