@@ -80,20 +80,20 @@ export class MentionService {
     this.channels.set(await this.channelService.listVisibleChannels(viewer));
   }
 
-  /** Vorschlaege zum getippten Text nach dem "@". */
-  suggestions(query: string, max = 6): User[] {
+  /** Alle passenden User zum getippten Text nach dem "@", alphabetisch (die Liste scrollt). */
+  suggestions(query: string): User[] {
     const term = query.toLowerCase();
     return this.users()
       .filter((user) => user.name.toLowerCase().includes(term))
-      .slice(0, max);
+      .sort((a, b) => a.name.localeCompare(b.name, 'de'));
   }
 
-  /** Vorschlaege zum getippten Text nach dem "#". */
-  channelSuggestions(query: string, max = 6): Channel[] {
+  /** Alle passenden Channels zum getippten Text nach dem "#", alphabetisch. */
+  channelSuggestions(query: string): Channel[] {
     const term = query.toLowerCase();
     return this.channels()
       .filter((channel) => channel.name.toLowerCase().includes(term))
-      .slice(0, max);
+      .sort((a, b) => a.name.localeCompare(b.name, 'de'));
   }
 
   /** Zerlegt einen Text in normale Abschnitte, "@Name", "#Channel" (nur bekannte) und Links. */

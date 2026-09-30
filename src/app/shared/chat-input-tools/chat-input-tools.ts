@@ -1,4 +1,14 @@
-import { Component, computed, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { MAIN_CHAT_EMOJIS } from '../../components/workspace/main-chat/main-chat-emojis';
 import { ClickOutsideDirective } from '../click-outside/click-outside.directive';
 import { Icon } from '../icon/icon';
@@ -35,6 +45,7 @@ interface Suggestion {
 export class ChatInputTools {
   private readonly mentions = inject(MentionService);
   private readonly typing = inject(TypingService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly field = input.required<HTMLTextAreaElement>();
   readonly disabled = input(false);
@@ -192,6 +203,14 @@ export class ChatInputTools {
     event.preventDefault();
     const step = event.key === 'ArrowDown' ? 1 : -1;
     this.activeIndex.update((index) => (index + step + count) % count);
+    this.revealActiveSuggestion();
+  }
+
+  /** Lange Liste: der per Pfeiltaste gewaehlte Eintrag scrollt mit ins Bild. */
+  private revealActiveSuggestion(): void {
+    requestAnimationFrame(() =>
+      this.host.nativeElement.querySelector('.tools__person--active')?.scrollIntoView({ block: 'nearest' }),
+    );
   }
 
   /** Ersetzt `removeCount` Zeichen vor dem Cursor durch `insert` und setzt den Cursor dahinter. */
