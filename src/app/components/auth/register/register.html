@@ -6,7 +6,8 @@
       @if (step() === 'form') {
         <h1 class="auth-card__title">Konto erstellen</h1>
         <p class="auth-card__subtitle">
-          Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues DABubble-Konto.
+          Mit deinem Namen und deiner <span class="no-wrap">E-Mail-Adresse</span> hast du dein
+          neues <span class="no-wrap">DABubble-Konto</span>.
         </p>
 
         <form class="auth-form" [formGroup]="form" (ngSubmit)="goToAvatarStep()" novalidate>

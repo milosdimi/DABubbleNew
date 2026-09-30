@@ -4,7 +4,8 @@
     <section class="auth-card">
       <h1 class="auth-card__title">Anmeldung</h1>
       <p class="auth-card__subtitle">
-        Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit verwendest.
+        Wir empfehlen dir, die <span class="no-wrap">E-Mail-Adresse</span> zu nutzen, die du bei
+        der Arbeit verwendest.
       </p>
 
       <form class="auth-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
@@ -89,7 +90,11 @@
           </button>
 
           <div class="login__actions-row">
-            <button type="submit" class="auth-btn auth-btn--primary" [disabled]="loading()">
+            <button
+              type="submit"
+              class="auth-btn auth-btn--primary"
+              [disabled]="loading() || formInvalid()"
+            >
               @if (pending() === 'email') {
                 <app-spinner />
               } @else {

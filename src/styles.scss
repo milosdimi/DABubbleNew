@@ -26,3 +26,8 @@ body {
   background: fct.color(background);
   color: fct.color(black);
 }
+
+// Zusammengesetzte Woerter wie "E-Mail-Adresse" nicht am Bindestrich umbrechen.
+.no-wrap {
+  white-space: nowrap;
+}

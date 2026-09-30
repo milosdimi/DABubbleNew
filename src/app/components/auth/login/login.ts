@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../shared/auth/auth.service';
@@ -35,6 +36,10 @@ export class Login {
       validators: [Validators.required],
     }),
   });
+
+  private readonly status = toSignal(this.form.statusChanges, { initialValue: this.form.status });
+  /** "Anmelden" ist erst aktiv, wenn E-Mail und Passwort gueltig sind. */
+  protected readonly formInvalid = computed(() => this.status() !== 'VALID');
 
   protected onSubmit(): void {
     if (this.loading()) return;

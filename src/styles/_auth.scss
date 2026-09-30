@@ -107,13 +107,13 @@
 
 // Fehlertext-Slot: immer im DOM, nur visibility toggeln -> kein Layout-Sprung.
 .auth-field__error {
-  min-height: 19px;
+  min-height: 22px;
   margin-top: 6px;
   padding-left: 32px;
   @include mx.typo(nunito, 400);
-  font-size: 14px;
-  line-height: 19px;
-  color: fct.color(error);
+  font-size: 16px;
+  line-height: 22px;
+  color: fct.color(error-text);
   visibility: hidden;
 
   &.is-visible {
@@ -129,7 +129,7 @@
   @include mx.typo(nunito, 500);
   font-size: 16px;
   line-height: 20px;
-  color: fct.color(error);
+  color: fct.color(error-text);
   visibility: hidden;
 
   &.is-visible {
@@ -138,10 +138,10 @@
 }
 
 // --- Buttons ---
-// Aktions-Zeile am Kartenende: "Zurück" links, Primär-Aktion rechts.
+// Aktions-Zeile am Kartenende: "Zurück" links, Primär-Aktion rechts - auch auf 320px
+// in einer Zeile (dort mit kleinerem Innenabstand, siehe unten).
 .auth-actions {
   @include mx.flex(row, space-between, center);
-  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -165,7 +165,7 @@
 
   &:disabled {
     opacity: 0.5;
-    cursor: default;
+    cursor: not-allowed;
   }
 
   app-icon {
@@ -233,5 +233,10 @@
 
   .auth-field__error {
     padding-left: 20px;
+  }
+
+  .auth-actions .auth-btn {
+    padding: 12px 20px;
+    font-size: 16px;
   }
 }

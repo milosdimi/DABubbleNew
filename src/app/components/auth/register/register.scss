@@ -143,3 +143,18 @@
     }
   }
 }
+
+// Passen sechs 56px-Kreise nicht mehr in eine Reihe (unter ca. 420px): zwei Reihen
+// mit je drei groesseren Kreisen, damit sie sich gut antippen lassen.
+@media (max-width: 420px) {
+  .avatar-step__choices {
+    display: grid;
+    grid-template-columns: repeat(3, 64px);
+    justify-content: center;
+    gap: 12px 16px;
+  }
+
+  .avatar-step__choice {
+    width: 64px;
+  }
+}
