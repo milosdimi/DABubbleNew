@@ -3,7 +3,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../shared/auth/auth.service';
-import { strictEmail } from '../../../shared/auth/email.validator';
 import { Icon } from '../../../shared/icon/icon';
 import { Spinner } from '../../../shared/spinner/spinner';
 import { Toast } from '../../overlay/toast/toast';
@@ -28,7 +27,9 @@ export class ForgotPassword {
   protected readonly form = new FormGroup({
     email: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, strictEmail],
+      // Bewusst nur die normale Pruefung: Bestehende Konten (auch mit langer Endung)
+      // duerfen sich nie aussperren. Die strenge Regel gilt bei der Registrierung.
+      validators: [Validators.required, Validators.email],
     }),
   });
 
