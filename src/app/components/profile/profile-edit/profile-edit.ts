@@ -12,6 +12,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { Spinner } from '../../../shared/spinner/spinner';
+import { TypingService } from '../../../shared/typing/typing.service';
 import { UserService } from '../../../shared/user/user.service';
 import { Toast } from '../../overlay/toast/toast';
 
@@ -35,6 +36,7 @@ function notBlank(control: AbstractControl<string>): ValidationErrors | null {
 export class ProfileEdit {
   private readonly auth = inject(FIREBASE_AUTH);
   private readonly userService = inject(UserService);
+  private readonly typing = inject(TypingService);
 
   /** Dialog wurde ohne zu speichern geschlossen (X, Escape, Backdrop, Abbrechen). */
   readonly closed = output<void>();
@@ -62,6 +64,13 @@ export class ProfileEdit {
     initialValue: this.form.controls.name.status,
   });
   protected readonly formInvalid = computed(() => this.status() !== 'VALID');
+  /** Hat der User selbst im Namensfeld getippt? (setValue beim Laden zaehlt nicht.) */
+  protected readonly nameEdited = signal(false);
+  /** Sobald das Feld bearbeitet und leer ist, sofort sagen, was fehlt. */
+  protected readonly nameInvalid = computed(() => this.formInvalid() && this.nameEdited());
+  protected readonly fieldError = computed(() =>
+    this.nameInvalid() ? 'Bitte gib deinen Namen ein.' : this.formError(),
+  );
 
   constructor() {
     void this.loadUser();
@@ -144,6 +153,7 @@ export class ProfileEdit {
       const uid = await this.resolveUid();
       if (!uid) throw new Error('not-authenticated');
       await this.userService.updateProfile(uid, this.buildChanges());
+      this.typing.forgetOwnName();
       this.showSuccess();
     } catch {
       this.formError.set('Profil konnte nicht gespeichert werden. Bitte versuche es erneut.');

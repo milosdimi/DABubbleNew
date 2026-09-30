@@ -21,13 +21,19 @@
           type="button"
           class="avatar-section__edit"
           (click)="toggleAvatarPicker()"
+          [attr.aria-expanded]="avatarPickerOpen()"
           aria-label="Avatar ändern"
         >
           <app-icon name="edit" />
         </button>
       </div>
 
-      @if (avatarPickerOpen()) {
+      <!-- Immer im DOM und per Hoehen-Transition auf- und zugeklappt: kein Sprung im Dialog. -->
+      <div
+        class="avatar-picker-wrap"
+        [class.avatar-picker-wrap--open]="avatarPickerOpen()"
+        [inert]="!avatarPickerOpen()"
+      >
         <div class="avatar-picker">
           @for (choice of avatarChoices; track choice) {
             <button
@@ -41,7 +47,7 @@
             </button>
           }
         </div>
-      }
+      </div>
     </div>
 
     <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
@@ -51,7 +57,7 @@
           <app-icon class="dialog-field__label-icon" name="account-circle" />
           Vollständiger Name
         </label>
-        <label class="dialog-field__pill">
+        <label class="dialog-field__pill" [class.dialog-field__pill--invalid]="nameInvalid()">
           <app-icon class="dialog-field__icon" name="person" />
           <input
             id="profile-name"
@@ -59,10 +65,11 @@
             type="text"
             formControlName="name"
             placeholder="Vollständiger Name"
+            (input)="nameEdited.set(true)"
           />
         </label>
-        <p class="dialog-field__error" [class.is-visible]="formError()" role="alert">
-          {{ formError() }}
+        <p class="dialog-field__error" [class.is-visible]="fieldError()" role="alert">
+          {{ fieldError() }}
         </p>
       </div>
 
