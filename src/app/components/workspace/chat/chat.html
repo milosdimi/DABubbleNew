@@ -75,6 +75,7 @@
         [message]="message"
         (closed)="threadMessage.set(null)"
         (channelSelected)="showChannel($event)"
+        (userSelected)="openDirectChat($event)"
       />
     }
   </div>

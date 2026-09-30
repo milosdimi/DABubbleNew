@@ -54,7 +54,7 @@
                 <p class="thread__message-text">
                   <app-message-text
                     [text]="parent.text"
-                    (mentionClicked)="openProfile($event)"
+                    (mentionClicked)="messageUser($event)"
                     (channelClicked)="channelSelected.emit($event)"
                   />
                 </p>
@@ -177,7 +177,7 @@
                     <p class="thread__message-text">
                   <app-message-text
                     [text]="reply.text"
-                    (mentionClicked)="openProfile($event)"
+                    (mentionClicked)="messageUser($event)"
                     (channelClicked)="channelSelected.emit($event)"
                   />
                 </p>
@@ -365,6 +365,10 @@
   }
 
   @if (selectedProfileUserId(); as userId) {
-    <app-profile-card [userId]="userId" (closed)="closeProfile()" />
+    <app-profile-card
+      [userId]="userId"
+      (closed)="closeProfile()"
+      (messageClicked)="messageUser($event)"
+    />
   }
 </section>

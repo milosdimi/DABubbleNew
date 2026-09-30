@@ -90,7 +90,7 @@
             <p class="main-chat__text">
               <app-message-text
                 [text]="msg.text"
-                (mentionClicked)="profiles.openProfile($event)"
+                (mentionClicked)="mentionClicked.emit($event)"
                 (channelClicked)="channelClicked.emit($event)"
               />
             </p>

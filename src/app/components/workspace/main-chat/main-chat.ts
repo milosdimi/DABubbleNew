@@ -312,11 +312,14 @@ export class MainChat {
     this.profiles.openProfile(uid);
   }
 
-  /** "Nachricht" in einer profile-card: Direktchat mit diesem User oeffnen. */
+  /**
+   * "Nachricht" in einer profile-card oder Klick auf "@Name": Direktchat mit diesem User
+   * oeffnen. Ist das Profil nicht lesbar (Gast, fremder User), bleibt die Profilkarte als Hinweis.
+   */
   protected async messageUser(uid: string): Promise<void> {
     const user = await this.profiles.getUser(uid);
     this.profiles.closeProfile();
-    if (!user) return;
+    if (!user) return this.profiles.openProfile(uid);
     await this.session.openDirectChat(user);
     this.directChatOpened.emit(user);
   }

@@ -30,7 +30,7 @@ import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
 import { MessageService } from '../../../shared/message/message';
 import { ChatTarget } from '../../../shared/message/message';
-import { Channel, Message } from '../../../shared/models';
+import { Channel, Message, User } from '../../../shared/models';
 import { MentionService } from '../../../shared/mention/mention.service';
 import { autoScrollToLatest } from '../../../shared/scroll/auto-scroll';
 import { ReactionOverflowService } from '../../../shared/reactions/reaction-overflow.service';
@@ -74,6 +74,8 @@ export class Thread implements OnDestroy {
   readonly closed = output<void>();
   /** Klick auf "#Channel" in einer Nachricht. */
   readonly channelSelected = output<Channel>();
+  /** "@Name" oder "Nachricht" in der Profilkarte: Direktnachricht mit diesem User oeffnen. */
+  readonly userSelected = output<User>();
 
   protected readonly parentMessage = signal<Message | null>(null);
   protected readonly replies = signal<Message[]>([]);
@@ -215,6 +217,14 @@ export class Thread implements OnDestroy {
   /** Oeffnet das Profil eines Absenders (Klick auf Avatar oder Name). */
   protected openProfile(senderId: string): void {
     this.profileService.openProfile(senderId);
+  }
+
+  /** Direktnachricht oeffnen; ohne lesbares Profil (z. B. als Gast) bleibt die Profilkarte. */
+  protected async messageUser(uid: string): Promise<void> {
+    const user = await this.profileService.getUser(uid);
+    this.profileService.closeProfile();
+    if (user) this.userSelected.emit(user);
+    else this.profileService.openProfile(uid);
   }
 
   /** Schliesst das aktuell geoeffnete Profil. */

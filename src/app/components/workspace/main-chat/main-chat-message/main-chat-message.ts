@@ -41,6 +41,8 @@ export class MainChatMessage {
   readonly threadClicked = output<Message>();
   /** Klick auf "#Channel" im Text. */
   readonly channelClicked = output<Channel>();
+  /** Klick auf "@Name" im Text (uid): oeffnet die Direktnachricht. */
+  readonly mentionClicked = output<string>();
 
   protected readonly isOwn = computed(() => this.message().senderId === this.auth.currentUser?.uid);
 

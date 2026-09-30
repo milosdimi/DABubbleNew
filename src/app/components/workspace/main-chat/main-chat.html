@@ -107,6 +107,7 @@
         [highlighted]="highlightedId() === message.id"
         (threadClicked)="openThread($event)"
         (channelClicked)="channelOpened.emit($event)"
+        (mentionClicked)="messageUser($event)"
       />
     }
   </div>
