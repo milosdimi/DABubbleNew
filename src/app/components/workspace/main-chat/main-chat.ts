@@ -132,9 +132,11 @@ export class MainChat {
     return !!channel && !!user && !user.isAnonymous && channel.memberIds.includes(user.uid);
   });
 
+  /** DM-Partner mit dem Live-Profil (neuer Name/Avatar erscheint sofort). */
   protected readonly activePartner = computed(() => {
     const chat = this.active();
-    return chat?.kind === 'dm' ? chat.partner : null;
+    if (chat?.kind !== 'dm') return null;
+    return this.profiles.cachedUser(chat.partner.id) ?? chat.partner;
   });
 
   /** Direktchat mit sich selbst ("Notizen"): eigener Leerzustand und "(Du)". */
@@ -153,7 +155,7 @@ export class MainChat {
     if (!chat) return 'Nachricht schreiben...';
     return chat.kind === 'channel'
       ? `Nachricht an #${chat.channel.name}`
-      : `Nachricht an ${chat.partner.name}${this.isSelfChat() ? ' (Du)' : ''}`;
+      : `Nachricht an ${this.activePartner()?.name}${this.isSelfChat() ? ' (Du)' : ''}`;
   });
 
   constructor() {
@@ -230,10 +232,11 @@ export class MainChat {
     });
   }
 
-  /** Profile der Mitglieder fuer die Avatare im Kopf laden. */
+  /** Profile der Mitglieder (Avatare im Kopf) bzw. des DM-Partners laden. */
   private loadHeadMemberProfiles(): void {
     effect(() => {
-      const uids = this.headMemberIds();
+      const chat = this.active();
+      const uids = chat?.kind === 'dm' ? [chat.partner.id] : this.headMemberIds();
       untracked(() => void this.profiles.loadProfiles(uids));
     });
   }

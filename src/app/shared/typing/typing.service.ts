@@ -21,7 +21,8 @@ export class TypingService {
   private readonly realtimeDb = inject(RealtimeDbService);
   private readonly userService = inject(UserService);
 
-  private ownName: Promise<string> | null = null;
+  /** Eigener Name fuer "schreibt gerade", gemerkt pro Konto (siehe forgetOwnName). */
+  private ownName: { uid: string; name: Promise<string> } | null = null;
   private readonly lastPing = new Map<string, number>();
   private readonly stopTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -88,13 +89,22 @@ export class TypingService {
     }
   }
 
+  /** Nach einer Namensaenderung im Profil: beim naechsten Tippen neu lesen. */
+  forgetOwnName(): void {
+    this.ownName = null;
+  }
+
   private resolveOwnName(): Promise<string> {
-    this.ownName ??= (async () => {
-      const user = this.auth.currentUser;
-      if (!user || user.isAnonymous) return 'Gast';
-      const profile = await this.userService.getUser(user.uid);
-      return (profile?.name ?? user.displayName ?? 'Jemand').slice(0, 60);
-    })();
-    return this.ownName;
+    const user = this.auth.currentUser;
+    if (!user || user.isAnonymous) return Promise.resolve('Gast');
+    if (this.ownName?.uid !== user.uid) {
+      this.ownName = { uid: user.uid, name: this.readOwnName(user.uid, user.displayName) };
+    }
+    return this.ownName.name;
+  }
+
+  private async readOwnName(uid: string, fallback: string | null): Promise<string> {
+    const profile = await this.userService.getUser(uid);
+    return (profile?.name ?? fallback ?? 'Jemand').slice(0, 60);
   }
 }

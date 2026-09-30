@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import {
   collection,
   doc,
+  FirestoreError,
   getDoc,
   getDocs,
   onSnapshot,
@@ -56,12 +57,16 @@ export class UserService {
     await updateDoc(this.userRef(uid), changes);
   }
 
-  /** Live-Profil eines Users (`null`, solange keins existiert). */
-  watchUser(uid: string, callback: (user: User | null) => void): Unsubscribe {
+  /** Live-Profil eines Users (`null`, solange keins existiert). `onError` z. B. bei fehlender Leseberechtigung. */
+  watchUser(
+    uid: string,
+    callback: (user: User | null) => void,
+    onError = (error: FirestoreError) => console.warn('[user] Listener beendet:', error.code),
+  ): Unsubscribe {
     return onSnapshot(
       this.userRef(uid),
       (snapshot) => callback(snapshot.exists() ? (snapshot.data() as User) : null),
-      (error) => console.warn('[user] Listener beendet:', error.code),
+      onError,
     );
   }
 

@@ -1,4 +1,5 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { Unsubscribe } from 'firebase/firestore';
 import { Message, OnlineStatus, User } from '../../../shared/models';
 import { PresenceService } from '../../../shared/presence/presence.service';
 import { UserService } from '../../../shared/user/user.service';
@@ -19,12 +20,17 @@ export class MainChatProfileService {
   /** uid -> Profil; `null` = kein Profil vorhanden oder nicht lesbar (z. B. Gast). */
   private readonly profiles = signal<ReadonlyMap<string, User | null>>(new Map());
   private readonly pending = new Map<string, Promise<User | null>>();
+  private readonly listeners: Unsubscribe[] = [];
 
   /** uid des Profils, das gerade als profile-card offen ist. */
   readonly selectedProfileUserId = signal<string | null>(null);
 
   /** ID des Channels, dessen channel-info gerade offen ist. */
   readonly selectedChannelInfoId = signal<string | null>(null);
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.listeners.forEach((stop) => stop()));
+  }
 
   /** Laedt die Profile aller Absender; jede uid nur einmal. */
   async loadSenderProfiles(messages: readonly Message[]): Promise<void> {
@@ -37,29 +43,38 @@ export class MainChatProfileService {
     await Promise.all([...new Set(uids)].map((uid) => this.getUser(uid)));
   }
 
-  /** Einzelnes Profil, gecacht. Fehlende oder gesperrte Profile ergeben `null`. */
+  /**
+   * Einzelnes Profil, live beobachtet: Aendert jemand Name oder Avatar, aktualisieren
+   * sich alle Nachrichten sofort. Fehlende oder gesperrte Profile ergeben `null`.
+   */
   getUser(uid: string): Promise<User | null> {
     const cached = this.profiles().get(uid);
     if (cached !== undefined) return Promise.resolve(cached);
 
     let request = this.pending.get(uid);
     if (!request) {
-      request = this.fetchUser(uid);
+      request = this.watchProfile(uid);
       this.pending.set(uid, request);
     }
     return request;
   }
 
-  private async fetchUser(uid: string): Promise<User | null> {
-    let user: User | null = null;
-    try {
-      user = await this.userService.getUser(uid);
-    } catch {
-      // Gaeste duerfen laut firestore.rules nur Demo-Profile lesen.
-    }
-    this.profiles.update((map) => new Map(map).set(uid, user));
-    this.pending.delete(uid);
-    return user;
+  /** Startet den Listener; das Promise erfuellt sich mit dem ersten Stand. */
+  private watchProfile(uid: string): Promise<User | null> {
+    return new Promise((resolve) => {
+      const store = (user: User | null) => {
+        this.profiles.update((map) => new Map(map).set(uid, user));
+        this.pending.delete(uid);
+        resolve(user);
+      };
+      // Gaeste duerfen laut firestore.rules nur Demo-Profile lesen -> `null`.
+      this.listeners.push(this.userService.watchUser(uid, store, () => store(null)));
+    });
+  }
+
+  /** Bereits geladenes Profil (`undefined`, solange es noch nicht geladen ist). */
+  cachedUser(uid: string): User | null | undefined {
+    return this.profiles().get(uid);
   }
 
   /** Leer, solange das Profil noch laedt. */
