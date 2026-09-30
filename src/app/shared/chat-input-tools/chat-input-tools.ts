@@ -142,8 +142,8 @@ export class ChatInputTools {
       return;
     }
     const trigger = match[2] as MentionTrigger;
-    if (trigger === '#' && (this.mentionQuery() === null || this.mentionTrigger() !== '#')) {
-      void this.mentions.refreshChannels();
+    if (this.mentionQuery() === null || this.mentionTrigger() !== trigger) {
+      void (trigger === '#' ? this.mentions.refreshChannels() : this.mentions.refreshUsers());
     }
     this.mentionTrigger.set(trigger);
     this.mentionQuery.set(match[3]);

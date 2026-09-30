@@ -45,20 +45,31 @@ export class MentionService {
   private readonly userService = inject(UserService);
   private readonly channelService = inject(ChannelService);
   private loading: Promise<void> | null = null;
+  /** Fuer wen `loading` geladen wurde; nach einem Kontowechsel wird neu geladen. */
+  private loadedFor: string | null = null;
 
   readonly users = signal<User[]>([]);
   readonly channels = signal<Channel[]>([]);
 
-  /** Einmalig laden; weitere Aufrufe warten auf denselben Ladevorgang. */
-  ensureLoaded(): Promise<void> {
-    this.loading ??= (async () => {
-      await this.auth.authStateReady();
-      const user = this.auth.currentUser;
-      if (!user) return;
-      this.users.set(await this.userService.listVisibleUsers(user.isAnonymous));
-      await this.refreshChannels();
-    })();
-    return this.loading;
+  /** Einmal pro Konto laden; weitere Aufrufe warten auf denselben Ladevorgang. */
+  async ensureLoaded(): Promise<void> {
+    await this.auth.authStateReady();
+    const user = this.auth.currentUser;
+    if (!user) return;
+    if (this.loadedFor !== user.uid) {
+      this.loadedFor = user.uid;
+      this.loading = this.load(user.isAnonymous);
+    }
+    return this.loading ?? undefined;
+  }
+
+  private async load(isGuest: boolean): Promise<void> {
+    await Promise.all([this.refreshUsers(isGuest), this.refreshChannels()]);
+  }
+
+  /** Nutzer neu laden (beim Oeffnen der @-Liste, damit neue Namen und Avatare dabei sind). */
+  async refreshUsers(isGuest = this.auth.currentUser?.isAnonymous ?? true): Promise<void> {
+    this.users.set(await this.userService.listVisibleUsers(isGuest));
   }
 
   /** Channels neu laden (beim Oeffnen der #-Liste, damit neue Channels dabei sind). */
