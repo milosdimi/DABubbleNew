@@ -13,7 +13,12 @@
   />
 
   <div class="workspace__columns">
-    <div class="workspace__side" [class.workspace__side--closed]="!sidebarOpen() && !isMobile()">
+    <div
+      class="workspace__side"
+      [class.workspace__side--closed]="!sidebarOpen() && !isMobile()"
+      [class.workspace__side--moving]="sidebarMoving()"
+      (transitionend)="onSideTransitionEnd($event)"
+    >
       @if (isMobile()) {
         <!-- Figma mobil (06): Suche "Gehe zu..." oben im Menue (Desktop: im Header). -->
         <app-search-bar
@@ -24,15 +29,15 @@
           (messageSelected)="showMessage($event)"
         />
       }
-      @if (sidebarOpen() || isMobile()) {
-        <app-sidebar
-          [activeChannelId]="composing() ? null : (selectedChannel()?.id ?? null)"
-          [activeUserId]="composing() ? null : (selectedUser()?.id ?? null)"
-          (channelSelected)="openChannel($event)"
-          (userSelected)="openDirectChat($event)"
-          (newMessageClicked)="startNewMessage()"
-        />
-      }
+      <!-- Bleibt beim Schliessen im DOM, damit sie weich hinausgleiten kann. -->
+      <app-sidebar
+        [inert]="!sidebarOpen() && !isMobile()"
+        [activeChannelId]="composing() ? null : (selectedChannel()?.id ?? null)"
+        [activeUserId]="composing() ? null : (selectedUser()?.id ?? null)"
+        (channelSelected)="openChannel($event)"
+        (userSelected)="openDirectChat($event)"
+        (newMessageClicked)="startNewMessage()"
+      />
 
       <!-- Figma: senkrechter Reiter am linken Bildschirmrand. -->
       <button

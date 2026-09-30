@@ -36,10 +36,35 @@
     min-height: 0;
   }
 
-  // Geschlossen: Container aus dem Layout nehmen, damit links kein zusaetzlicher
-  // gap entsteht. Der Reiter bleibt sichtbar (position: fixed).
-  &--closed {
-    display: contents;
+}
+
+// Desktop: Ein- und Ausklappen als Transition. Die Spalte schrumpft auf 0 (der negative
+// Rand schluckt den gap), die Sidebar behaelt ihre Breite und gleitet so hinaus.
+// Der Reiter bleibt sichtbar (position: fixed).
+@media (min-width: #{mx.$workspace-mobile + 1px}) {
+  .workspace__side {
+    transition:
+      flex-basis 300ms ease-in-out,
+      margin-right 300ms ease-in-out;
+
+    app-sidebar {
+      width: 366px;
+      transition: opacity 300ms ease-in-out;
+    }
+  }
+
+  .workspace__side--moving,
+  .workspace__side--closed {
+    overflow: hidden;
+  }
+
+  .workspace__side--closed {
+    flex-basis: 0;
+    margin-right: -20px;
+
+    app-sidebar {
+      opacity: 0;
+    }
   }
 }
 

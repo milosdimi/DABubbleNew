@@ -93,6 +93,8 @@ export class Chat {
   }
 
   protected readonly sidebarOpen = signal(true);
+  /** Sidebar gleitet gerade hinein oder hinaus (dann wird ihr Inhalt abgeschnitten). */
+  protected readonly sidebarMoving = signal(false);
   /** "Neue Nachricht" statt Main-Chat im Mittelbereich (Main-Chat bleibt im Hintergrund bestehen). */
   protected readonly composing = signal(false);
   protected readonly threadMessage = signal<Message | null>(null);
@@ -129,6 +131,15 @@ export class Chat {
   }
 
   protected toggleSidebar(): void {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.sidebarMoving.set(!reduced);
     this.sidebarOpen.update((open) => !open);
+  }
+
+  /** Ende des Ein-/Ausklappens: ab jetzt darf die Sidebar wieder ihren Schatten zeigen. */
+  protected onSideTransitionEnd(event: TransitionEvent): void {
+    if (event.target === event.currentTarget && event.propertyName === 'flex-basis') {
+      this.sidebarMoving.set(false);
+    }
   }
 }
