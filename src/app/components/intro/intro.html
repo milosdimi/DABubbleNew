@@ -1,6 +1,9 @@
-<div class="intro" (click)="skip()" title="Weiter zur Anmeldung">
-  <div class="intro__logo">
-    <img class="intro__icon" src="app-img/bubble-logo.svg" alt="" />
-    <img class="intro__text" src="app-img/bubble-text.svg" alt="DABubble" />
+<div class="intro" [class.intro--ready]="ready()" (click)="skip()" title="Weiter zur Anmeldung">
+  <!-- Gleicher Aufbau wie <app-header> auf der Login-Seite: Das Logo endet genau dort. -->
+  <div class="intro__bar">
+    <div #logo class="intro__logo" [style]="dockStyle()">
+      <img class="intro__icon" src="app-img/bubble-logo.svg" alt="" />
+      <span class="intro__text">DABubble</span>
+    </div>
   </div>
 </div>

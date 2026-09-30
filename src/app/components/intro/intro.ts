@@ -1,13 +1,22 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  afterNextRender,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
 
 const INTRO_DURATION_MS = 2400;
-const SEEN_KEY = 'dabubble-intro-seen';
+/** Groesse des Logos in der Bildmitte, hoechstens 80 % der Bildschirmbreite. */
+const START_SCALE = 2.4;
+const MAX_START_WIDTH = 0.8;
 
 /**
  * Splash-Screen: Logo-Animation (Figma "00-Intro"), danach zu /login. Klick überspringt.
- * Spielt nur EINMAL pro Browser (localStorage) – danach direkt weiter zu /login.
- * Wieder ansehen: `?intro` an die URL hängen, oder localStorage leeren.
+ * Das Logo startet exakt in der Bildmitte und landet exakt auf dem Header-Logo der Login-Seite.
  */
 @Component({
   selector: 'app-intro',
@@ -16,40 +25,41 @@ const SEEN_KEY = 'dabubble-intro-seen';
 })
 export class Intro {
   private readonly router = inject(Router);
+  private readonly logo = viewChild.required<ElementRef<HTMLElement>>('logo');
+
+  protected readonly ready = signal(false);
+  protected readonly dockStyle = signal('');
+
+  private timer?: ReturnType<typeof setTimeout>;
 
   constructor() {
-    if (this.alreadySeen()) {
-      queueMicrotask(() => this.goToLogin());
-      return;
-    }
-    this.markSeen();
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const timer = setTimeout(() => this.goToLogin(), reduced ? 300 : INTRO_DURATION_MS);
-    inject(DestroyRef).onDestroy(() => clearTimeout(timer));
+    afterNextRender(() => void this.start());
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.timer));
   }
 
   protected skip(): void {
     this.goToLogin();
   }
 
+  /** Wartet auf die Schrift, damit die Breite des Schriftzugs beim Messen stimmt. */
+  private async start(): Promise<void> {
+    await document.fonts?.ready;
+    this.dockStyle.set(this.centerOffset(this.logo().nativeElement));
+    this.ready.set(true);
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.timer = setTimeout(() => this.goToLogin(), reduced ? 300 : INTRO_DURATION_MS);
+  }
+
+  /** Verschiebung von der Header-Position in die Bildmitte (transform-origin: top left). */
+  private centerOffset(logo: HTMLElement): string {
+    const rect = logo.getBoundingClientRect();
+    const scale = Math.min(START_SCALE, (window.innerWidth * MAX_START_WIDTH) / rect.width);
+    const x = window.innerWidth / 2 - rect.left - (rect.width * scale) / 2;
+    const y = window.innerHeight / 2 - rect.top - (rect.height * scale) / 2;
+    return `--dock-x: ${x}px; --dock-y: ${y}px; --dock-scale: ${scale}`;
+  }
+
   private goToLogin(): void {
     void this.router.navigate(['/login']);
-  }
-
-  private alreadySeen(): boolean {
-    if (window.location.search.includes('intro')) return false;
-    try {
-      return localStorage.getItem(SEEN_KEY) === '1';
-    } catch {
-      return false;
-    }
-  }
-
-  private markSeen(): void {
-    try {
-      localStorage.setItem(SEEN_KEY, '1');
-    } catch {
-      // Storage blockiert (z. B. Privatmodus) – dann eben jedes Mal, kein Beinbruch.
-    }
   }
 }
