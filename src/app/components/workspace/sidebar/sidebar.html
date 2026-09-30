@@ -52,35 +52,42 @@
       }
     </div>
 
-    @if (channelsOpen()) {
-      <ul class="sidebar__list">
-        @for (channel of channels(); track channel.id) {
-          <li>
-            <button
-              type="button"
-              class="sidebar__item"
-              [class.sidebar__item--active]="channel.id === activeChannelId()"
-              (click)="selectChannel(channel)"
-            >
-              <app-icon name="hash" />
-              <span class="sidebar__item-label">{{ channel.name }}</span>
-              @if (unread.isChannelUnread(channel.id)) {
-                <span class="sidebar__unread" aria-label="Ungelesene Nachrichten"></span>
-              }
-            </button>
-          </li>
-        } @empty {
-          <li class="sidebar__empty">Noch keine Channels</li>
-        }
-      </ul>
+    <!-- Bleibt im DOM und klappt per Hoehen-Transition auf und zu (kein harter Sprung). -->
+    <div
+      class="sidebar__collapse"
+      [class.sidebar__collapse--open]="channelsOpen()"
+      [inert]="!channelsOpen()"
+    >
+      <div class="sidebar__collapse-inner">
+        <ul class="sidebar__list">
+          @for (channel of channels(); track channel.id) {
+            <li>
+              <button
+                type="button"
+                class="sidebar__item"
+                [class.sidebar__item--active]="channel.id === activeChannelId()"
+                (click)="selectChannel(channel)"
+              >
+                <app-icon name="hash" />
+                <span class="sidebar__item-label">{{ channel.name }}</span>
+                @if (unread.isChannelUnread(channel.id)) {
+                  <span class="sidebar__unread" aria-label="Ungelesene Nachrichten"></span>
+                }
+              </button>
+            </li>
+          } @empty {
+            <li class="sidebar__empty">Noch keine Channels</li>
+          }
+        </ul>
 
-      @if (!isGuest()) {
-        <button type="button" class="sidebar__add" (click)="openCreateDialog()">
-          <app-icon name="add-circle" />
-          <span>Channel hinzufügen</span>
-        </button>
-      }
-    }
+        @if (!isGuest()) {
+          <button type="button" class="sidebar__add" (click)="openCreateDialog()">
+            <app-icon name="add-circle" />
+            <span>Channel hinzufügen</span>
+          </button>
+        }
+      </div>
+    </div>
   </section>
 
   <section class="sidebar__section">
@@ -99,33 +106,40 @@
       <span>Direktnachrichten</span>
     </button>
 
-    @if (usersOpen()) {
-      <ul class="sidebar__list">
-        @for (user of sortedUsers(); track user.id) {
-          <li>
-            <button
-              type="button"
-              class="sidebar__item sidebar__item--user"
-              [class.sidebar__item--active]="user.id === activeUserId()"
-              (click)="selectUser(user)"
-            >
-              <span class="sidebar__avatar-wrap">
-                <img class="sidebar__avatar" [src]="user.avatarUrl" alt="" />
-                <span class="sidebar__status" [attr.data-status]="presence.effectiveStatus(user)"></span>
-              </span>
-              <span class="sidebar__item-label">
-                {{ user.name }}@if (user.id === currentUid()) { (Du)}
-              </span>
-              @if (unread.isUserUnread(user.id)) {
-                <span class="sidebar__unread" aria-label="Ungelesene Nachrichten"></span>
-              }
-            </button>
-          </li>
-        } @empty {
-          <li class="sidebar__empty">Noch keine Kontakte</li>
-        }
-      </ul>
-    }
+    <!-- Wie bei den Channels: im DOM lassen und per Transition auf- und zuklappen. -->
+    <div
+      class="sidebar__collapse"
+      [class.sidebar__collapse--open]="usersOpen()"
+      [inert]="!usersOpen()"
+    >
+      <div class="sidebar__collapse-inner">
+        <ul class="sidebar__list">
+          @for (user of sortedUsers(); track user.id) {
+            <li>
+              <button
+                type="button"
+                class="sidebar__item sidebar__item--user"
+                [class.sidebar__item--active]="user.id === activeUserId()"
+                (click)="selectUser(user)"
+              >
+                <span class="sidebar__avatar-wrap">
+                  <img class="sidebar__avatar" [src]="user.avatarUrl" alt="" />
+                  <span class="sidebar__status" [attr.data-status]="presence.effectiveStatus(user)"></span>
+                </span>
+                <span class="sidebar__item-label">
+                  {{ user.name }}@if (user.id === currentUid()) { (Du)}
+                </span>
+                @if (unread.isUserUnread(user.id)) {
+                  <span class="sidebar__unread" aria-label="Ungelesene Nachrichten"></span>
+                }
+              </button>
+            </li>
+          } @empty {
+            <li class="sidebar__empty">Noch keine Kontakte</li>
+          }
+        </ul>
+      </div>
+    </div>
   </section>
 </aside>
 
