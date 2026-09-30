@@ -181,8 +181,8 @@
 .new-message__error {
   margin: 0 40px 12px;
   @include mx.typo(nunito, 400);
-  font-size: 14px;
-  color: fct.color(error);
+  font-size: 16px;
+  color: fct.color(error-text);
 }
 
 .new-message__input {
@@ -239,7 +239,7 @@
 
   &:disabled {
     color: fct.color(light-purple);
-    cursor: default;
+    cursor: not-allowed;
   }
 
   app-icon {

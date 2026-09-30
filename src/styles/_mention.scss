@@ -53,7 +53,7 @@
 .new-messages-divider__label {
   @include mx.typo(nunito, 700);
   font-size: 14px;
-  color: fct.color(error);
+  color: fct.color(error-text);
 }
 
 // Geloeschte Nachricht: Platzhalter statt Text; ohne Hover-Leiste und Reaktionen.
@@ -84,7 +84,7 @@
 }
 
 .message-menu .message-menu__danger {
-  color: fct.color(error);
+  color: fct.color(error-text);
 }
 
 // Formatierung in Nachrichten: `Code`.
@@ -100,8 +100,8 @@
 .upload-error {
   margin: 0 0 8px;
   @include mx.typo(nunito, 400);
-  font-size: 14px;
-  color: fct.color(error);
+  font-size: 16px;
+  color: fct.color(error-text);
 }
 
 // "+X weitere" / "Weniger anzeigen" (Figma-Hinweis zum Ueberlauf der Reaktionen).

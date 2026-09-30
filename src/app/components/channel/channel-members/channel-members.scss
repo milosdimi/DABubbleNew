@@ -95,7 +95,7 @@
 
   &:hover {
     background: fct.color(background);
-    color: fct.color(error);
+    color: fct.color(error-text);
   }
 
   app-icon {
@@ -127,8 +127,8 @@
 .members-card__error {
   margin: 0;
   @include mx.typo(nunito, 400);
-  font-size: 14px;
-  color: fct.color(error);
+  font-size: 16px;
+  color: fct.color(error-text);
 }
 
 .members-card__confirm-actions {

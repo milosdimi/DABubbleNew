@@ -83,7 +83,7 @@
 
   &:disabled {
     color: fct.color(light-purple);
-    cursor: default;
+    cursor: not-allowed;
   }
 
   app-icon {

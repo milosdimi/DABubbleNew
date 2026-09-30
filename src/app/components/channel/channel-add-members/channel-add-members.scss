@@ -267,12 +267,12 @@
 
 // Fehlertext-Slot: immer im DOM, nur visibility toggeln -> kein Layout-Sprung.
 .dialog-field__error {
-  min-height: 19px;
+  min-height: 22px;
   margin: 0;
   @include mx.typo(nunito, 400);
-  font-size: 14px;
-  line-height: 19px;
-  color: fct.color(error);
+  font-size: 16px;
+  line-height: 22px;
+  color: fct.color(error-text);
   visibility: hidden;
 
   &.is-visible {
@@ -304,7 +304,7 @@
 
   &:disabled {
     background: fct.color(text-gray);
-    cursor: default;
+    cursor: not-allowed;
   }
 }
 

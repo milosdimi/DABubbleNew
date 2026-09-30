@@ -13,6 +13,7 @@ $colors: (
   status-away: #ffb400, // "Abwesend" (eigene Wahl, nicht in Figma)
   status-busy: #e53935, // "Nicht stoeren" (eigene Wahl, nicht in Figma)
   error: #ed1e79, // Rosa error
+  error-text: #c8105f, // Fehlertexte: dunkler als error, 5.7:1 auf Weiss (WCAG AA)
   link-blue: #1381ff, // E-Mail-Adresse in der Profilkarte (kein benannter Figma-Style)
   close-gray: rgba(217, 217, 217, 1),
 );
