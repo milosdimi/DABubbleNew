@@ -1,8 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../shared/auth/auth.service';
+import { RegisterDraftService } from '../../../shared/auth/register-draft.service';
 import { Icon } from '../../../shared/icon/icon';
 import { User } from '../../../shared/models';
 import { Spinner } from '../../../shared/spinner/spinner';
@@ -25,6 +26,9 @@ export class Register {
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
+  private readonly drafts = inject(RegisterDraftService);
+  /** Aus beim bewussten Abbruch ("Zurück" zum Login) und nach erfolgreicher Registrierung. */
+  private keepDraft = true;
 
   protected readonly step = signal<RegisterStep>('form');
   protected readonly loading = signal(false);
@@ -61,6 +65,15 @@ export class Register {
   });
   protected readonly formInvalid = computed(() => this.status() !== 'VALID');
 
+  /** Eingaben bleiben erhalten, wenn man zwischendurch die Datenschutzerklaerung liest. */
+  constructor() {
+    const draft = this.drafts.restore();
+    if (draft) this.form.setValue(draft);
+    inject(DestroyRef).onDestroy(() => {
+      if (this.keepDraft) this.drafts.save(this.form.getRawValue());
+    });
+  }
+
   protected avatarSrc(name: string): string {
     return `img/avatar/${name}.svg`;
   }
@@ -89,7 +102,13 @@ export class Register {
       this.step.set('form');
       return;
     }
+    this.discardDraft();
     void this.router.navigate(['/login']);
+  }
+
+  private discardDraft(): void {
+    this.keepDraft = false;
+    this.drafts.clear();
   }
 
   protected completeRegistration(): void {
@@ -109,6 +128,7 @@ export class Register {
     try {
       const uid = await this.authService.registerWithEmail(name, email, password);
       await this.userService.ensureProfile(this.buildUser(uid, name, email, avatar));
+      this.discardDraft();
       this.showSuccess();
     } catch (error) {
       this.formError.set(this.authService.toMessage(error));
