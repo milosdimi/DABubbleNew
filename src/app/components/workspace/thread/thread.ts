@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   Component,
   computed,
   effect,
@@ -7,6 +8,7 @@ import {
   Input,
   OnDestroy,
   inject,
+  Injector,
   output,
   signal,
   untracked,
@@ -87,6 +89,8 @@ export class Thread implements OnDestroy {
   protected readonly selectedProfileUserId = this.profileService.selectedProfileUserId;
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
+  private readonly replyField = viewChild<ElementRef<HTMLTextAreaElement>>('replyField');
+  private readonly injector = inject(Injector);
   /** Figma: 7 Reaktionen sichtbar, danach "+X weitere". */
   protected readonly overflow = inject(ReactionOverflowService);
 
@@ -103,12 +107,24 @@ export class Thread implements OnDestroy {
 
   constructor() {
     this.markThreadAsRead();
+    this.focusReplyOnOpen();
     // Immer die neueste Antwort zeigen (Details: autoScrollToLatest).
     autoScrollToLatest({
       scroller: this.scroller,
       messages: this.replies,
       chatKey: computed(() => this.parentMessage()?.id ?? null),
       currentUid: () => this.auth.currentUser?.uid,
+    });
+  }
+
+  /** Wie im Main-Chat: Wer einen Thread oeffnet, kann sofort lostippen. */
+  private focusReplyOnOpen(): void {
+    const parentId = computed(() => this.parentMessage()?.id ?? null);
+    effect(() => {
+      if (!parentId()) return;
+      afterNextRender(() => this.replyField()?.nativeElement.focus({ preventScroll: true }), {
+        injector: this.injector,
+      });
     });
   }
 
