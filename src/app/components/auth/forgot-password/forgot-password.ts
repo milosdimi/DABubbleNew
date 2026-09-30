@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../shared/auth/auth.service';
+import { strictEmail } from '../../../shared/auth/email.validator';
 import { Icon } from '../../../shared/icon/icon';
 import { Spinner } from '../../../shared/spinner/spinner';
 import { Toast } from '../../overlay/toast/toast';
@@ -27,7 +28,7 @@ export class ForgotPassword {
   protected readonly form = new FormGroup({
     email: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.email],
+      validators: [Validators.required, strictEmail],
     }),
   });
 
@@ -56,7 +57,7 @@ export class ForgotPassword {
     this.loading.set(true);
     this.formError.set(null);
     try {
-      await this.authService.sendResetEmail(this.form.getRawValue().email);
+      await this.authService.sendResetEmail(this.form.getRawValue().email.trim());
       this.sent.set(true);
       this.playToast();
     } catch (error) {

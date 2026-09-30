@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../shared/auth/auth.service';
+import { strictEmail } from '../../../shared/auth/email.validator';
 import { RegisterDraftService } from '../../../shared/auth/register-draft.service';
 import { Icon } from '../../../shared/icon/icon';
 import { User } from '../../../shared/models';
@@ -48,7 +49,7 @@ export class Register {
     }),
     email: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.email],
+      validators: [Validators.required, strictEmail],
     }),
     password: new FormControl('', {
       nonNullable: true,
@@ -122,7 +123,8 @@ export class Register {
   }
 
   private async runRegistration(avatar: string): Promise<void> {
-    const { name, email, password } = this.form.getRawValue();
+    const { name, password } = this.form.getRawValue();
+    const email = this.form.getRawValue().email.trim();
     this.loading.set(true);
     this.formError.set(null);
     try {
