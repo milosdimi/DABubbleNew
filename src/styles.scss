@@ -31,3 +31,14 @@ body {
 .no-wrap {
   white-space: nowrap;
 }
+
+// Scrollbalken (Sidebar, Chat, Thread, Dialoge): schmal, ohne Schiene, im Figma-Violett und
+// nur sichtbar, solange die Maus ueber dem Bereich ist. Mobil blendet das System sie selbst aus.
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover {
+    scrollbar-color: fct.color(light-purple) transparent;
+  }
+}
