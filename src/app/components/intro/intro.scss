@@ -18,6 +18,11 @@
 // (transform: none) sitzt das Logo genau dort, wo auf der Login-Seite das Header-Logo sitzt.
 .intro__bar {
   @include mx.flex(row, flex-start, flex-start);
+  // Wie .auth-page > * (_auth.scss): ueber 1920px mittige Spalte, sonst landet das
+  // Logo auf grossen Bildschirmen links neben dem Header-Logo.
+  width: 100%;
+  max-width: 1920px;
+  margin-inline: auto;
   padding: clamp(24px, 6vw, 75px) clamp(16px, 6vw, 75px) 0;
 }
 
