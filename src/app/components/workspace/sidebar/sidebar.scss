@@ -291,8 +291,10 @@
     box-shadow: none;
   }
 
+  // Unten nur wenig Luft (Figma 678:15601): Der "Neue Nachricht"-Button liegt rechts
+  // neben dem letzten Eintrag, die Namen stehen links - mehr Leerraum ist nicht noetig.
   .sidebar {
-    padding: 25px 16px 100px;
+    padding: 25px 16px 30px;
   }
 
   .sidebar__workspace {
