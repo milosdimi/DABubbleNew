@@ -204,6 +204,7 @@
             <span class="main-chat__reaction-emoji">{{ group.emoji }}</span>
             <span>{{ group.count }}</span>
             <span class="reaction-tooltip" role="tooltip">
+              <span class="reaction-tooltip__emoji" aria-hidden="true">{{ group.emoji }}</span>
               {{ reactions.tooltip(msg, group.emoji) }}
             </span>
           </button>

@@ -283,6 +283,9 @@
                   <span class="thread__reaction-emoji">{{ reaction.emoji }}</span>
                   <span>{{ reaction.count }}</span>
                   <span class="reaction-tooltip" role="tooltip">
+                    <span class="reaction-tooltip__emoji" aria-hidden="true">{{
+                      reaction.emoji
+                    }}</span>
                     {{ reactions.tooltip(reply, reaction.emoji) }}
                   </span>
                 </button>

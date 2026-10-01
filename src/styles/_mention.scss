@@ -127,7 +127,7 @@
   position: relative;
 
   &:hover .reaction-tooltip {
-    display: block;
+    display: flex;
   }
 }
 
@@ -145,6 +145,16 @@
   color: fct.color(white);
   white-space: nowrap;
   pointer-events: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+// Wie in Figma: das Emoji gross ueber dem Text.
+.reaction-tooltip__emoji {
+  font-size: 30px;
+  line-height: 1;
 }
 
 // Eigene Nachrichten stehen rechts: Tooltip nach links oeffnen.

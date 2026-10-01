@@ -63,7 +63,7 @@ export class MainChatReactionService {
     return [...byEmoji.values()].sort((a, b) => b.count - a.count);
   }
 
-  /** "Anna und Du haben mit 🚀 reagiert" (wie im Thread; "Du" immer zuletzt). */
+  /** "Anna und Du haben reagiert" ("Du" immer zuletzt); das Emoji zeigt der Tooltip gross darueber. */
   tooltip(message: Message, emoji: string): string {
     const uid = this.auth.currentUser?.uid;
     const reactors = (message.reactions ?? []).filter((r) => r.emoji === emoji).map((r) => r.userId);
@@ -71,10 +71,9 @@ export class MainChatReactionService {
     const others = reactors.filter((id) => id !== uid).map((id) => this.profiles.getSenderName(id) || 'Jemand');
     const names = reactors.includes(uid ?? '') ? [...others, 'Du'] : others;
     if (names.length === 0) return '';
-    if (names.length === 1) {
-      return names[0] === 'Du' ? `Du hast mit ${emoji} reagiert` : `${names[0]} hat mit ${emoji} reagiert`;
-    }
-    return `${names.slice(0, -1).join(', ')} und ${names.at(-1)} haben mit ${emoji} reagiert`;
+    // Das Emoji steht gross darueber (Figma), deshalb nicht noch einmal im Text.
+    if (names.length === 1) return names[0] === 'Du' ? 'Du hast reagiert' : `${names[0]} hat reagiert`;
+    return `${names.slice(0, -1).join(', ')} und ${names.at(-1)} haben reagiert`;
   }
 
   /** Setzt oder entfernt die eigene Reaction `emoji` an `message`. */
