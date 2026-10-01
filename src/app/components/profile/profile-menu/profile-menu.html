@@ -1,7 +1,11 @@
 <nav class="profile-menu" aria-label="Profilmenü">
   <!-- Mobil: Griff des Bottom Sheets. -->
   <span class="profile-menu__handle" aria-hidden="true"></span>
-  <button type="button" class="profile-menu__item" (click)="profileClicked.emit()">Profil</button>
+  <button type="button" class="profile-menu__item" (click)="profileClicked.emit()">
+    <!-- Icons nur mobil (Figma "64b"); auf dem Desktop zeigt Figma reinen Text. -->
+    <app-icon class="profile-menu__icon" name="account-circle" />
+    Profil
+  </button>
 
   @if (canChangeStatus()) {
     <div class="profile-menu__status" role="radiogroup" aria-label="Status">
@@ -20,7 +24,10 @@
     </div>
   }
 
-  <button type="button" class="profile-menu__item" (click)="logoutClicked.emit()">Log out</button>
+  <button type="button" class="profile-menu__item" (click)="logoutClicked.emit()">
+    <app-icon class="profile-menu__icon" name="logout" />
+    Log out
+  </button>
 
   <!-- Nicht in Figma: Impressum/Datenschutz muessen auch nach dem Login erreichbar sein (ECG). -->
   <div class="profile-menu__legal">

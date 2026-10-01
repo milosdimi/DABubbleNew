@@ -97,7 +97,8 @@
   }
 }
 
-.profile-menu__handle {
+.profile-menu__handle,
+.profile-menu__icon {
   display: none;
 }
 
@@ -123,6 +124,22 @@
   .profile-menu__status,
   .profile-menu__legal {
     width: 100%;
+  }
+
+  // Figma "64b. Edit user and Log out - mobile": Icon 30px, 15px Abstand, linksbuendig,
+  // Nunito SemiBold 20px, Padding 10px 30px.
+  .profile-menu__item {
+    @include mx.flex(row, flex-start, center);
+    gap: 15px;
+    padding: 10px 30px;
+    font-size: 20px;
+  }
+
+  .profile-menu__icon {
+    display: block;
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
   }
 }
 

@@ -30,7 +30,8 @@ export type IconName =
   | 'add'
   | 'add-circle'
   | 'person-add'
-  | 'edit-square';
+  | 'edit-square'
+  | 'logout';
 
 /**
  * Inline-SVG-Icons (kein Asset-Request, per `color` einfärbbar via currentColor).
