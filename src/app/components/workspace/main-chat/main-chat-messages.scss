@@ -20,8 +20,15 @@
 }
 
 // Leerer Chat: Einleitung unten ueber dem Eingabefeld (Figma "Direct message").
+// Nicht per justify-content: flex-end - wird der Inhalt hoeher als der Platz (z. B.
+// Notebook 1024x600), liefe er oben aus dem Bild und liesse sich nicht scrollen.
+// margin-top: auto schiebt ihn ebenfalls nach unten, laesst ihn aber normal scrollen.
 .main-chat__scroll--empty {
-  @include mx.flex(column, flex-end, stretch);
+  @include mx.flex(column, flex-start, stretch);
+
+  > :first-child {
+    margin-top: auto;
+  }
 }
 
 .main-chat__intro {
@@ -64,6 +71,23 @@
   @include mx.typo(nunito, 700);
   font-size: 24px;
   @include mx.transition();
+}
+
+// Niedrige Bildschirme (z. B. Notebook 1024x600): Zwischen Kopf und Eingabe bleiben nur
+// ~150px - die Einleitung wird kompakter, damit sie ohne Scrollen ganz zu sehen ist.
+@media (max-height: 700px) {
+  .main-chat__intro {
+    gap: 12px;
+  }
+
+  .main-chat__intro-avatar {
+    width: 60px;
+    height: 60px;
+  }
+
+  .main-chat__intro-name {
+    font-size: 20px;
+  }
 }
 
 .main-chat__empty-link {
