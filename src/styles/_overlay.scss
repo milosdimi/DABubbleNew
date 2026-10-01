@@ -53,3 +53,30 @@
     opacity: 1;
   }
 }
+
+// Bottom Sheets (Profilmenue, "Leute hinzufuegen") oeffnen und schliessen. Global statt in
+// den Komponenten: Angular benennt Keyframes in Komponenten-Styles um und erwischt dabei im
+// Produktions-Build nicht jeden Verweis - globale Namen bleiben unveraendert.
+@keyframes sheet-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes backdrop-fade-in {
+  from {
+    background: rgba(0, 0, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-down {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes backdrop-fade-out {
+  to {
+    background: rgba(0, 0, 0, 0);
+  }
+}

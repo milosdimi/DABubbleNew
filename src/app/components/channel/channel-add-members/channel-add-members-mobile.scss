@@ -25,10 +25,10 @@
 
   // Bottom Sheet gleitet von unten herein, der Hintergrund blendet ein.
   .dialog-backdrop:not(.dialog-backdrop--anchored) {
-    animation: sheet-backdrop-in 300ms ease-out both;
+    animation: backdrop-fade-in 300ms ease-out both; // Keyframes global (_overlay.scss)
 
     .dialog-card {
-      animation: sheet-up 350ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+      animation: sheet-slide-up 350ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
     }
   }
 
@@ -70,22 +70,6 @@
       width: 24px;
       height: 24px;
     }
-  }
-}
-
-@keyframes sheet-up {
-  from {
-    transform: translateY(100%);
-  }
-
-  to {
-    transform: translateY(0);
-  }
-}
-
-@keyframes sheet-backdrop-in {
-  from {
-    background: rgba(0, 0, 0, 0);
   }
 }
 
