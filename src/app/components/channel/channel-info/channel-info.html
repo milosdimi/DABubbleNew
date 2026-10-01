@@ -81,65 +81,68 @@
       }
     </div>
 
-    <div class="info-box">
-      <div class="info-box__row">
-        <span class="info-box__label">Beschreibung</span>
-        @if (isCreator() && !editingDescription()) {
-          <button type="button" class="info-box__edit-link" (click)="startEditDescription()">
-            Bearbeiten
-          </button>
-          <button
-            type="button"
-            class="info-box__icon-btn"
-            aria-label="Beschreibung bearbeiten"
-            (click)="startEditDescription()"
-          >
-            <app-icon name="edit" />
-          </button>
-        }
+    <div class="info-box info-box--description">
+      <!-- Figma: 20px zwischen Titelzeile und Inhalt, 30px zwischen den drei Bloecken. -->
+      <div class="info-box__block">
+        <div class="info-box__row">
+          <span class="info-box__label">Beschreibung</span>
+          @if (isCreator() && !editingDescription()) {
+            <button type="button" class="info-box__edit-link" (click)="startEditDescription()">
+              Bearbeiten
+            </button>
+            <button
+              type="button"
+              class="info-box__icon-btn"
+              aria-label="Beschreibung bearbeiten"
+              (click)="startEditDescription()"
+            >
+              <app-icon name="edit" />
+            </button>
+          }
+          @if (editingDescription()) {
+            <button
+              type="button"
+              class="info-box__icon-btn"
+              aria-label="Beschreibung speichern (mobil)"
+              [disabled]="savingDescription()"
+              (click)="saveDescription()"
+            >
+              <app-icon name="check" />
+            </button>
+          }
+        </div>
+
         @if (editingDescription()) {
-          <button
-            type="button"
-            class="info-box__icon-btn"
-            aria-label="Beschreibung speichern (mobil)"
-            [disabled]="savingDescription()"
-            (click)="saveDescription()"
-          >
-            <app-icon name="check" />
-          </button>
+          <div class="info-box__edit-field info-box__edit-field--textarea">
+            <textarea
+              class="info-box__textarea"
+              [formControl]="descriptionControl"
+              (keydown.escape)="cancelEditDescription($event)"
+              rows="3"
+            ></textarea>
+            <button
+              type="button"
+              class="info-box__save"
+              [disabled]="savingDescription()"
+              (click)="saveDescription()"
+              aria-label="Beschreibung speichern"
+            >
+              @if (savingDescription()) {
+                <app-spinner />
+              } @else {
+                <app-icon name="check" />
+              }
+            </button>
+          </div>
+          <p class="info-box__error" [class.is-visible]="descriptionSaveError()" role="alert">
+            {{ descriptionSaveError() }}
+          </p>
+        } @else {
+          <p class="info-box__value info-box__value--text">
+            {{ channel()?.description || 'Keine Beschreibung vorhanden' }}
+          </p>
         }
       </div>
-
-      @if (editingDescription()) {
-        <div class="info-box__edit-field info-box__edit-field--textarea">
-          <textarea
-            class="info-box__textarea"
-            [formControl]="descriptionControl"
-            (keydown.escape)="cancelEditDescription($event)"
-            rows="3"
-          ></textarea>
-          <button
-            type="button"
-            class="info-box__save"
-            [disabled]="savingDescription()"
-            (click)="saveDescription()"
-            aria-label="Beschreibung speichern"
-          >
-            @if (savingDescription()) {
-              <app-spinner />
-            } @else {
-              <app-icon name="check" />
-            }
-          </button>
-        </div>
-        <p class="info-box__error" [class.is-visible]="descriptionSaveError()" role="alert">
-          {{ descriptionSaveError() }}
-        </p>
-      } @else {
-        <p class="info-box__value info-box__value--text">
-          {{ channel()?.description || 'Keine Beschreibung vorhanden' }}
-        </p>
-      }
 
       <div class="info-box__divider"></div>
 

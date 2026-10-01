@@ -73,18 +73,27 @@
   }
 
   app-icon {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
   }
 }
 
 // --- Box-Pattern (Channel-Name / Beschreibung) ---
 .info-box {
   @include mx.flex(column, flex-start, stretch);
-  gap: 12px;
+  gap: 20px; // Figma: Titelzeile -> Inhalt
   padding: 20px;
   border: 1px solid fct.color(light-purple);
   border-radius: 20px;
+}
+
+.info-box--description {
+  gap: 30px; // Figma: Beschreibung / Trennlinie / "Erstellt von"
+}
+
+.info-box__block {
+  @include mx.flex(column, flex-start, stretch);
+  gap: 20px;
 }
 
 .info-box__row {
@@ -213,7 +222,7 @@
 // Fehlertext-Slot: immer im DOM, nur visibility toggeln -> kein Layout-Sprung.
 .info-box__error {
   min-height: 22px;
-  margin: 0;
+  margin: -8px 0 0; // bleibt 12px unter dem Feld, trotz 20px gap
   padding-left: 16px;
   @include mx.typo(nunito, 400);
   font-size: 16px;
