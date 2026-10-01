@@ -1,4 +1,14 @@
-import { Component, computed, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
 import { ChannelService } from '../../../shared/channel/channel.service';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
@@ -47,6 +57,9 @@ export class Sidebar {
     return open?.kind === 'add-members' ? open.channelId : null;
   });
 
+  /** Frisch erstellter Channel, der geoeffnet wird, sobald er in der Liste auftaucht. */
+  private readonly channelToOpen = signal<string | null>(null);
+
   protected readonly currentUid = signal<string | null>(null);
   protected readonly isGuest = signal(false);
 
@@ -65,6 +78,20 @@ export class Sidebar {
     void this.unread.start(this.destroyRef);
     // Fuer jeden sichtbaren Channel die neueste Nachricht beobachten (rote Punkte).
     effect(() => this.unread.watchChannels(this.channels()));
+    this.openCreatedChannel();
+  }
+
+  /** Nach "Channel erstellen" direkt in den neuen Channel wechseln. */
+  private openCreatedChannel(): void {
+    effect(() => {
+      const id = this.channelToOpen();
+      const channel = id ? this.channels().find((entry) => entry.id === id) : undefined;
+      if (!channel) return;
+      untracked(() => {
+        this.channelToOpen.set(null);
+        this.channelSelected.emit(channel);
+      });
+    });
   }
 
   private async startListening(): Promise<void> {
@@ -103,5 +130,11 @@ export class Sidebar {
 
   protected closeDialog(): void {
     this.dialog.set(null);
+  }
+
+  /** "Leute hinzufuegen" nach dem Erstellen geschlossen (gespeichert oder per X): Channel oeffnen. */
+  protected finishNewChannel(channelId: string): void {
+    this.closeDialog();
+    this.channelToOpen.set(channelId);
   }
 }

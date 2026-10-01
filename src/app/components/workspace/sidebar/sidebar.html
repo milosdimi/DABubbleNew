@@ -147,5 +147,9 @@
   <app-channel-create (closed)="closeDialog()" (created)="onChannelCreated($event)" />
 }
 @if (newChannelId(); as channelId) {
-  <app-channel-add-members [channelId]="channelId" purpose="new-channel" (closed)="closeDialog()" />
+  <app-channel-add-members
+    [channelId]="channelId"
+    purpose="new-channel"
+    (closed)="finishNewChannel(channelId)"
+  />
 }
