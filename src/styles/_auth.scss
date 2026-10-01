@@ -223,8 +223,9 @@
     font-size: 32px;
   }
 
+  // Figma Mobile: 17px.
   .auth-card__subtitle {
-    font-size: 16px;
+    font-size: 17px;
   }
 
   .auth-field__pill {
@@ -235,8 +236,20 @@
     padding-left: 20px;
   }
 
+  // Schrift bleibt bei Figmas 18px, nur der Innenabstand wird kleiner.
   .auth-actions .auth-btn {
     padding: 12px 20px;
-    font-size: 16px;
+  }
+}
+
+// Sehr schmale Geraete (bis 320px): Schriften bleiben wie in Figma, nur der Leerraum
+// schrumpft - weniger Seitenrand und Karten-Padding, damit Text und Buttons Platz haben.
+@media (max-width: 400px) {
+  .auth-page__content {
+    padding-inline: 8px;
+  }
+
+  .auth-card {
+    padding: 24px 12px;
   }
 }

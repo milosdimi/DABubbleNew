@@ -70,7 +70,10 @@
 
           <label class="register__consent">
             <input type="checkbox" class="register__checkbox" formControlName="consent" />
-            <span> Ich stimme der <a routerLink="/privacy">Datenschutzerklärung</a> zu. </span>
+            <span>
+              Ich stimme der
+              <span class="no-wrap"><a routerLink="/privacy">Datenschutzerklärung</a> zu.</span>
+            </span>
           </label>
 
           <p class="auth-form-error" [class.is-visible]="formError()" role="alert">

@@ -111,8 +111,11 @@
 }
 
 @media (max-width: 480px) {
+  // Figma Mobile (Node 609:17276): 16px Text, 8px Abstand zur Checkbox. Unter ca. 364px
+  // passt der Satz nicht mehr in eine Zeile (er ist dann breiter als der Bildschirm) -
+  // dann bricht er sauber nach "Ich stimme der" um, statt die Schrift zu verkleinern.
   .register__consent {
-    font-size: 14px;
+    gap: 8px;
   }
 
   // Figma Mobile (Node 6194:22081): Vorschau 120px, sechs Kreise a 56px mit 4px Abstand
