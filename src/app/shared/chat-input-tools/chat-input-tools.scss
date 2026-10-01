@@ -72,6 +72,11 @@
     min-width: 260px;
     max-height: 300px;
     overflow-y: auto;
+    // Rahmen als outline, damit der transparente Rahmen den Scrollbalken kuerzen kann.
+    @include mx.scroll-clear-corners(14px);
+    border-inline-color: transparent;
+    outline: 1px solid fct.color(light-purple);
+    outline-offset: -1px;
   }
 }
 

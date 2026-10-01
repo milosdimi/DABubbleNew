@@ -7,11 +7,11 @@ import { Icon } from '../../../shared/icon/icon';
 import { ChatTarget, MessageService } from '../../../shared/message/message';
 import { Channel, User } from '../../../shared/models';
 import { UserService } from '../../../shared/user/user.service';
+import { byName } from '../../../shared/sort/by-name';
 
 /** Gewaehlter Empfaenger: ein Channel oder eine Person (Direktchat). */
 export type Recipient = { kind: 'channel'; channel: Channel } | { kind: 'user'; user: User };
 
-const MAX_SUGGESTIONS = 6;
 
 /**
  * "Neue Nachricht" (edit_square neben dem Workspace-Titel): Empfaenger per
@@ -55,11 +55,9 @@ export class NewMessage {
     const term = (prefix ? raw.slice(1) : raw).trim().toLowerCase();
     const matches = (text: string) => text.toLowerCase().includes(term);
     return {
-      channels: prefix === '@' ? [] : this.channels().filter((c) => matches(c.name)).slice(0, MAX_SUGGESTIONS),
-      users:
-        prefix === '#'
-          ? []
-          : this.users().filter((u) => matches(u.name) || matches(u.email)).slice(0, MAX_SUGGESTIONS),
+      // Alle Treffer, alphabetisch - die Liste scrollt.
+      channels: prefix === '@' ? [] : this.channels().filter((c) => matches(c.name)).sort(byName),
+      users: prefix === '#' ? [] : this.users().filter((u) => matches(u.name) || matches(u.email)).sort(byName),
     };
   }
 

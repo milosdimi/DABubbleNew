@@ -4,6 +4,7 @@ import { FIREBASE_AUTH } from '../firebase/firebase.tokens';
 import { MessageService } from '../message/message';
 import { Channel, Message, User } from '../models';
 import { UserService } from '../user/user.service';
+import { byName } from '../sort/by-name';
 
 /** Wo eine gefundene Nachricht steht - dorthin fuehrt ein Klick auf den Treffer. */
 export type SearchPlace = { kind: 'channel'; channel: Channel } | { kind: 'dm'; partner: User };
@@ -102,9 +103,12 @@ export class SearchService {
     const { prefix, term } = parsed;
 
     const matches = (text: string) => text.toLowerCase().includes(term);
+    // Mit "@"/"#" gibt es nur eine Gruppe: dann alle Treffer (die Liste scrollt).
+    const cap = (max: number) => (prefix ? Infinity : max);
     return {
-      channels: prefix === '@' ? [] : index.channels.filter((c) => matches(c.name)).slice(0, MAX_CHANNELS),
-      users: prefix === '#' ? [] : index.users.filter((u) => matches(u.name)).slice(0, MAX_USERS),
+      channels:
+        prefix === '@' ? [] : index.channels.filter((c) => matches(c.name)).sort(byName).slice(0, cap(MAX_CHANNELS)),
+      users: prefix === '#' ? [] : index.users.filter((u) => matches(u.name)).sort(byName).slice(0, cap(MAX_USERS)),
       messages: prefix
         ? []
         : index.messages

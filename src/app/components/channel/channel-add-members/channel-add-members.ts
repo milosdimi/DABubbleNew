@@ -6,11 +6,11 @@ import { User } from '../../../shared/models';
 import { Spinner } from '../../../shared/spinner/spinner';
 import { UserService } from '../../../shared/user/user.service';
 import { Toast } from '../../overlay/toast/toast';
+import { byName } from '../../../shared/sort/by-name';
 
 type MemberMode = 'all' | 'specific';
 
 /** So viele Treffer zeigt die Suche hoechstens an. */
-const MAX_RESULTS = 6;
 
 /**
  * Wozu der Dialog geoeffnet wurde:
@@ -60,14 +60,14 @@ export class ChannelAddMembers {
     this.users().filter((user) => this.selectedUserIds().has(user.id)),
   );
 
-  /** Treffer zum Suchtext, ohne bereits ausgewaehlte Personen. */
+  /** Alle Treffer zum Suchtext (alphabetisch, die Liste scrollt), ohne bereits ausgewaehlte Personen. */
   protected readonly results = computed(() => {
     const term = this.query().trim().toLowerCase();
     if (!term) return [];
     return this.users()
       .filter((user) => !this.selectedUserIds().has(user.id))
       .filter((user) => user.name.toLowerCase().includes(term))
-      .slice(0, MAX_RESULTS);
+      .sort(byName);
   });
 
   protected readonly formInvalid = computed(

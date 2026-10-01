@@ -62,3 +62,11 @@ $workspace-mobile: 900px;
     @content;
   }
 }
+
+/// Scrollbare Liste mit runden Ecken: Der Scrollbalken laeuft nur innerhalb des Rahmens.
+/// Ein transparenter Rahmen oben und unten (statt padding) haelt ihn so aus den Ecken heraus;
+/// der Hintergrund reicht unter den Rahmen (background-clip: border-box).
+@mixin scroll-clear-corners($space) {
+  padding-block: 0;
+  border-block: $space solid transparent;
+}

@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { ChannelService } from '../channel/channel.service';
 import { FIREBASE_AUTH } from '../firebase/firebase.tokens';
 import { Channel, User } from '../models';
+import { byName } from '../sort/by-name';
 import { UserService } from '../user/user.service';
 
 /** Abschnitt eines Nachrichtentexts: normaler Text, @-Erwaehnung, #-Channel oder Link. */
@@ -85,7 +86,7 @@ export class MentionService {
     const term = query.toLowerCase();
     return this.users()
       .filter((user) => user.name.toLowerCase().includes(term))
-      .sort((a, b) => a.name.localeCompare(b.name, 'de'));
+      .sort(byName);
   }
 
   /** Alle passenden Channels zum getippten Text nach dem "#", alphabetisch. */
@@ -93,7 +94,7 @@ export class MentionService {
     const term = query.toLowerCase();
     return this.channels()
       .filter((channel) => channel.name.toLowerCase().includes(term))
-      .sort((a, b) => a.name.localeCompare(b.name, 'de'));
+      .sort(byName);
   }
 
   /** Zerlegt einen Text in normale Abschnitte, "@Name", "#Channel" (nur bekannte) und Links. */
