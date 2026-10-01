@@ -15,7 +15,7 @@
       </button>
     </header>
 
-    <div class="info-box">
+    <div class="info-box" [class.info-box--editing]="editingName()">
       <div class="info-box__row">
         <span class="info-box__label">Channel-Name</span>
         @if (isCreator() && !editingName()) {
@@ -33,6 +33,15 @@
           </button>
         }
         @if (editingName()) {
+          <!-- Figma Desktop: "Speichern" als Link statt "Bearbeiten"; mobil der Haken. -->
+          <button
+            type="button"
+            class="info-box__edit-link"
+            [disabled]="savingName()"
+            (click)="saveName()"
+          >
+            Speichern
+          </button>
           <button
             type="button"
             class="info-box__icon-btn"
@@ -56,19 +65,6 @@
             (keydown.enter)="saveName()"
             (keydown.escape)="cancelEditName($event)"
           />
-          <button
-            type="button"
-            class="info-box__save"
-            [disabled]="savingName()"
-            (click)="saveName()"
-            aria-label="Name speichern"
-          >
-            @if (savingName()) {
-              <app-spinner />
-            } @else {
-              <app-icon name="check" />
-            }
-          </button>
         </label>
         <p class="info-box__error" [class.is-visible]="nameFieldError()" role="alert">
           {{ nameFieldError() }}
@@ -81,7 +77,7 @@
       }
     </div>
 
-    <div class="info-box info-box--description">
+    <div class="info-box info-box--description" [class.info-box--editing]="editingDescription()">
       <!-- Figma: 20px zwischen Titelzeile und Inhalt, 30px zwischen den drei Bloecken. -->
       <div class="info-box__block">
         <div class="info-box__row">
@@ -102,6 +98,14 @@
           @if (editingDescription()) {
             <button
               type="button"
+              class="info-box__edit-link"
+              [disabled]="savingDescription()"
+              (click)="saveDescription()"
+            >
+              Speichern
+            </button>
+            <button
+              type="button"
               class="info-box__icon-btn"
               aria-label="Beschreibung speichern (mobil)"
               [disabled]="savingDescription()"
@@ -118,21 +122,9 @@
               class="info-box__textarea"
               [formControl]="descriptionControl"
               (keydown.escape)="cancelEditDescription($event)"
-              rows="3"
+              rows="2"
+              placeholder="Dein Text hier"
             ></textarea>
-            <button
-              type="button"
-              class="info-box__save"
-              [disabled]="savingDescription()"
-              (click)="saveDescription()"
-              aria-label="Beschreibung speichern"
-            >
-              @if (savingDescription()) {
-                <app-spinner />
-              } @else {
-                <app-icon name="check" />
-              }
-            </button>
           </div>
           <p class="info-box__error" [class.is-visible]="descriptionSaveError()" role="alert">
             {{ descriptionSaveError() }}
