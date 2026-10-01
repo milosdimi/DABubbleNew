@@ -27,7 +27,11 @@ export type AddMembersPurpose = 'new-channel' | 'existing-channel';
   selector: 'app-channel-add-members',
   imports: [Icon, Spinner, Toast],
   templateUrl: './channel-add-members.html',
-  styleUrls: ['./channel-add-members.scss', './channel-add-members-mobile.scss'],
+  styleUrls: [
+    './channel-add-members.scss',
+    './channel-add-members-mobile.scss',
+    './channel-add-members-dropdown.scss',
+  ],
 })
 export class ChannelAddMembers {
   private readonly auth = inject(FIREBASE_AUTH);

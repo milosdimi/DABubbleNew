@@ -1,0 +1,29 @@
+@use '../../../../styles/functions' as fct;
+@use '../../../../styles/mixins' as mx;
+
+// Desktop mit genug Hoehe: Trefferliste und "Keine passende Person" liegen als Overlay
+// ueber dem "Erstellen"-Button, statt ihn nach unten zu schieben. Die Karte muss dafuer
+// nicht scrollen (sonst wuerde sie das Overlay abschneiden). Auf niedrigen Fenstern und
+// mobil bleibt die Liste im Fluss - dort wuerde ein Overlay ueber den Bildschirm ragen.
+@media (min-width: #{mx.$workspace-mobile + 1px}) and (min-height: 760px) {
+  .dialog-card {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .member-search__results,
+  .member-search__empty {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 5;
+  }
+
+  .member-search__empty {
+    padding: 14px 20px;
+    border-radius: 20px;
+    background: fct.color(white);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+  }
+}
