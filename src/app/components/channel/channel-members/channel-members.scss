@@ -77,6 +77,13 @@
 .members-card__row {
   @include mx.flex(row, flex-start, center);
   gap: 4px;
+
+  // Nimmt den ganzen Platz bis zum "x": So steht das "x" bei jedem Namen am rechten
+  // Rand, und lange Namen werden mit "..." gekuerzt statt die Zeile zu verschieben.
+  .members-card__member {
+    flex: 1 1 0;
+    min-width: 0;
+  }
 }
 
 // x zum Entfernen (nur fuer den Ersteller, eigene Erweiterung).
@@ -211,4 +218,18 @@
   border: 1px solid fct.color(light-purple);
   border-radius: 30px;
   box-shadow: none;
+}
+
+// Sehr schmale Geraete (bis 400px): Mehr Platz fuer die Namen - Innenabstaende werden
+// kleiner, Avatar, Schrift und "x" bleiben gleich gross.
+@media (max-width: 400px) {
+  .members-card--embedded {
+    padding: 16px 8px;
+  }
+
+  .members-card__member,
+  .members-card__add {
+    gap: 12px;
+    padding-right: 8px;
+  }
 }
