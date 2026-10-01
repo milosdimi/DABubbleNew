@@ -1,13 +1,17 @@
 import {
   Component,
   DestroyRef,
+  ElementRef,
   HostListener,
+  Injector,
+  afterNextRender,
   computed,
   effect,
   inject,
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -21,6 +25,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { CHANNEL_NAME_TAKEN, ChannelService } from '../../../shared/channel/channel.service';
 import { FIREBASE_AUTH } from '../../../shared/firebase/firebase.tokens';
 import { Icon } from '../../../shared/icon/icon';
+import { animateHeight } from '../../../shared/layout/animate-height';
 import { Channel, User } from '../../../shared/models';
 import { Spinner } from '../../../shared/spinner/spinner';
 import { UserService } from '../../../shared/user/user.service';
@@ -50,6 +55,9 @@ export class ChannelInfo {
   private readonly auth = inject(FIREBASE_AUTH);
   private readonly channelService = inject(ChannelService);
   private readonly userService = inject(UserService);
+  private readonly injector = inject(Injector);
+  private readonly nameBox = viewChild<ElementRef<HTMLElement>>('nameBox');
+  private readonly descriptionBox = viewChild<ElementRef<HTMLElement>>('descriptionBox');
 
   readonly channelId = input.required<string>();
 
@@ -154,12 +162,32 @@ export class ChannelInfo {
     this.nameControl.setValue(this.channel()?.name ?? '');
     this.nameControl.markAsUntouched();
     this.nameSaveError.set(null);
-    this.editingName.set(true);
+    this.setEditingName(true);
   }
 
   protected cancelEditName(event: Event): void {
     event.stopPropagation();
-    this.editingName.set(false);
+    this.setEditingName(false);
+  }
+
+  /** Umschalten Anzeige <-> Eingabefeld mit weichem Hoehenwechsel (kein Springen). */
+  private setEditingName(editing: boolean): void {
+    this.switchEditMode(this.nameBox()?.nativeElement, editing);
+    this.editingName.set(editing);
+  }
+
+  private setEditingDescription(editing: boolean): void {
+    this.switchEditMode(this.descriptionBox()?.nativeElement, editing);
+    this.editingDescription.set(editing);
+  }
+
+  /** Hoehe weich anpassen; beim Bearbeiten den Fokus direkt ins Feld setzen. */
+  private switchEditMode(box: HTMLElement | undefined, editing: boolean): void {
+    animateHeight(box, this.injector);
+    if (!editing || !box) return;
+    afterNextRender(() => box.querySelector<HTMLElement>('input, textarea')?.focus(), {
+      injector: this.injector,
+    });
   }
 
   protected saveName(): void {
@@ -188,7 +216,7 @@ export class ChannelInfo {
     }
     await this.channelService.updateChannel(this.channelId(), { name });
     this.channel.update((ch) => (ch ? { ...ch, name } : ch));
-    this.editingName.set(false);
+    this.setEditingName(false);
     this.showSuccess();
   }
 
@@ -200,12 +228,12 @@ export class ChannelInfo {
   protected startEditDescription(): void {
     this.descriptionControl.setValue(this.channel()?.description ?? '');
     this.descriptionSaveError.set(null);
-    this.editingDescription.set(true);
+    this.setEditingDescription(true);
   }
 
   protected cancelEditDescription(event: Event): void {
     event.stopPropagation();
-    this.editingDescription.set(false);
+    this.setEditingDescription(false);
   }
 
   protected saveDescription(): void {
@@ -218,7 +246,7 @@ export class ChannelInfo {
     try {
       await this.channelService.updateChannel(this.channelId(), { description });
       this.channel.update((ch) => (ch ? { ...ch, description } : ch));
-      this.editingDescription.set(false);
+      this.setEditingDescription(false);
       this.showSuccess();
     } catch {
       this.descriptionSaveError.set('Beschreibung konnte nicht gespeichert werden.');

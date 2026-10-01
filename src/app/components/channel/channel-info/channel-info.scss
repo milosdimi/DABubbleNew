@@ -82,20 +82,17 @@
 .info-box {
   @include mx.flex(column, flex-start, stretch);
   gap: 20px; // Figma: Titelzeile -> Inhalt
+  transition: border-color 250ms ease-in-out;
   padding: 20px;
   border: 1px solid fct.color(light-purple);
   border-radius: 20px;
 }
 
-// Figma "Channel Edition" (Bearbeiten): Die Box verliert ihren Rahmen, Label und Feld
-// stehen buendig am Kartenrand.
+// Figma "Channel Edition" (Bearbeiten): Die Box verliert ihren Rahmen. Der Innenabstand
+// bleibt gleich, damit Label und Inhalt nicht springen; der Rahmen blendet weich aus und
+// die Hoehe gleitet (animateHeight in channel-info.ts).
 .info-box--editing {
-  padding: 0;
   border-color: transparent;
-
-  .info-box__divider {
-    margin-inline: 28px;
-  }
 }
 
 .info-box--description {

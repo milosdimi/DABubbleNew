@@ -15,7 +15,7 @@
       </button>
     </header>
 
-    <div class="info-box" [class.info-box--editing]="editingName()">
+    <div #nameBox class="info-box" [class.info-box--editing]="editingName()">
       <div class="info-box__row">
         <span class="info-box__label">Channel-Name</span>
         @if (isCreator() && !editingName()) {
@@ -77,7 +77,11 @@
       }
     </div>
 
-    <div class="info-box info-box--description" [class.info-box--editing]="editingDescription()">
+    <div
+      #descriptionBox
+      class="info-box info-box--description"
+      [class.info-box--editing]="editingDescription()"
+    >
       <!-- Figma: 20px zwischen Titelzeile und Inhalt, 30px zwischen den drei Bloecken. -->
       <div class="info-box__block">
         <div class="info-box__row">
