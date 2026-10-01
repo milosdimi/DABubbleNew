@@ -11,13 +11,15 @@
     overflow: visible;
   }
 
+  // Wie in Figma schmaler als das Feld und links ausgerichtet: Der Button rechts
+  // darunter bleibt sichtbar (min. 240px, damit lange Namen Platz haben).
   .member-search__results,
   .member-search__empty {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
-    right: 0;
     z-index: 5;
+    width: max(50%, 240px);
   }
 
   .member-search__empty {
