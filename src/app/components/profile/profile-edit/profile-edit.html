@@ -80,7 +80,7 @@
         <button
           type="submit"
           class="dialog-btn dialog-btn--primary"
-          [disabled]="formInvalid() || loading()"
+          [disabled]="formInvalid() || unchanged() || loading()"
         >
           @if (loading()) {
             <app-spinner />

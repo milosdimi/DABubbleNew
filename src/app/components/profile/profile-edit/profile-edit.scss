@@ -284,8 +284,7 @@
 }
 
 // Figma mobil ("Dein Profil bearbeiten", 398px): Padding 45px/20px, 45px Abstand,
-// Icon vor dem Label statt im Feld, Buttons mittig nebeneinander (32px Abstand),
-// bei 320px duerfen sie umbrechen.
+// Icon vor dem Label statt im Feld, Buttons mittig nebeneinander (32px Abstand).
 @include mx.workspace-mobile {
   .dialog-card {
     max-width: 398px;
@@ -319,8 +318,31 @@
   }
 
   .dialog-actions {
-    flex-wrap: wrap;
     justify-content: center;
-    gap: 12px 32px;
+    gap: 32px;
+  }
+}
+
+// Sehr schmale Geraete (bis 320px): Buttons bleiben wie in Figma nebeneinander und
+// in 18px - dafuer schrumpfen Raender, Innenabstaende und der Abstand dazwischen.
+@media (max-width: 400px) {
+  .dialog-backdrop {
+    padding: 8px;
+  }
+
+  .dialog-card {
+    padding: 32px 12px;
+  }
+
+  .dialog-actions {
+    gap: 12px;
+  }
+
+  .dialog-btn {
+    padding: 12px 20px;
+  }
+
+  .dialog-btn--secondary {
+    width: auto;
   }
 }

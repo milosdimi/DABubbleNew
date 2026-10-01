@@ -72,6 +72,15 @@ export class ProfileEdit {
     this.nameInvalid() ? 'Bitte gib deinen Namen ein.' : this.formError(),
   );
 
+  /** Gespeicherter Name; "Speichern" ist erst aktiv, wenn sich Name oder Avatar unterscheiden. */
+  private readonly initialName = signal('');
+  private readonly name = toSignal(this.form.controls.name.valueChanges, {
+    initialValue: this.form.controls.name.value,
+  });
+  protected readonly unchanged = computed(
+    () => this.name().trim() === this.initialName() && this.avatar() === this.initialAvatar(),
+  );
+
   constructor() {
     void this.loadUser();
   }
@@ -83,6 +92,7 @@ export class ProfileEdit {
     const user = await this.userService.getUser(uid);
     if (!user) return;
 
+    this.initialName.set(user.name.trim());
     this.form.controls.name.setValue(user.name);
     const key = this.avatarKeyFromUrl(user.avatarUrl);
     this.avatar.set(key);
@@ -138,7 +148,7 @@ export class ProfileEdit {
   }
 
   protected onSubmit(): void {
-    if (this.loading() || this.formInvalid()) {
+    if (this.loading() || this.formInvalid() || this.unchanged()) {
       this.form.markAllAsTouched();
       return;
     }
