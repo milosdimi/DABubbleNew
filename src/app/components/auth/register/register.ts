@@ -130,6 +130,7 @@ export class Register {
     try {
       const uid = await this.authService.registerWithEmail(name, email, password);
       await this.userService.ensureProfile(this.buildUser(uid, name, email, avatar));
+      await this.authService.endRegistrationSession();
       this.discardDraft();
       this.showSuccess();
     } catch (error) {
@@ -142,7 +143,8 @@ export class Register {
   private showSuccess(): void {
     this.success.set(true);
     setTimeout(() => this.leaving.set(true), 1500);
-    setTimeout(() => void this.router.navigate(['/workspace']), 1700);
+    // Figma: nach "Konto erfolgreich erstellt!" weiter zur Anmeldung, nicht direkt in den Workspace.
+    setTimeout(() => void this.router.navigate(['/login']), 1700);
   }
 
   private buildUser(id: string, name: string, email: string, avatar: string): User {

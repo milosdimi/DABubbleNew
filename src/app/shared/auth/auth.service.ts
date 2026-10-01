@@ -8,6 +8,7 @@ import {
   signInAnonymously,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signOut,
   updateProfile,
   type User as FirebaseUser,
 } from 'firebase/auth';
@@ -72,6 +73,14 @@ export class AuthService {
     const credential = await createUserWithEmailAndPassword(this.auth, email, password);
     await updateProfile(credential.user, { displayName: name });
     return credential.user.uid;
+  }
+
+  /**
+   * Firebase meldet ein neues Konto sofort an. Laut Figma soll man sich danach aber
+   * selbst einloggen - deshalb nach dem Anlegen des Profils wieder abmelden.
+   */
+  async endRegistrationSession(): Promise<void> {
+    await signOut(this.auth);
   }
 
   /**
