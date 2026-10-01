@@ -12,6 +12,7 @@ import { UserService } from '../../../shared/user/user.service';
 import { ProfileCard } from '../../profile/profile-card/profile-card';
 import { ProfileMenu } from '../../profile/profile-menu/profile-menu';
 import { SearchBar } from '../search-bar/search-bar';
+import { MOBILE_QUERY, prefersReducedMotion } from '../../../shared/layout/mobile-query';
 
 /**
  * - 'auth-login':    Login-Seite, rechts der Hinweis "Konto erstellen"
@@ -19,6 +20,9 @@ import { SearchBar } from '../search-bar/search-bar';
  * - 'app':           Workspace, rechts der eingeloggte User mit Profilmenue
  */
 export type HeaderVariant = 'auth-login' | 'auth-register' | 'app';
+
+/** Dauer der Schliess-Animation des mobilen Profilmenues (wie menu-sheet-down in header.scss). */
+const MENU_CLOSE_MS = 300;
 
 /** Anzeige fuer Gaeste (sie haben kein users-Dokument). */
 const GUEST_DISPLAY = { name: 'Gast', avatarUrl: 'img/avatar/profile_blank.svg' };
@@ -57,6 +61,9 @@ export class Header implements OnInit {
   /** Gaeste haben kein Profil und koennen den Status nicht aendern. */
   protected readonly isGuest = signal(false);
   protected readonly menuOpen = signal(false);
+  /** Mobil: Bottom Sheet gleitet gerade hinaus (bleibt dafuer kurz im DOM). */
+  protected readonly menuClosing = signal(false);
+  private closeTimer?: ReturnType<typeof setTimeout>;
   protected readonly profileOpen = signal(false);
 
   ngOnInit(): void {
@@ -91,16 +98,33 @@ export class Header implements OnInit {
   }
 
   protected async chooseStatus(status: OnlineStatus): Promise<void> {
-    this.menuOpen.set(false);
+    this.closeMenu();
     await this.presence.choose(status);
   }
 
   protected toggleMenu(): void {
-    this.menuOpen.update((open) => !open);
+    if (this.menuOpen() && !this.menuClosing()) return this.closeMenu();
+    clearTimeout(this.closeTimer);
+    this.menuClosing.set(false);
+    this.menuOpen.set(true);
+  }
+
+  /** Mobil gleitet das Bottom Sheet erst nach unten hinaus, auf dem Desktop schliesst es sofort. */
+  protected closeMenu(): void {
+    if (!this.menuOpen() || this.menuClosing()) return;
+    if (!window.matchMedia(MOBILE_QUERY).matches || prefersReducedMotion()) {
+      this.menuOpen.set(false);
+      return;
+    }
+    this.menuClosing.set(true);
+    this.closeTimer = setTimeout(() => {
+      this.menuOpen.set(false);
+      this.menuClosing.set(false);
+    }, MENU_CLOSE_MS);
   }
 
   protected openOwnProfile(): void {
-    this.menuOpen.set(false);
+    this.closeMenu();
     this.profileOpen.set(true);
   }
 

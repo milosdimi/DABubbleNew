@@ -12,9 +12,9 @@ import { NewMessage } from '../new-message/new-message';
 import { SearchBar } from '../search-bar/search-bar';
 import { Sidebar } from '../sidebar/sidebar';
 import { Thread } from '../thread/thread';
+import { MOBILE_QUERY, prefersReducedMotion } from '../../../shared/layout/mobile-query';
 
 /** Gleicher Wert wie `$workspace-mobile` in _mixins.scss. */
-const MOBILE_QUERY = '(max-width: 900px)';
 
 /** Mobil ist immer nur eine Ansicht sichtbar (Figma 06 Menue, 07 Chat, 08 Thread). */
 export type MobileView = 'menu' | 'chat' | 'thread';
@@ -131,8 +131,7 @@ export class Chat {
   }
 
   protected toggleSidebar(): void {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    this.sidebarMoving.set(!reduced);
+    this.sidebarMoving.set(!prefersReducedMotion());
     this.sidebarOpen.update((open) => !open);
   }
 

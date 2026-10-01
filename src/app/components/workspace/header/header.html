@@ -33,7 +33,7 @@
         (messageSelected)="messageSelected.emit($event)"
       />
 
-      <div class="header__user" appClickOutside (appClickOutside)="menuOpen.set(false)">
+      <div class="header__user" appClickOutside (appClickOutside)="closeMenu()">
         <button
           type="button"
           class="header__user-btn"
@@ -51,9 +51,14 @@
 
         @if (menuOpen()) {
           <!-- Mobil: abgedunkelter Hintergrund unter dem Bottom Sheet, Tipp schliesst. -->
-          <div class="header__menu-backdrop" (click)="menuOpen.set(false)"></div>
+          <div
+            class="header__menu-backdrop"
+            [class.header__menu-backdrop--closing]="menuClosing()"
+            (click)="closeMenu()"
+          ></div>
           <app-profile-menu
             class="header__menu"
+            [class.header__menu--closing]="menuClosing()"
             [status]="chosenStatus()"
             [canChangeStatus]="!isGuest()"
             (statusSelected)="chooseStatus($event)"

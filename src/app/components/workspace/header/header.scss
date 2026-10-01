@@ -241,11 +241,33 @@
     left: 0;
     z-index: 60;
   }
+
+  // Schliessen: Sheet gleitet wieder nach unten, der Hintergrund blendet aus
+  // (Dauer = MENU_CLOSE_MS in header.ts).
+  .header__menu--closing {
+    animation: menu-sheet-down 300ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+
+  .header__menu-backdrop--closing {
+    animation: menu-backdrop-out 300ms ease-in both;
+  }
 }
 
 @keyframes menu-backdrop-in {
   from {
     background: rgba(0, 0, 0, 0);
+  }
+}
+
+@keyframes menu-backdrop-out {
+  to {
+    background: rgba(0, 0, 0, 0);
+  }
+}
+
+@keyframes menu-sheet-down {
+  to {
+    transform: translateY(100%);
   }
 }
 
