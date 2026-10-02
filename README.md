@@ -28,7 +28,8 @@
 > Abschlussprojekt der Weiterbildung zum Frontend-Entwickler bei der
 > [Developer Akademie](https://developerakademie.com/), umgesetzt nach deren Figma-Design –
 > vom Login bis zur mobilen Ansicht. **Zum Ausprobieren:** auf der Live-Seite einfach
-> „Gäste-Login“ wählen, eine Registrierung ist nicht nötig.
+> „Gäste-Login“ wählen, eine Registrierung ist nicht nötig. Dieselbe Version läuft auch unter
+> [dabubble-3267.developerakademie.net](https://dabubble-3267.developerakademie.net).
 
 ---
 

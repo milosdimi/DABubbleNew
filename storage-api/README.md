@@ -46,7 +46,7 @@ Voraussetzungen: MinIO läuft, Bucket `chat-attachments` ist **privat**, MinIO i
 existiert.
 
 1. **CORS an MinIO** (für den direkten Upload aus dem Browser):
-   `MINIO_API_CORS_ALLOW_ORIGIN=https://dabubble.dimit.cc,http://localhost:4200`
+   `MINIO_API_CORS_ALLOW_ORIGIN=https://dabubble.dimit.cc,https://dabubble-3267.developerakademie.net,http://localhost:4200`
 2. **Code aufs NAS kopieren** nach `/share/Container/dabubble-storage-api`
    (File Station oder SMB). Benötigt werden `package.json`, `package-lock.json` und
    der Ordner `src/`. `node_modules` nicht mitkopieren.
@@ -77,8 +77,21 @@ existiert.
    der Container den Code neu und installiert die Abhängigkeiten (`npm ci`).
 3. Im Log auf `laeuft auf Port 3000` warten und `/health` prüfen.
 
-Geänderte Umgebungsvariablen (z. B. neue Zugangsdaten) trägst du in der YAML der Anwendung ein
-und startest sie danach ebenfalls neu.
+Geänderte Umgebungsvariablen (z. B. neue Zugangsdaten oder eine weitere Domain) trägst du in der
+YAML der Anwendung ein. Ein Neustart reicht dafür nicht, der Container muss neu aufgebaut werden.
+Lässt Container Station die YAML nicht bearbeiten, geht es per SSH (in der Systemsteuerung unter
+Telnet/SSH kurz einschalten):
+
+```bash
+cd /share/CACHEDEV1_DATA/Container/container-station-data/application
+cp dabubble-storage-api/docker-compose.yml dabubble-storage-api/docker-compose.yml.bak
+# Datei bearbeiten (z. B. mit vi oder sed), dann neu aufbauen:
+cd dabubble-storage-api && docker compose up -d
+```
+
+Gleiches gilt für MinIO (`minio/docker-compose.yml`, z. B. `MINIO_API_CORS_ALLOW_ORIGIN`).
+Neue Frontend-Domains müssen in **beiden** Listen stehen: `ALLOWED_ORIGINS` (Gateway) und
+`MINIO_API_CORS_ALLOW_ORIGIN` (direkter Upload zu MinIO).
 
 Alternative mit eigenem Image (z. B. per SSH): `docker build -t dabubble-storage-api .`
 und in der YAML `image: dabubble-storage-api` ohne `volumes` und `command` verwenden.

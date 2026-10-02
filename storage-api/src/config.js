@@ -23,7 +23,7 @@ export function loadConfig() {
   return {
     port: Number(optional('PORT', '3000')),
     firebaseProjectId: optional('FIREBASE_PROJECT_ID', 'dababble'),
-    allowedOrigins: list('ALLOWED_ORIGINS', 'https://dabubble.dimit.cc,http://localhost:4200'),
+    allowedOrigins: list('ALLOWED_ORIGINS', 'https://dabubble.dimit.cc,https://dabubble-3267.developerakademie.net,http://localhost:4200'),
     maxUploadBytes: Number(optional('MAX_UPLOAD_BYTES', String(10 * MB))),
     uploadsPerHour: Number(optional('UPLOADS_PER_HOUR', '20')),
     s3: loadS3Config(),
